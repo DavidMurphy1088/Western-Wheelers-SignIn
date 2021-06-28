@@ -1,0 +1,19 @@
+Sign In
+https://developers.google.com/identity/sign-in/ios/start-integrating
+
+APIs for iOS
+https://developers.google.com/workspace/guides/ios?ver=swift
+
+Doc https://github.com/google/google-api-objectivec-client-for-rest/wiki#query-operations
+Example https://medium.com/@kgleong/uploading-files-to-google-drive-using-the-google-ios-sdk-fcad3e9d6c07
+
+#client id 172130865834-7f790tqr6dsknu15dofckk6lgnai8em9.apps.googleusercontent.com
+iOS client id 505823345399-a79vs9g0o24984ionca518phdqdavbuc.apps.googleusercontent.com
+
+platform :ios, '8.0'
+target 'MyApp' do
+     pod 'GoogleAPIClientForREST/Sheets', '~> 1.2.1'
+     pod 'GoogleSignIn', '~> 4.1.1'
+     pod 'Alamofire'
+     pod 'GoogleAPIClientForREST'
+ end

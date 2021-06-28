@@ -1,10 +1,3 @@
-//
-//  Persistence.swift
-//  Western-Wheelers-SignIn
-//
-//  Created by David Murphy on 6/20/21.
-//
-
 import CoreData
 
 struct PersistenceController {
