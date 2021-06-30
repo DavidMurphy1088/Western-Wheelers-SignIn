@@ -26,7 +26,7 @@ struct RideTemplateCell: View {
     }
 }
 
-struct SelectRideView: View {
+struct SelectRideTemplateView: View {
     @Environment(\.presentationMode) private var presentationMode
     @State var selectionKeeper: Int?
     @ObservedObject var templates = RideTemplates.shared
