@@ -2,6 +2,16 @@ import Foundation
 import GoogleAPIClientForREST
 
 class RideTemplate: Identifiable, Hashable, Equatable {
+    var id = UUID()
+    var name: String = ""
+    var ident: String = ""
+    var isSelected: Bool = false
+
+    init(name: String, ident: String){
+        self.name = name
+        self.ident = ident
+    }
+    
     static func == (lhs: RideTemplate, rhs: RideTemplate) -> Bool {
         return lhs.name == rhs.name
     }
@@ -9,25 +19,37 @@ class RideTemplate: Identifiable, Hashable, Equatable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(name)
     }
-        
-    var id = UUID()
-    var name: String = ""
-    var isSelected: Bool = false
-
-    init(name: String){
-        self.name = name
+    
+    func requestLoad(ident:String) {
+        GoogleDrive.instance.readSheet(id: self.ident, onCompleted:loadData(data:))
+    }
+    func loadData(data:[[String]]) {
+        for row in data {
+            if row.count > 1 && (row[1] == "TRUE" || row[1] == "FALSE") { // and row.count == 2
+                let rider = Rider(name: row[0], homePhone: "", cell: "", emrg: "")
+                if row[1] == "TRUE" {
+                    rider.isSelected = true
+                }
+                //TODO read phone number from template OR
+                //TODO use member list to get phone numbers
+                SignedInRiders.instance.list.append(rider)
+            }
+            else {
+                var note = ""
+                for fld in row {
+                    note += fld
+                }
+                SignedInRiders.instance.notes.append(note)
+            }
+        }
     }
 }
 
 class RideTemplates : ObservableObject {
-    static let shared = RideTemplates() //called when shared first referenced
+    static let instance = RideTemplates() //called when shared first referenced
     @Published var templates:[RideTemplate] = []
 
     private init() {
-        print("RideTemplates:: init...")
-        //DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            //self.load()
-        //}
     }
     
     func setSelected(name: String) {
@@ -40,30 +62,24 @@ class RideTemplates : ObservableObject {
             }
         }
         //force an array change to publish the row change
-        templates.append(RideTemplate(name: ""))
+        templates.append(RideTemplate(name: "", ident: ""))
         templates.remove(at: templates.count-1)
     }
     
     func loadTemplates() {
-        print("RideTemplates:: loading temps...")
         if templates.count == 0 {
-            let drive = GoogleDrive.shared
+            let drive = GoogleDrive.instance
             drive.listFilesInFolder(onCompleted: self.saveTemplates)
         }
     }
     
     func saveTemplates(files: GTLRDrive_FileList?, error: Error?) {
-        if let filesList : GTLRDrive_FileList = files as? GTLRDrive_FileList {
+        if let filesList : GTLRDrive_FileList = files {
             if let filesShow : [GTLRDrive_File] = filesList.files {
-                for Array in filesShow {
-                    print(Array.name, Array.identifier, Array.appProperties)
-//                    let mimeType = Array.mimeType
-//                    let id = Array.identifier
-//                    let folder = (mimeType as NSString?)?.pathExtension
-//                    let isfolder = true
-//                    let parents = Array.parents
-//                    var parentPath : String!
-                    self.templates.append(RideTemplate(name: Array.name ?? "no name"))
+                for file in filesShow {
+                    if let name = file.name {
+                        self.templates.append(RideTemplate(name: name, ident: file.identifier!))
+                    }
                 }
             }
         }

@@ -14,7 +14,7 @@ struct MembersView: View {
             Text("Club Members").font(.title2).font(.callout).foregroundColor(.blue)
 
             ScrollView {
-                ForEach(memberList.list, id: \.self) { member in
+                ForEach(memberList.clubList, id: \.self) { member in
                     HStack {
                         Text(" ")
                         Text(member.name)
@@ -27,5 +27,4 @@ struct MembersView: View {
             Spacer()
         }
     }
-
 }

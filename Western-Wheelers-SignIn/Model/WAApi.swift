@@ -46,14 +46,13 @@ class WAApi : ObservableObject {
         var memberList:[Rider] = []
         
         if let events = try! JSONSerialization.jsonObject(with: raw, options: []) as? [String: Any] {
-            print ("response from call #"+String(self.apiCallNum))
             for (key, val) in events {
-                if let m = val as? String {
-                    print("Response Key:", key, "value:", m.prefix(140))
-                }
-                else {
-                    print("Response Key:", key)
-                }
+//                if let m = val as? String {
+//                    print("Response Key:", key, "value:", m.prefix(140))
+//                }
+//                else {
+//                    print("Response Key:", key)
+//                }
                 if key == "ResultUrl" {
                     resultsUrl = (val as! String)
                 }
@@ -84,36 +83,29 @@ class WAApi : ObservableObject {
                         var cellPhone = ""
                         var emergencyPhone = ""
 
-                        //if disp {
-                            let keys = memberDict["FieldValues"] as! NSArray
-                            var c = 0
-                            for k in keys {
-                                let fields = k as! NSDictionary
-                                let fieldName = fields["FieldName"]
-                                let fieldValue = fields["Value"]
-                                //print(c, "FieldName", fieldName)
-                                c = c+1
-//                                if fieldName as! String == "Member" {print("  ", fieldName, fieldValue as! Bool)}
-//                                if fieldName as! String == "Membership enabled" {print("  ", fieldName, fieldValue as! Bool)}
-//                                if fieldName as! String == "e-Mail" {print("  ", fieldName, fieldValue as! String)}
-                                if fieldName as! String == "Home Phone" {
-                                    if let e = fieldValue as? String {
-                                        homePhone = e
-                                    }
+                        let keys = memberDict["FieldValues"] as! NSArray
+                        var c = 0
+                        for k in keys {
+                            let fields = k as! NSDictionary
+                            let fieldName = fields["FieldName"]
+                            let fieldValue = fields["Value"]
+                            c = c+1
+                            if fieldName as! String == "Home Phone" {
+                                if let e = fieldValue as? String {
+                                    homePhone = e
                                 }
-                                if fieldName as! String == "Cell Phone" {
-                                    if let e = fieldValue as? String {
-                                        cellPhone = e
-                                    }
-                                }
-                                if fieldName as! String == "Emergency Phone" {
-                                    if let e = fieldValue as? String {
-                                        emergencyPhone = e
-                                    }
-                                }
-                                //if fieldName as! String == "Cell Phone" {print("  ", fieldName, fieldValue as! String)}
                             }
-                        //}
+                            if fieldName as! String == "Cell Phone" {
+                                if let e = fieldValue as? String {
+                                    cellPhone = e
+                                }
+                            }
+                            if fieldName as! String == "Emergency Phone" {
+                                if let e = fieldValue as? String {
+                                    emergencyPhone = e
+                                }
+                            }
+                        }
                         memberList.append(Rider(name: memberDict["DisplayName"] as! String, homePhone: homePhone, cell: cellPhone, emrg: emergencyPhone))
                     }
                 }
@@ -121,11 +113,7 @@ class WAApi : ObservableObject {
         }
         if memberList.count > 0 {
             print("LOADED, total members:", memberList.count)
-            DispatchQueue.main.async {
-                for r in memberList {
-                    ClubRiders.shared.list.append(r)
-                }
-            }
+            ClubRiders.shared.updateList(updList: memberList)
             responseComplete = true
         }
         else {
@@ -138,7 +126,7 @@ class WAApi : ObservableObject {
             }
             else {
                 DispatchQueue.global(qos: .userInitiated).async {
-                    print("RETRY QUERY...")
+                    print("RETRY QUERY...", self.apiCallNum)
                     sleep(2)
                     //self.loadMembers()
                     //self.contactsQuery()
@@ -178,7 +166,7 @@ class WAApi : ObservableObject {
     
     func apiCall(path: String, withToken:Bool, usrMsg:String, completion: @escaping (Any, Data, ApiType, String, Bool) -> (), apiType: ApiType, tellUsers:Bool) {
         apiCallNum += 1
-        print("\nStart API CALL \(self.apiCallNum), path:", path)
+        print("Start API CALL \(self.apiCallNum), path:", path)
         let user = apiKey(key: "WA_username")
         //TODO private data is exposed, e.g. phone numbers, emails
         //let user = "westernwheelersclub@gmail.com"
@@ -188,7 +176,6 @@ class WAApi : ObservableObject {
         let a = path //.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
 
         let url = URL(string: a)
-        print(url)
         var request = URLRequest(url: url!)
 
         if withToken {
@@ -209,7 +196,7 @@ class WAApi : ObservableObject {
                 let msg = usrMsg
                 //Util.app().reportError(class_type: type(of: self), context: msg, error: error?.localizedDescription)
                 //self.publishError(error: msg)
-                print(usrMsg)
+                print("API ERROR", usrMsg)
                 return
             }
 
@@ -218,13 +205,9 @@ class WAApi : ObservableObject {
                 var msg = ""
                 if response.statusCode == 400 {
                     msg = "Unexpected Wild Apricot HTTP Status:\(response.statusCode)"
-                    print(msg)
+                    print("API ERROR:", msg)
                 }
-                // failed user or pwd
-                
-                //Util.app().reportError(class_type: type(of: self), context: msg, error: error?.localizedDescription)
-                //self.publishError(error: msg)
-                print("ERROR", response.statusCode)
+                print("API ERROR HTTP:", response.statusCode)
                 return
             }
             do {

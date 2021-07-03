@@ -22,43 +22,67 @@ struct RideTemplateCell: View {
             self.Action()
         })
         .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
-        .foregroundColor(isSelected ? .red : .blue)
+        .foregroundColor(isSelected ? .blue : .black)
     }
 }
 
 struct SelectRideTemplateView: View {
     @Environment(\.presentationMode) private var presentationMode
-    @State var selectionKeeper: Int?
-    @ObservedObject var templates = RideTemplates.shared
+    @ObservedObject var templates = RideTemplates.instance
+    @State var selectedTemplate:String? = nil
     
     var body: some View {
-        Spacer()
-//        ForEach(0..<templates.templates.count) { i in
-//            RideTemplateCell(module: templates.templates[i],
-//                       isSelected: i == self.selectionKeeper,
-//                       action: { self.changeSelection(index: i) })
-//        }
-        ForEach(templates.templates, id: \.self) { temp in
-            //Text(temp.name)
-            RideTemplateCell(template: temp,
-                             isSelected: temp.isSelected,
-                             action: {
-                                templates.setSelected(name: temp.name)
-                             })
+        VStack {
+            Text("Ride Templates").font(.title2)
+            Text("Select a ride template to pre-populate your ride. The template can contain any data such as the ride name, ride leader, routes, notes etc. In the template, names followed immediately on the row by check boxes are treated as riders to include for this ride.").font(.callout)
+                .padding()
+            if SignedInRiders.instance.list.count > 0 {
+                Text("The ride sheet already has \(SignedInRiders.instance.list.count) riders. Selecting another template will clear the ride sheet. Cancel to retain the current ride sheet.")
+                    .foregroundColor(Color.red)
+                    .padding()
+            }
+
+            VStack {
+                ForEach(templates.templates, id: \.self) { temp in
+                    RideTemplateCell(template: temp,
+                                     isSelected: temp.isSelected,
+                                     action: {
+                                        selectedTemplate = temp.name
+                                        templates.setSelected(name: temp.name)
+                                        self.presentationMode.wrappedValue.dismiss()
+                                        if let selectedTemplate = selectedTemplate {
+                                            SignedInRiders.instance.loadTempate(name: selectedTemplate)
+                                        }
+                                     })
+                    
+                }
+            }
+            .border(Color.blue)
+            .padding()
+            
+            HStack {
+//                Button(action: {
+//                    if let selectedTemplate = selectedTemplate {
+//                        SignedInRiders.instance.loadTempate(name: selectedTemplate)
+//                    }
+//                    self.presentationMode.wrappedValue.dismiss()
+//                }) {
+//                    Text("Load Template")
+//                }
+                Button(action: {
+                    self.presentationMode.wrappedValue.dismiss()
+                }) {
+                    Text("Cancel")
+                }
+            }
+            Spacer()
         }
-        Spacer()
-        Button(action: {
-           self.presentationMode.wrappedValue.dismiss()
-        }) {
-          Text("Dismiss")
-        }
-        Spacer()
         .onAppear() {
             //force a load if a previous load was cancelled e.g. google sign in cancelled
-            RideTemplates.shared.loadTemplates()
+            RideTemplates.instance.loadTemplates()
         }
-    }
 
+    }
 }
 
 
