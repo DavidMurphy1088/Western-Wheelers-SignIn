@@ -33,7 +33,7 @@ struct SelectRideTemplateView: View {
     
     var body: some View {
         VStack {
-            Text("Ride Templates").font(.title2)
+            Text("Ride Templates").font(.title2).foregroundColor(Color.blue)
             Text("Select a ride template to pre-populate your ride. The template can contain any data such as the ride name, ride leader, routes, notes etc. In the template, names followed immediately on the row by check boxes are treated as riders to include for this ride.").font(.callout)
                 .padding()
             if SignedInRiders.instance.list.count > 0 {
@@ -60,25 +60,23 @@ struct SelectRideTemplateView: View {
             .border(Color.blue)
             .padding()
             
-            HStack {
-//                Button(action: {
-//                    if let selectedTemplate = selectedTemplate {
-//                        SignedInRiders.instance.loadTempate(name: selectedTemplate)
-//                    }
-//                    self.presentationMode.wrappedValue.dismiss()
-//                }) {
-//                    Text("Load Template")
-//                }
+            VStack {
+                Spacer()
                 Button(action: {
                     self.presentationMode.wrappedValue.dismiss()
                 }) {
                     Text("Cancel")
                 }
+                Spacer()
+                Button("Sign Out of Google") {
+                    GIDSignIn.sharedInstance()?.signOut()
+                    self.presentationMode.wrappedValue.dismiss()
+                }
+                Spacer()
             }
             Spacer()
         }
         .onAppear() {
-            //force a load if a previous load was cancelled e.g. google sign in cancelled
             RideTemplates.instance.loadTemplates()
         }
 

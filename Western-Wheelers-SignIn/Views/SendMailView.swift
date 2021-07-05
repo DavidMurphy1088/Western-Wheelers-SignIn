@@ -4,9 +4,11 @@ import CoreData
 import MessageUI
 
 struct SendMailView: UIViewControllerRepresentable {
-    //TODO mail errors?
     @Binding var isShowing: Bool
     @Binding var result: Result<MFMailComposeResult, Error>?
+    @State var messageRecipient: String
+    @State var messageSubject: String
+    @State var messageContent: String
 
     class Coordinator: NSObject, MFMailComposeViewControllerDelegate {
 
@@ -22,7 +24,6 @@ struct SendMailView: UIViewControllerRepresentable {
         func mailComposeController(_ controller: MFMailComposeViewController,
                                    didFinishWith result: MFMailComposeResult,
                                    error: Error?) {
-            print ("DISMISS MAIL...")
             defer {
                 isShowing = false
             }
@@ -41,10 +42,9 @@ struct SendMailView: UIViewControllerRepresentable {
     }
     func makeUIViewController(context: UIViewControllerRepresentableContext<SendMailView>) -> MFMailComposeViewController {
         let vc = MFMailComposeViewController()
-        vc.setSubject("Test from WW")
-        vc.setToRecipients(["davidp.murphy@sbcglobal.net"])
-        let msg = "<html><body><h1>My First Heading</h1><p>My first paragraph.</p></body></html>"
-        vc.setMessageBody(msg, isHTML: true)
+        vc.setSubject(messageSubject)
+        vc.setToRecipients([messageRecipient]) 
+        vc.setMessageBody(messageContent, isHTML: true)
         vc.mailComposeDelegate = context.coordinator
         return vc
     }

@@ -11,6 +11,7 @@
 		7B306D8C2683F92500DA337E /* GoogleDrive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B306D8B2683F92500DA337E /* GoogleDrive.swift */; };
 		7B306D91268428CD00DA337E /* RideTemplates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B306D90268428CD00DA337E /* RideTemplates.swift */; };
 		7B306DA626845B2E00DA337E /* SignedInRiders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B306DA526845B2E00DA337E /* SignedInRiders.swift */; };
+		7B8EA5E12690D8ED00313FF0 /* Messages.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8EA5E02690D8ED00313FF0 /* Messages.swift */; };
 		7B9999292680110300F3E65D /* Western_Wheelers_SignInApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B9999282680110300F3E65D /* Western_Wheelers_SignInApp.swift */; };
 		7B99992B2680110300F3E65D /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B99992A2680110300F3E65D /* MainView.swift */; };
 		7B99992D2680110400F3E65D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7B99992C2680110400F3E65D /* Assets.xcassets */; };
@@ -53,6 +54,7 @@
 		7B306D8B2683F92500DA337E /* GoogleDrive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleDrive.swift; sourceTree = "<group>"; };
 		7B306D90268428CD00DA337E /* RideTemplates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RideTemplates.swift; sourceTree = "<group>"; };
 		7B306DA526845B2E00DA337E /* SignedInRiders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedInRiders.swift; sourceTree = "<group>"; };
+		7B8EA5E02690D8ED00313FF0 /* Messages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Messages.swift; sourceTree = "<group>"; };
 		7B9999252680110300F3E65D /* Western-Wheelers-SignIn.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Western-Wheelers-SignIn.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B9999282680110300F3E65D /* Western_Wheelers_SignInApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Western_Wheelers_SignInApp.swift; sourceTree = "<group>"; };
 		7B99992A2680110300F3E65D /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
@@ -203,6 +205,7 @@
 				7B306D90268428CD00DA337E /* RideTemplates.swift */,
 				7B306DA526845B2E00DA337E /* SignedInRiders.swift */,
 				7BB6B1F1268A8C8E007941D2 /* WAApi.swift */,
+				7B8EA5E02690D8ED00313FF0 /* Messages.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -416,6 +419,7 @@
 				7BB6B1F2268A8C8E007941D2 /* WAApi.swift in Sources */,
 				7B306D8C2683F92500DA337E /* GoogleDrive.swift in Sources */,
 				7BB6B232268E5725007941D2 /* SendMailView.swift in Sources */,
+				7B8EA5E12690D8ED00313FF0 /* Messages.swift in Sources */,
 				7B9999352680110400F3E65D /* Western_Wheelers_SignIn.xcdatamodeld in Sources */,
 				7B306DA626845B2E00DA337E /* SignedInRiders.swift in Sources */,
 				7B9999BB2680582900F3E65D /* AppDelegate.swift in Sources */,

@@ -6,7 +6,6 @@ class RideTemplate: Identifiable, Hashable, Equatable {
     var name: String = ""
     var ident: String = ""
     var isSelected: Bool = false
-
     init(name: String, ident: String){
         self.name = name
         self.ident = ident
@@ -23,16 +22,22 @@ class RideTemplate: Identifiable, Hashable, Equatable {
     func requestLoad(ident:String) {
         GoogleDrive.instance.readSheet(id: self.ident, onCompleted:loadData(data:))
     }
+    
     func loadData(data:[[String]]) {
         for row in data {
             if row.count > 1 && (row[1] == "TRUE" || row[1] == "FALSE") { // and row.count == 2
-                let rider = Rider(name: row[0], homePhone: "", cell: "", emrg: "")
-                if row[1] == "TRUE" {
-                    rider.isSelected = true
+                if row[0] != "" {
+                    var phone = ""
+                    if row.count > 2 {
+                        phone = row[2]
+                    }
+                    let rider = Rider(name: row[0], phone: phone, emrg: "")
+                    if row[1] == "TRUE" {
+                        rider.setSelected(true)
+                    }
+
+                    SignedInRiders.instance.list.append(rider)
                 }
-                //TODO read phone number from template OR
-                //TODO use member list to get phone numbers
-                SignedInRiders.instance.list.append(rider)
             }
             else {
                 var note = ""
@@ -67,13 +72,12 @@ class RideTemplates : ObservableObject {
     }
     
     func loadTemplates() {
-        if templates.count == 0 {
-            let drive = GoogleDrive.instance
-            drive.listFilesInFolder(onCompleted: self.saveTemplates)
-        }
+        let drive = GoogleDrive.instance
+        drive.listFilesInFolder(onCompleted: self.saveTemplates)
     }
     
     func saveTemplates(files: GTLRDrive_FileList?, error: Error?) {
+        templates = []
         if let filesList : GTLRDrive_FileList = files {
             if let filesShow : [GTLRDrive_File] = filesList.files {
                 for file in filesShow {

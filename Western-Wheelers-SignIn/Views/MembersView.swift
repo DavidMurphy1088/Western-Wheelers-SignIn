@@ -19,11 +19,13 @@ struct MembersView: View {
                         Text(" ")
                         Text(member.name)
                         Spacer()
-                        Text(member.cellPhone)
+                        Text(member.phone)
                         Text(" ")
                     }
                 }
             }
+            .border(Color.blue)
+            .padding()
             Spacer()
         }
     }

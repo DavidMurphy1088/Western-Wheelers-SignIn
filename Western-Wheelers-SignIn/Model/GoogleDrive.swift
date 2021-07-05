@@ -6,10 +6,10 @@ class GoogleDrive : NSObject, GIDSignInDelegate {
     static let instance = GoogleDrive() //first called from AppDelegate didFinishLaunching
     var notificationName:String?
     var listFunc: ((GTLRDrive_FileList?, Error?) -> ())? = nil
+    //TODO hard code credentials?
     
     func application(_ application: UIApplication,
                    open url: URL, sourceApplication: String?, annotation: Any) -> Bool {
-        //print("GoogleDrive::openURL", url)
         return GIDSignIn.sharedInstance().handle(url)
     }
     
@@ -18,17 +18,13 @@ class GoogleDrive : NSObject, GIDSignInDelegate {
     }
 
     private func signIn() {
-        //print("GoogleDrive::start signIn")
         GIDSignIn.sharedInstance().restorePreviousSignIn()
         if GIDSignIn.sharedInstance().currentUser == nil {
-            print("google drive init signing in")
             GIDSignIn.sharedInstance()?.signIn()
         }
-        //print("GoogleDrive::END start signIn")
     }
     
     func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error!) {
-        //print("GoogleDrive::BEGIN didSignIn")
         // called after a sign in -OR- after
         // a call to restorePreviousSignIn which will attempt to restore a previously authenticated user without interaction.
         // This delegate will then be called at the end of this process indicating success or failure
@@ -36,25 +32,14 @@ class GoogleDrive : NSObject, GIDSignInDelegate {
             if (error as NSError).code == GIDSignInErrorCode.hasNoAuthInKeychain.rawValue {
                 print("The user has not signed in before or they have since signed out.")
             } else {
-                print("\(error.localizedDescription)")
+                Messages.instance.reportError(context: "GoogleDrive sign in", msg: error.localizedDescription)
             }
-            //return
-        }
-        else {
-            print("GoogleDrive::The user was newly signed in")
         }
 
-        //let fullName = user.profile.name
-//        NotificationCenter.default.post(
-//          name: Notification.Name(rawValue: "ToggleAuthUINotification"),
-//          object: nil,
-//          userInfo: ["statusText": "Signed in user:\n\(fullName!)"])
         NotificationCenter.default.post(name: Notification.Name(self.notificationName!), object: error)
-        //print("GoogleDrive::END didSignIn")
     }
 
     func sign(_ signIn: GIDSignIn!, didDisconnectWith user: GIDGoogleUser!, withError error: Error!) {
-        //print("GoogleDrive::Did Disconnet")
     }
 
     public func getId(_ fileName: String, onCompleted: @escaping (String?, Error?) -> ()) {
@@ -102,20 +87,21 @@ class GoogleDrive : NSObject, GIDSignInDelegate {
     }
 
     func readSheet(id:String, onCompleted: @escaping ([[String]]) -> ())  {
-        let query = GTLRSheetsQuery_SpreadsheetsValuesGet.query(withSpreadsheetId: id, range: "A1:B100")
+        let query = GTLRSheetsQuery_SpreadsheetsValuesGet.query(withSpreadsheetId: id, range: "A1:Z100")
         let service = GTLRSheetsService()
         service.authorizer = GIDSignIn.sharedInstance().currentUser.authentication.fetcherAuthorizer()
 
         service.executeQuery(query) { (ticket:GTLRServiceTicket, result:Any?, error:Error?) in
             var sheetData:[[String]] = []
             if let error = error {
-                print("GoogleDrive::Error", error.localizedDescription)
+                Messages.instance.reportError(context: "GoogleDrive read sheet", msg: error.localizedDescription)
             } else {
                 let data = result as? GTLRSheets_ValueRange
                 let rows = data?.values as? [[String]] ?? [[""]]
                 for row in rows {
                     sheetData.append(row)
                 }
+                Messages.instance.clearError()
             }
             onCompleted(sheetData)
         }

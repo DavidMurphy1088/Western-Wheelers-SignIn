@@ -6,22 +6,20 @@ class ClubRiders : ObservableObject {
     static let savedDataName = "MemberListData"
     
     private init() {
-        //WAApi.instance() TODO Put back
-        //TODO add info somewhere when the list is refreshed
-        //clubList.append(Rider(name:"fred1", homePhone: "650 995 4261", cell: "650 995 4261", emrg: ""))
+        WAApi.instance()
         let savedData = UserDefaults.standard.object(forKey: ClubRiders.savedDataName)
         if let savedData = savedData {
             do {
                 let json = try (savedData as! NSData).decompressed(using: .lzfse)
-                print(json)
                 let decoder = JSONDecoder()
                 if let list = try? decoder.decode([Rider].self, from: json as Data) {
                     clubList = list
-                    print("ClubRiders::restored member list:", clubList.count)
+                    Messages.instance.sendMessage(msg: "Restored \(list.count) club members from local")
                 }
             }
             catch {
-                print("ClubRiders::Error restoring member list", error.localizedDescription)
+                let msg = "Error restoring member list \(error.localizedDescription)"
+                Messages.instance.reportError(context: "ClubRiders", msg: msg)
             }
         }
     }
@@ -35,9 +33,19 @@ class ClubRiders : ObservableObject {
         return nil
     }
     
+    func selectionCount() -> Int {
+        var cnt = 0
+        for r in clubList {
+            if r.selected() {
+                cnt += 1
+            }
+        }
+        return cnt
+    }
+    
     func getFirstSelected() -> Rider? {
         for r in clubList {
-            if r.isSelected {
+            if r.selected() {
                 return r
             }
         }
@@ -45,69 +53,78 @@ class ClubRiders : ObservableObject {
     }
 
     func filter(name: String) {
+        var fnd = 0
         for r in clubList {
             if r.name.lowercased().contains(name.lowercased()) {
-                r.isSelected = true
+                r.setSelected(true)
+                fnd += 1
             }
             else {
-                r.isSelected = false
+                r.setSelected(false)
             }
         }
         //force an array change to publish the row change
-        clubList.append(Rider(name: "", homePhone: "", cell: "", emrg: ""))
+        clubList.append(Rider(name: "", phone: "", emrg: ""))
         clubList.remove(at: clubList.count-1)
     }
     
     func setSelected(name: String) {
         for r in clubList {
             if r.name == name {
-                r.isSelected = true
+                r.setSelected(true)
             }
             else {
-                r.isSelected = false
+                r.setSelected(false)
             }
         }
         //force an array change to publish the row change
-        clubList.append(Rider(name: "", homePhone: "", cell: "", emrg: ""))
+        clubList.append(Rider(name: "", phone: "", emrg: ""))
         clubList.remove(at: clubList.count-1)
     }
     
+    func clearSelected() {
+        for r in clubList {
+            r.setSelected(false)
+        }
+        //force an array change to publish the row change
+        clubList.append(Rider(name: "", phone: "", emrg: ""))
+        clubList.remove(at: clubList.count-1)
+    }
+
     func updateList(updList: [Rider]) {
         DispatchQueue.main.async {
             self.clubList = []
             for r in updList {
                 self.clubList.append(r)
             }
-            print("ClubRiders::updated member list from API, count:", self.clubList.count)
-
+            let msg = "Downloaded \(self.clubList.count) club members"
+            Messages.instance.sendMessage(msg: msg)
             do {
                 var capacity:Int64 = 0
                 //In iOS, the home directory is the application’s sandbox directory
-                //let fileURL = URL(fileURLWithPath: NSHomeDirectory() as String)
                 let docPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-                //print("FILE", fileURL)
-                print("ClubRiders::Doc Path", docPath)
                 
                 let values = try docPath.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey])
                 if let cap = values.volumeAvailableCapacityForImportantUsage {
                     capacity = cap
-                    print("ClubRiders::Doc Available capacity for important usage: \(capacity)")
                 } else {
-                    print("ClubRiders::Capacity is unavailable")
+                    Messages.instance.reportError(context: "ClubRiders", msg:"Capacity is unavailable")
                 }
 
                 let encoder = JSONEncoder()
                 if let data = try? encoder.encode(self.clubList) {
                     let compressedData = try (data as NSData).compressed(using: .lzfse)
-                    print ("ClubRiders::Sizes", data.count, compressedData.count)
                     if compressedData.count < capacity {
                         UserDefaults.standard.set(compressedData, forKey: ClubRiders.savedDataName)
-                        print("ClubRiders::saved member list")
+                    }
+                    else {
+                        Messages.instance.reportError(context: "ClubRiders", msg:"insufficent space to save list")
                     }
                 }
             }
             catch {
-                print("ClubRiders::Error saving member list", error.localizedDescription)
+                let msg = "Error saving member list \(error.localizedDescription)"
+                Messages.instance.reportError(context: "ClubRiders", msg: msg)
             }
         }
     }

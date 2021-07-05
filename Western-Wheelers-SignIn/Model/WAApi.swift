@@ -5,17 +5,15 @@ import os.log
 // Wild Apricot user
 
 class WAApi : ObservableObject {
-//    @Published var errMsg: String! = nil
-//
+
     static private var shared:WAApi! = nil
     private var token: String! = nil
     private var accountId:String! = nil
     var apiCallNum = 0
-
+    
     enum ApiType {
         case LoadMembers, None
     }
-    //var apiType = ApiType.None
     
     static func instance() -> WAApi {
         
@@ -47,12 +45,7 @@ class WAApi : ObservableObject {
         
         if let events = try! JSONSerialization.jsonObject(with: raw, options: []) as? [String: Any] {
             for (key, val) in events {
-//                if let m = val as? String {
-//                    print("Response Key:", key, "value:", m.prefix(140))
-//                }
-//                else {
-//                    print("Response Key:", key)
-//                }
+
                 if key == "ResultUrl" {
                     resultsUrl = (val as! String)
                 }
@@ -106,13 +99,16 @@ class WAApi : ObservableObject {
                                 }
                             }
                         }
-                        memberList.append(Rider(name: memberDict["DisplayName"] as! String, homePhone: homePhone, cell: cellPhone, emrg: emergencyPhone))
+                        var phone = cellPhone
+                        if phone == "" {
+                            phone = homePhone
+                        }
+                        memberList.append(Rider(name: memberDict["DisplayName"] as! String, phone: phone, emrg: emergencyPhone))
                     }
                 }
             }
         }
         if memberList.count > 0 {
-            print("LOADED, total members:", memberList.count)
             ClubRiders.shared.updateList(updList: memberList)
             responseComplete = true
         }
@@ -126,10 +122,7 @@ class WAApi : ObservableObject {
             }
             else {
                 DispatchQueue.global(qos: .userInitiated).async {
-                    print("RETRY QUERY...", self.apiCallNum)
                     sleep(2)
-                    //self.loadMembers()
-                    //self.contactsQuery()
                     self.apiCall(path: resultsUrl!, withToken: true, usrMsg: usrMsg, completion: self.parseMembers, apiType: apiType, tellUsers: tellUsers)
 
                 }
@@ -141,14 +134,14 @@ class WAApi : ObservableObject {
         //let id = 11111
         var url = ""
         //url = "https://api.wildapricot.org/v2.1/accounts/41275/contactfields"
-        url = "https://api.wildapricot.org/v2/accounts/"+self.accountId+"/contacts"
+        //url = "https://api.wildapricot.org/v2/accounts/"+self.accountId+"/contacts"
         //url = "https://api.wildapricot.org/v2.1/Accounts/"+self.accountId+"/Contacts/?$async=false&$select='First name','Email','Organization'"
         
         //this is utterly broken, adding email drops the number of 'FieldValues' from 47 down to 5 but has no effect on fields outside the 'FieldValues' array
         //url = "https://api.wildapricot.org/v2.1/Accounts/"+self.accountId+"/Contacts/?$select='Email'"
         //adding 'async=false mysterioulsy means the status field of a member is never returned
         //url = "https://api.wildapricot.org/v2.1/Accounts/"+self.accountId+"/Contacts/?$async=false&$select='Email'"
-        url = "https://api.wildapricot.org/v2.1/Accounts/"+self.accountId+"/Contacts/?$select='Email','Status','Home%20Phone','Cell%20Phone','Emergency%20Phone'"
+        url = "https://api.wildapricot.org/v2.2/Accounts/"+self.accountId+"/Contacts/?$select='Email','Status','Home%20Phone','Cell%20Phone','Emergency%20Phone'"
         apiCall(path: url, withToken: true, usrMsg: "", completion: parseMembers, apiType: ApiType.LoadMembers, tellUsers: true)
     }
     
@@ -166,16 +159,12 @@ class WAApi : ObservableObject {
     
     func apiCall(path: String, withToken:Bool, usrMsg:String, completion: @escaping (Any, Data, ApiType, String, Bool) -> (), apiType: ApiType, tellUsers:Bool) {
         apiCallNum += 1
-        print("Start API CALL \(self.apiCallNum), path:", path)
+        print(apiCallNum, path)
         let user = apiKey(key: "WA_username")
         //TODO private data is exposed, e.g. phone numbers, emails
-        //let user = "westernwheelersclub@gmail.com"
         var pwd = apiKey(key: "WA_pwd")
         pwd = pwd+pwd+pwd
-        //let a = path.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlQueryAllowed)!
-        let a = path //.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
-
-        let url = URL(string: a)
+        let url = URL(string: path)
         var request = URLRequest(url: url!)
 
         if withToken {
@@ -193,21 +182,17 @@ class WAApi : ObservableObject {
         
         let task = URLSession.shared.dataTask(with: request) { rawData, response, error in
             guard let rawData = rawData, let response = response as? HTTPURLResponse, error == nil else {
-                let msg = usrMsg
-                //Util.app().reportError(class_type: type(of: self), context: msg, error: error?.localizedDescription)
-                //self.publishError(error: msg)
-                print("API ERROR", usrMsg)
+                Messages.instance.reportError(context: "WAApi", msg: usrMsg)
                 return
             }
 
             guard (200 ... 299) ~= response.statusCode else {
-                // check for http errors. 400 if authenctication fails
                 var msg = ""
                 if response.statusCode == 400 {
                     msg = "Unexpected Wild Apricot HTTP Status:\(response.statusCode)"
-                    print("API ERROR:", msg)
+                    Messages.instance.reportError(context: "WAApi", msg: msg)
                 }
-                print("API ERROR HTTP:", response.statusCode)
+                Messages.instance.reportError(context: "WAApi", msg: "http \(response.statusCode) for \(path)")
                 return
             }
             do {
@@ -216,8 +201,7 @@ class WAApi : ObservableObject {
                 }
             } catch let error as NSError {
                 let msg = "Cannot parse json"
-                //Util.app().reportError(class_type: type(of: self), context: msg, error: error.localizedDescription)
-                //self.publishError(error: msg)
+                Messages.instance.reportError(context: "WAApi", msg: msg+" "+error.localizedDescription)
             }
         }
         task.resume()

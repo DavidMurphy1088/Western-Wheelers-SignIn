@@ -17,3 +17,12 @@ target 'MyApp' do
      pod 'Alamofire'
      pod 'GoogleAPIClientForREST'
  end
+
+--User
+//Takes a while for members to load
+3rd column can be phone number
+have redirect for generic 'CLub stats person'
+dont need empty drop down lines in tempate
+copied your templates and removed empty rows
+can exit and send later
+memer with phone numbers

@@ -1,29 +1,34 @@
 import Foundation
 class Rider : Hashable, Equatable, Identifiable, Encodable, Decodable {
     var name:String
-    var homePhone:String
-    var cellPhone:String
+    var phone:String
     var emergencyPhone:String
-    var isSelected: Bool
+    private var isSelected: Bool
     
-    init (name:String, homePhone:String, cell:String, emrg:String) {
+    init (name:String, phone:String, emrg:String) {
         self.name = name
-        self.homePhone = Rider.formatPhone(phone: homePhone)
-        self.cellPhone = Rider.formatPhone(phone: cell)
+        self.phone = Rider.formatPhone(phone: phone)
         self.emergencyPhone = Rider.formatPhone(phone: emrg)
         self.isSelected = false
     }
     
     init (rider:Rider) {
         self.name = rider.name
-        self.homePhone = rider.homePhone
-        self.cellPhone = rider.cellPhone
+        self.phone = rider.phone
         self.emergencyPhone = rider.emergencyPhone
         self.isSelected = false
     }
     
     static func == (lhs: Rider, rhs: Rider) -> Bool {
         return lhs.name == rhs.name
+    }
+    
+    func setSelected(_ way:Bool) {
+        self.isSelected = way
+    }
+    
+    func selected() -> Bool {
+        return self.isSelected
     }
     
     func hash(into hasher: inout Hasher) {
