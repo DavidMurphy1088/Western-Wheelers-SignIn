@@ -30,7 +30,6 @@ class SignedInRiders : ObservableObject {
                     UserDefaults.standard.set(data, forKey: SignedInRiders.savedDataName3)
                 }
             }
-            print("Saved signed in riders \(SignedInRiders.instance.selectedCount())")
         }
         catch {
             let msg = "Error saving rider list \(error.localizedDescription)"
@@ -118,7 +117,7 @@ class SignedInRiders : ObservableObject {
             }
         }
         //force an array change to publish the row change
-        list.append(Rider(name: "", phone: "", emrg: ""))
+        list.append(Rider(name: "", phone: "", emrg: "", email: ""))
         list.remove(at: list.count-1)
     }
     
@@ -128,7 +127,6 @@ class SignedInRiders : ObservableObject {
             let formatter = DateFormatter()
             formatter.dateFormat = "HH:mm EEEE, d MMM y"
             let dateStr = formatter.string(from: today)
-            print (dateStr)
             firstSignIn = dateStr
         }
 
@@ -142,21 +140,26 @@ class SignedInRiders : ObservableObject {
         }
         setFirstSignIn()
         //force an array change to publish the row change
-        list.append(Rider(name: "", phone: "", emrg: ""))
+        list.append(Rider(name: "", phone: "", emrg: "", email: ""))
         list.remove(at: list.count-1)
     }
     
     func toggleSelected(name: String) {
+        var fnd = false
         for r in list {
             if r.name == name {
                 r.setSelected(!r.selected())
                 if r.selected() {
+                    fnd = true
                     setFirstSignIn()
                 }
             }
         }
+        if !fnd {
+            firstSignIn = nil
+        }
         //force an array change to publish the row change
-        list.append(Rider(name: "", phone: "", emrg: ""))
+        list.append(Rider(name: "", phone: "", emrg: "", email: ""))
         list.remove(at: list.count-1)
     }
 

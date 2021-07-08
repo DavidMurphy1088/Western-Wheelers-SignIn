@@ -2,7 +2,7 @@ import Foundation
 
 class ClubRiders : ObservableObject {
     @Published public var clubList:[Rider] = []
-    static let shared:ClubRiders = ClubRiders()
+    static let instance:ClubRiders = ClubRiders()
     static let savedDataName = "MemberListData"
     
     private init() {
@@ -64,7 +64,7 @@ class ClubRiders : ObservableObject {
             }
         }
         //force an array change to publish the row change
-        clubList.append(Rider(name: "", phone: "", emrg: ""))
+        clubList.append(Rider(name: "", phone: "", emrg: "", email: ""))
         clubList.remove(at: clubList.count-1)
     }
     
@@ -78,7 +78,7 @@ class ClubRiders : ObservableObject {
             }
         }
         //force an array change to publish the row change
-        clubList.append(Rider(name: "", phone: "", emrg: ""))
+        clubList.append(Rider(name: "", phone: "", emrg: "", email: ""))
         clubList.remove(at: clubList.count-1)
     }
     
@@ -87,7 +87,7 @@ class ClubRiders : ObservableObject {
             r.setSelected(false)
         }
         //force an array change to publish the row change
-        clubList.append(Rider(name: "", phone: "", emrg: ""))
+        clubList.append(Rider(name: "", phone: "", emrg: "", email: ""))
         clubList.remove(at: clubList.count-1)
     }
 

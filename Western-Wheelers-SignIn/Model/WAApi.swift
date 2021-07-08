@@ -42,10 +42,10 @@ class WAApi : ObservableObject {
         var responseComplete = false
         var resultsUrl:String? = nil
         var memberList:[Rider] = []
+        var cnt = 0
         
-        if let events = try! JSONSerialization.jsonObject(with: raw, options: []) as? [String: Any] {
-            for (key, val) in events {
-
+        if let contacts = try! JSONSerialization.jsonObject(with: raw, options: []) as? [String: Any] {
+            for (key, val) in contacts {
                 if key == "ResultUrl" {
                     resultsUrl = (val as! String)
                 }
@@ -56,11 +56,6 @@ class WAApi : ObservableObject {
                     let members = val as! NSArray
                     for member in members {
                         let memberDict = member as! NSDictionary
-                        var email = memberDict["Email"] as! String
-                        var disp = false
-                        if email == "davidp.murphy@sbcglobal.net" {
-                            disp = true
-                        }
                         //let enabled = memberDict["MembershipEnabled"]
                         if let val = memberDict["Status"]  {
                             //TODO check with Vito this is right selector
@@ -75,6 +70,7 @@ class WAApi : ObservableObject {
                         var homePhone = ""
                         var cellPhone = ""
                         var emergencyPhone = ""
+                        var email = ""
 
                         let keys = memberDict["FieldValues"] as! NSArray
                         var c = 0
@@ -83,6 +79,7 @@ class WAApi : ObservableObject {
                             let fieldName = fields["FieldName"]
                             let fieldValue = fields["Value"]
                             c = c+1
+                            print ()
                             if fieldName as! String == "Home Phone" {
                                 if let e = fieldValue as? String {
                                     homePhone = e
@@ -98,18 +95,27 @@ class WAApi : ObservableObject {
                                     emergencyPhone = e
                                 }
                             }
+                            if fieldName as! String == "e-Mail" {
+                                if let e = fieldValue as? String {
+                                    email = e
+                                }
+                            }
                         }
                         var phone = cellPhone
                         if phone == "" {
                             phone = homePhone
                         }
-                        memberList.append(Rider(name: memberDict["DisplayName"] as! String, phone: phone, emrg: emergencyPhone))
+//                        if let name = memberDict["DisplayName"] {
+//                            print(cnt, name, "home:", homePhone, "cell:", cellPhone, "emerg:", emergencyPhone)
+//                        }
+                        cnt += 1
+                        memberList.append(Rider(name: memberDict["DisplayName"] as! String, phone: phone, emrg: emergencyPhone, email: email))
                     }
                 }
             }
         }
         if memberList.count > 0 {
-            ClubRiders.shared.updateList(updList: memberList)
+            ClubRiders.instance.updateList(updList: memberList)
             responseComplete = true
         }
         else {
@@ -159,7 +165,7 @@ class WAApi : ObservableObject {
     
     func apiCall(path: String, withToken:Bool, usrMsg:String, completion: @escaping (Any, Data, ApiType, String, Bool) -> (), apiType: ApiType, tellUsers:Bool) {
         apiCallNum += 1
-        print(apiCallNum, path)
+        //print(apiCallNum, path)
         let user = apiKey(key: "WA_username")
         //TODO private data is exposed, e.g. phone numbers, emails
         var pwd = apiKey(key: "WA_pwd")

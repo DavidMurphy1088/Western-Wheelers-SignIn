@@ -6,7 +6,7 @@ import Foundation
 import SwiftUI
 
 struct MembersView: View {
-    @ObservedObject var memberList = ClubRiders.shared
+    @ObservedObject var memberList = ClubRiders.instance
 
     var body: some View {
         VStack {

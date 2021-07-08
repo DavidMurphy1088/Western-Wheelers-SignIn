@@ -27,15 +27,25 @@ class RideTemplate: Identifiable, Hashable, Equatable {
         for row in data {
             if row.count > 1 && (row[1] == "TRUE" || row[1] == "FALSE") { // and row.count == 2
                 if row[0] != "" {
+                    let name = row[0]
                     var phone = ""
-                    if row.count > 2 {
-                        phone = row[2]
+                    var email = ""
+                    if let rider = ClubRiders.instance.get(name: name) {
+                        phone = rider.phone
+                        email = rider.email
                     }
-                    let rider = Rider(name: row[0], phone: phone, emrg: "")
+                    else {
+                        if row.count > 2 {
+                            phone = row[2]
+                        }
+                        if row.count > 3 {
+                            email = row[3]
+                        }
+                    }
+                    let rider = Rider(name: name, phone: phone, emrg: "", email: email)
                     if row[1] == "TRUE" {
                         rider.setSelected(true)
                     }
-
                     SignedInRiders.instance.list.append(rider)
                 }
             }

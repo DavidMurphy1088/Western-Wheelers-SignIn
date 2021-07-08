@@ -30,12 +30,11 @@ class GoogleDrive : NSObject, GIDSignInDelegate {
         // This delegate will then be called at the end of this process indicating success or failure
         if let error = error {
             if (error as NSError).code == GIDSignInErrorCode.hasNoAuthInKeychain.rawValue {
-                print("The user has not signed in before or they have since signed out.")
+                //print("The user has not signed in before or they have since signed out.")
             } else {
                 Messages.instance.reportError(context: "GoogleDrive sign in", msg: error.localizedDescription)
             }
         }
-
         NotificationCenter.default.post(name: Notification.Name(self.notificationName!), object: error)
     }
 

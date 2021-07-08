@@ -78,6 +78,7 @@
       "size" : "76x76"
     },
     {
+      "filename" : "wwride152-1.png",
       "idiom" : "ipad",
       "scale" : "2x",
       "size" : "76x76"
@@ -88,7 +89,7 @@
       "size" : "83.5x83.5"
     },
     {
-      "filename" : "wwride1024.png",
+      "filename" : "wwride1024_noalpha-1.png",
       "idiom" : "ios-marketing",
       "scale" : "1x",
       "size" : "1024x1024"

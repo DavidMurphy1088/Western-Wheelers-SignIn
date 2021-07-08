@@ -3,12 +3,14 @@ class Rider : Hashable, Equatable, Identifiable, Encodable, Decodable {
     var name:String
     var phone:String
     var emergencyPhone:String
+    var email:String
     private var isSelected: Bool
     
-    init (name:String, phone:String, emrg:String) {
+    init (name:String, phone:String, emrg:String, email:String) {
         self.name = name
         self.phone = Rider.formatPhone(phone: phone)
         self.emergencyPhone = Rider.formatPhone(phone: emrg)
+        self.email = email
         self.isSelected = false
     }
     
@@ -16,6 +18,7 @@ class Rider : Hashable, Equatable, Identifiable, Encodable, Decodable {
         self.name = rider.name
         self.phone = rider.phone
         self.emergencyPhone = rider.emergencyPhone
+        self.email = rider.email
         self.isSelected = false
     }
     

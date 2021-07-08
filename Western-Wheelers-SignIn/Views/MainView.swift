@@ -9,7 +9,8 @@ struct RiderRow: View {
     var selectedAction: () -> Void
     var deletedAction: () -> Void
     var ident: String
-    //date in email
+    @State var showDetail = false
+    
     init(rider: Rider, ident:String, isSelected: Bool, selectedAction: @escaping () -> Void, deletedAction: @escaping () -> Void) {
         UITableViewCell.appearance().backgroundColor = .clear
         self.rider = rider
@@ -18,8 +19,36 @@ struct RiderRow: View {
         self.deletedAction = deletedAction
         self.ident = ident
     }
+    
+    func riderDetail(rider:Rider) -> String {
+        var str = ""
+        if let member = ClubRiders.instance.get(name: rider.name) {
+            if member.phone.count > 0 {
+                str += "Phone \(member.phone)"
+            }
+            if member.emergencyPhone.count > 0 {
+                str += "\nEmergency Phone \(member.emergencyPhone)"
+            }
+            if member.email.count > 0 {
+                str += "\nEMail \(member.email)"
+            }
+        }
+        else {
+            if rider.phone.count > 0 {
+                str += "Phone \(rider.phone)"
+            }
+            if rider.emergencyPhone.count > 0 {
+                str += "\nEmergency Phone \(rider.emergencyPhone)"
+            }
+            if rider.email.count > 0 {
+                str += "\nEMail \(rider.email)"
+            }
+        }
+        return str
+    }
 
     var body: some View {
+
         VStack {
             HStack {
                 Text(" ")
@@ -30,114 +59,30 @@ struct RiderRow: View {
                 Button(rider.name, action: {
                     self.selectedAction()
                 })
+                .font(isSelected ? Font.headline.weight(.semibold) : Font.headline.weight(.regular))
                 Spacer()
-                Text(self.rider.phone)
+                Image(systemName: ("phone.down.circle")).foregroundColor(.purple)
+                    .onTapGesture {
+                        showDetail = true
+                    }
+                    .alert(isPresented: $showDetail) {
+                        Alert(title: Text("\(self.rider.name)"),
+                              message: Text(self.riderDetail(rider: self.rider)),
+                              dismissButton: .default(Text("OK")))
+                    }
+
+                Text("  ")
                 Image(systemName: ("minus.circle")).foregroundColor(.purple)
-                .onTapGesture {
-                    self.deletedAction()
-                }
+                    .onTapGesture {
+                        self.deletedAction()
+                    }
                 Text(" ")
             }
             Text("")
         }
-        //.padding()
         .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
-        .foregroundColor(isSelected ? .blue : .black)
+        .foregroundColor(isSelected ? .black : .secondary)
         .id(self.ident)
-    }
-}
-
-struct SelectRider: View {
-    @Binding var scrollToRiderName:String
-
-    @Environment(\.presentationMode) private var presentationMode
-    @State var scrollToRider:String?
-    @State var pickedName: String = "" //nil means the .onChange is never called but idea why ...
-    @State var enteredNameStr: String = ""
-    @State var changeCount = 0
-    @ObservedObject var clubMembers = ClubRiders.shared
-    
-    func addRider(_ rider:String) {
-        if let addedRider = ClubRiders.shared.get(name: rider) {
-            let newRider = Rider(rider: addedRider)
-            SignedInRiders.instance.add(rider: newRider)
-            SignedInRiders.instance.setSelected(name: newRider.name)
-            self.scrollToRiderName = rider
-            changeCount += 1
-            clubMembers.clearSelected()
-        }
-        self.presentationMode.wrappedValue.dismiss()
-    }
-    
-    var body: some View {
-        VStack {
-            Text("Add a Rider").font(.title2).foregroundColor(Color.blue)
-            
-            let enteredName = Binding<String>(get: {
-                self.enteredNameStr
-            }, set: {
-                self.enteredNameStr = $0.lowercased()
-                clubMembers.filter(name: $0)
-            })
-            HStack {
-                Spacer()
-                Image(systemName: "magnifyingglass")
-                //Image(systemName: "plus.circle")
-                Spacer()
-                TextField("Enter rider name", text: enteredName)
-                //.multilineTextAlignment(.center)
-                .font(.title2).foregroundColor(Color.black)
-                Spacer()
-            }
-            
-            Picker("", selection: $pickedName) {
-                ForEach(clubMembers.clubList, id: \.self) { rider in
-                    if rider.selected() {
-                        Text(rider.name).tag(rider.name)
-                    }
-                }
-            }
-            .pickerStyle(WheelPickerStyle())
-            .labelsHidden()
-            .padding()
-            .border(Color.blue)
-            .onTapGesture {
-                //.onChange not triggered if user just clicks on the initially (the first) selected row
-                //order of calls is 1) .onTap 2) .onChange for rows > 1
-                //onTap is called before the pickers selection binding is set
-                //gotta be a better way - but the code below queues up the tap selection and only adds it if .onChange was not called
-                if let firstSel = clubMembers.getFirstSelected() {
-                    DispatchQueue.global().async {
-                        sleep(1)
-                        if changeCount == 0 {
-                            DispatchQueue.main.async {
-                                addRider(firstSel.name)
-                            }
-                        }
-                    }
-                }
-            }
-            .onChange(of:pickedName, perform: { pickedName in
-                addRider(pickedName)
-            })
-            .onAppear() {
-                changeCount = 0
-                clubMembers.clearSelected()
-                self.enteredNameStr = ""
-                self.pickedName = ""
-            }
-
-            Spacer()
-            Button(action: {
-                self.enteredNameStr = ""
-                clubMembers.clearSelected()
-                self.presentationMode.wrappedValue.dismiss()
-            }, label: {
-                Text("Cancel")
-            })
-            Spacer()
-        }
-
     }
 }
 
@@ -164,7 +109,6 @@ struct RidersView: View {
                                      })
                         }
                     }
-                    //.padding()
                     .onChange(of: scrollToRiderName) { target in
                         if scrollToRiderName != "" {
                             withAnimation {
@@ -181,7 +125,7 @@ struct RidersView: View {
 }
 
 enum ActiveSheet: Identifiable {
-    case templates, selectRider, email
+    case templates, addRider, addGuest, email
     var id: Int {
         hashValue
     }
@@ -192,11 +136,27 @@ struct CurrentRideView: View {
     @ObservedObject var messages = Messages.instance
     @State private var selectRideTemplateSheet = false
     @State private var emailShowing = false
+    @State private var riderDetailShowing = false
     @State private var confirmShowing = false
     @State var activeSheet: ActiveSheet?
     @State var result: Result<MFMailComposeResult, Error>? = nil
     @State var scrollToRiderName:String = ""
     @State var confirmClean:Bool = false
+    
+    func addRider(rider:Rider, clubMember: Bool) {
+        rider.setSelected(true)
+        SignedInRiders.instance.add(rider: rider)
+        SignedInRiders.instance.setSelected(name: rider.name)
+        self.scrollToRiderName = rider.name
+        ClubRiders.instance.clearSelected()
+    }
+    
+    func version() -> String {
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
+        var bld = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
+        var info = "Version \(version) build \(bld)"
+        return info
+    }
 
     var body: some View {
         VStack {
@@ -227,47 +187,75 @@ struct CurrentRideView: View {
                 }
             }
             .font(.title2).font(.callout).foregroundColor(.blue)
+            
             RidersView(scrollToRiderName: $scrollToRiderName)
-            Image(systemName: "plus.circle")
-            .resizable()
-            .foregroundColor(.purple)
-            .frame(width: 30, height: 30)
-            .onTapGesture {
-                activeSheet = .selectRider
+            
+            HStack {
+                Spacer()
+                Button(action: {
+                    activeSheet = .addRider
+                }) {
+                    HStack {
+                        Image(systemName: "plus.circle")
+                            .resizable()
+                            .foregroundColor(.purple)
+                            .frame(width: 30, height: 30)
+                        Text("Add Rider")
+                    }
+                }
+                Spacer()
+                Button(action: {
+                    activeSheet = .addGuest
+                    
+                }) {
+                    HStack {
+                        Image(systemName: "plus.circle")
+                            .resizable()
+                            .foregroundColor(.purple)
+                            .frame(width: 30, height: 30)
+                        Text("Add Guest")
+                    }
+                }
+                Spacer()
             }
-            Button(action: {
-                activeSheet = .email
-            }, label: {
-                Text("Email Sign Up Sheet")
-            })
-            .font(.title2).font(.callout).foregroundColor(.blue)
-            Text("Signed up \(SignedInRiders.instance.selectedCount()) riders").font(.footnote)
+                        
+            if signedInRiders.selectedCount() > 0 {
+                Button(action: {
+                    activeSheet = .email
+                }, label: {
+                    Text("Email Sign Up Sheet")
+                })
+                .font(.title2).font(.callout).foregroundColor(.blue)
+                Text("Signed up \(SignedInRiders.instance.selectedCount()) riders").font(.footnote)
+            }
             if let msg = messages.message {
                 Text(msg).font(.footnote)
             }
             if let errMsg = messages.errMessage {
                 Text(errMsg).font(.footnote).foregroundColor(Color.red)
             }
-
+            Text(version()).font(.footnote).foregroundColor(Color .gray)
         }
         .sheet(item: $activeSheet) { item in
             switch item {
             case .templates:
                 SelectRideTemplateView()
-            case .selectRider:
-                SelectRider(scrollToRiderName: $scrollToRiderName)
+            case .addRider:
+                AddRiderView(scrollToRiderName: $scrollToRiderName, addRider: self.addRider(rider:clubMember:))
+            case .addGuest:
+                AddGuestView(scrollToRiderName: $scrollToRiderName, addRider: self.addRider(rider:clubMember:))
             case .email:
                 let msg = SignedInRiders.instance.getHTMLContent()
                 SendMailView(isShowing: $emailShowing, result: $result,
-                             messageRecipient:"",
+                             messageRecipient:"stats@westernwheelers.org",
                              messageSubject: "Western Wheelers Ride Sign Up Sheet",
                              messageContent: msg)
             }
         }
         .onAppear() {
-            if signedInRiders.list.count == 0 {
-                activeSheet = .templates
-            }
+//            if signedInRiders.list.count == 0 {
+//                activeSheet = .templates
+//            }
             GIDSignIn.sharedInstance()?.presentingViewController = UIApplication.shared.windows.first?.rootViewController
         }
     }

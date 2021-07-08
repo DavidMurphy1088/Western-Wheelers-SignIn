@@ -25,4 +25,49 @@ have redirect for generic 'CLub stats person'
 dont need empty drop down lines in tempate
 copied your templates and removed empty rows
 can exit and send later
-memer with phone numbers
+member with phone numbers
+
+install testfligt
+
+sign out
+clear rider sheet
+
+run app
+
+select a template
+    - can be in any google account
+    - lists the frequent riders for a ride
+    - optional
+ 
+select
+    - select 3 riders
+    
+club rider list
+    - downloaded from WA and kep updated
+    - shows phone nubmers for public numbers
+ 
+popup rider list
+    - add shu
+    - add min
+
+close app
+     - go do ride
+     
+reopen app
+    - add another rider = sher
+    
+email
+    - show email content
+    - riders, sign in date, notes from template
+    - send
+    
+open email
+
+=========
+guest rider added name and phone
+emegecy phone and email added
+- only from club list but be added to template
+popup detail of email, phone
+default mail send
+
+
