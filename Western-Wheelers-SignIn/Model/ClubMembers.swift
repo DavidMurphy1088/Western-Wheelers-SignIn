@@ -1,13 +1,13 @@
 import Foundation
 
-class ClubRiders : ObservableObject {
+class ClubMembers : ObservableObject {
     @Published public var clubList:[Rider] = []
-    static let instance:ClubRiders = ClubRiders()
+    static let instance:ClubMembers = ClubMembers()
     static let savedDataName = "MemberListData"
     
     private init() {
         WAApi.instance()
-        let savedData = UserDefaults.standard.object(forKey: ClubRiders.savedDataName)
+        let savedData = UserDefaults.standard.object(forKey: ClubMembers.savedDataName)
         if let savedData = savedData {
             do {
                 let json = try (savedData as! NSData).decompressed(using: .lzfse)
@@ -115,7 +115,7 @@ class ClubRiders : ObservableObject {
                 if let data = try? encoder.encode(self.clubList) {
                     let compressedData = try (data as NSData).compressed(using: .lzfse)
                     if compressedData.count < capacity {
-                        UserDefaults.standard.set(compressedData, forKey: ClubRiders.savedDataName)
+                        UserDefaults.standard.set(compressedData, forKey: ClubMembers.savedDataName)
                     }
                     else {
                         Messages.instance.reportError(context: "ClubRiders", msg:"insufficent space to save list")

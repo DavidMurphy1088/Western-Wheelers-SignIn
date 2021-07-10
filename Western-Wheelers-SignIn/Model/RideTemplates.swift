@@ -30,9 +30,14 @@ class RideTemplate: Identifiable, Hashable, Equatable {
                     let name = row[0]
                     var phone = ""
                     var email = ""
-                    if let rider = ClubRiders.instance.get(name: name) {
+                    var emerg = ""
+                    var inDirectory = false
+                    if let rider = ClubMembers.instance.get(name: name) {
+                        //load the rider data from the directory if possible
                         phone = rider.phone
                         email = rider.email
+                        emerg = rider.emergencyPhone
+                        inDirectory = true
                     }
                     else {
                         if row.count > 2 {
@@ -41,8 +46,10 @@ class RideTemplate: Identifiable, Hashable, Equatable {
                         if row.count > 3 {
                             email = row[3]
                         }
+                        
                     }
-                    let rider = Rider(name: name, phone: phone, emrg: "", email: email)
+                    let rider = Rider(name: name, phone: phone, emrg: emerg, email: email)
+                    rider.inDirectory = inDirectory
                     if row[1] == "TRUE" {
                         rider.setSelected(true)
                     }

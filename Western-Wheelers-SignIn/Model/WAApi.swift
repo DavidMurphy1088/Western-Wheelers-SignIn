@@ -79,7 +79,6 @@ class WAApi : ObservableObject {
                             let fieldName = fields["FieldName"]
                             let fieldValue = fields["Value"]
                             c = c+1
-                            print ()
                             if fieldName as! String == "Home Phone" {
                                 if let e = fieldValue as? String {
                                     homePhone = e
@@ -105,9 +104,6 @@ class WAApi : ObservableObject {
                         if phone == "" {
                             phone = homePhone
                         }
-//                        if let name = memberDict["DisplayName"] {
-//                            print(cnt, name, "home:", homePhone, "cell:", cellPhone, "emerg:", emergencyPhone)
-//                        }
                         cnt += 1
                         memberList.append(Rider(name: memberDict["DisplayName"] as! String, phone: phone, emrg: emergencyPhone, email: email))
                     }
@@ -115,7 +111,7 @@ class WAApi : ObservableObject {
             }
         }
         if memberList.count > 0 {
-            ClubRiders.instance.updateList(updList: memberList)
+            ClubMembers.instance.updateList(updList: memberList)
             responseComplete = true
         }
         else {
@@ -165,7 +161,7 @@ class WAApi : ObservableObject {
     
     func apiCall(path: String, withToken:Bool, usrMsg:String, completion: @escaping (Any, Data, ApiType, String, Bool) -> (), apiType: ApiType, tellUsers:Bool) {
         apiCallNum += 1
-        //print(apiCallNum, path)
+        print(apiCallNum, path)
         let user = apiKey(key: "WA_username")
         //TODO private data is exposed, e.g. phone numbers, emails
         var pwd = apiKey(key: "WA_pwd")

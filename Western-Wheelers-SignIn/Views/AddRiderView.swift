@@ -8,7 +8,7 @@ struct AddRiderView: View {
     var addRider : (Rider, Bool) -> Void
     
     @Environment(\.presentationMode) private var presentationMode
-    @ObservedObject var clubMembers = ClubRiders.instance
+    @ObservedObject var clubMembers = ClubMembers.instance
     
     @State var scrollToRider:String?
     @State var pickedName: String = "" //nil means the .onChange is never called but idea why ...
@@ -70,7 +70,7 @@ struct AddRiderView: View {
             }
             .onChange(of:pickedName, perform: { pickedName in
                 changeCount += 1
-                if let rider = ClubRiders.instance.get(name:pickedName) {
+                if let rider = clubMembers.get(name:pickedName) {
                     self.addRider(Rider(rider: rider), true)
                 }
                 self.presentationMode.wrappedValue.dismiss()

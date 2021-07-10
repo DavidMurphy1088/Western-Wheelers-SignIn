@@ -3,52 +3,15 @@ import CoreData
 import GoogleSignIn
 import MessageUI
 
-struct RiderRow: View {
-    var rider: Rider
-    var isSelected: Bool
-    var selectedAction: () -> Void
-    var deletedAction: () -> Void
-    var ident: String
-    @State var showDetail = false
-    
-    init(rider: Rider, ident:String, isSelected: Bool, selectedAction: @escaping () -> Void, deletedAction: @escaping () -> Void) {
-        UITableViewCell.appearance().backgroundColor = .clear
-        self.rider = rider
-        self.isSelected = isSelected
-        self.selectedAction = selectedAction
-        self.deletedAction = deletedAction
-        self.ident = ident
-    }
-    
-    func riderDetail(rider:Rider) -> String {
-        var str = ""
-        if let member = ClubRiders.instance.get(name: rider.name) {
-            if member.phone.count > 0 {
-                str += "Phone \(member.phone)"
-            }
-            if member.emergencyPhone.count > 0 {
-                str += "\nEmergency Phone \(member.emergencyPhone)"
-            }
-            if member.email.count > 0 {
-                str += "\nEMail \(member.email)"
-            }
-        }
-        else {
-            if rider.phone.count > 0 {
-                str += "Phone \(rider.phone)"
-            }
-            if rider.emergencyPhone.count > 0 {
-                str += "\nEmergency Phone \(rider.emergencyPhone)"
-            }
-            if rider.email.count > 0 {
-                str += "\nEMail \(rider.email)"
-            }
-        }
-        return str
-    }
+var riderForDetail:Rider? = nil //TODO cannot get binding approach to work :(
 
+struct RiderView: View {
+    @Binding var activeSheet:ActiveSheet?
+    @State var rider: Rider
+    @State var selectedAction: () -> Void
+    @State var deletedAction: () -> Void
+    
     var body: some View {
-
         VStack {
             HStack {
                 Text(" ")
@@ -59,18 +22,23 @@ struct RiderRow: View {
                 Button(rider.name, action: {
                     self.selectedAction()
                 })
-                .font(isSelected ? Font.headline.weight(.semibold) : Font.headline.weight(.regular))
+                //.font(rider.selected() ? Font.headline.weight(.semibold) : Font.headline.weight(.regular))
+                .foregroundColor(.black)
                 Spacer()
-                Image(systemName: ("phone.down.circle")).foregroundColor(.purple)
-                    .onTapGesture {
-                        showDetail = true
+                if self.rider.isLeader {
+                    Text("Leader").italic()
+                }
+                else {
+                    if self.rider.isCoLeader {
+                        Text("Co-leader").italic()
                     }
-                    .alert(isPresented: $showDetail) {
-                        Alert(title: Text("\(self.rider.name)"),
-                              message: Text(self.riderDetail(rider: self.rider)),
-                              dismissButton: .default(Text("OK")))
-                    }
+                }
 
+                Image(systemName: ("ellipsis.bubble")).foregroundColor(.purple)
+                    .onTapGesture {
+                        riderForDetail = self.rider
+                        activeSheet = .showDetail
+                    }
                 Text("  ")
                 Image(systemName: ("minus.circle")).foregroundColor(.purple)
                     .onTapGesture {
@@ -81,12 +49,13 @@ struct RiderRow: View {
             Text("")
         }
         .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
-        .foregroundColor(isSelected ? .black : .secondary)
-        .id(self.ident)
+        //.foregroundColor(rider.selected() ? .black : .secondary)
+        .id(self.rider.name)
     }
 }
 
 struct RidersView: View {
+    @Binding var activeSheet:ActiveSheet?
     @Binding var scrollToRiderName:String
     @ObservedObject var signedInRiders = SignedInRiders.instance
     
@@ -96,7 +65,7 @@ struct RidersView: View {
                 ScrollViewReader { proxy in
                     VStack {
                         ForEach(signedInRiders.list, id: \.self.name) { rider in
-                            RiderRow(rider: rider, ident: rider.name, isSelected: rider.selected(),
+                            RiderView(activeSheet: $activeSheet, rider: rider,
                                      selectedAction: {
                                          DispatchQueue.main.async {
                                              signedInRiders.toggleSelected(name: rider.name)
@@ -120,12 +89,13 @@ struct RidersView: View {
             }
             .border(Color.blue)
             .padding()
+
         }
-    }
+     }
 }
 
 enum ActiveSheet: Identifiable {
-    case templates, addRider, addGuest, email
+    case templates, addRider, addGuest, email, showDetail
     var id: Int {
         hashValue
     }
@@ -136,28 +106,27 @@ struct CurrentRideView: View {
     @ObservedObject var messages = Messages.instance
     @State private var selectRideTemplateSheet = false
     @State private var emailShowing = false
-    @State private var riderDetailShowing = false
     @State private var confirmShowing = false
-    @State var activeSheet: ActiveSheet?
     @State var result: Result<MFMailComposeResult, Error>? = nil
     @State var scrollToRiderName:String = ""
     @State var confirmClean:Bool = false
-    
+    @State var activeSheet: ActiveSheet?
+
     func addRider(rider:Rider, clubMember: Bool) {
         rider.setSelected(true)
-        SignedInRiders.instance.add(rider: rider)
+        SignedInRiders.instance.add(rider: Rider(rider: rider))
         SignedInRiders.instance.setSelected(name: rider.name)
         self.scrollToRiderName = rider.name
-        ClubRiders.instance.clearSelected()
+        ClubMembers.instance.clearSelected()
     }
     
     func version() -> String {
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
-        var bld = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
-        var info = "Version \(version) build \(bld)"
+        let bld = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
+        let info = "Version \(version) build \(bld)"
         return info
     }
-
+    
     var body: some View {
         VStack {
             if SignedInRiders.instance.list.count > 0 {
@@ -188,7 +157,7 @@ struct CurrentRideView: View {
             }
             .font(.title2).font(.callout).foregroundColor(.blue)
             
-            RidersView(scrollToRiderName: $scrollToRiderName)
+            RidersView(activeSheet: $activeSheet, scrollToRiderName: $scrollToRiderName)
             
             HStack {
                 Spacer()
@@ -218,7 +187,6 @@ struct CurrentRideView: View {
                 }
                 Spacer()
             }
-                        
             if signedInRiders.selectedCount() > 0 {
                 Button(action: {
                     activeSheet = .email
@@ -250,6 +218,8 @@ struct CurrentRideView: View {
                              messageRecipient:"stats@westernwheelers.org",
                              messageSubject: "Western Wheelers Ride Sign Up Sheet",
                              messageContent: msg)
+            case .showDetail:
+                RiderDetailView(rider: riderForDetail!)
             }
         }
         .onAppear() {

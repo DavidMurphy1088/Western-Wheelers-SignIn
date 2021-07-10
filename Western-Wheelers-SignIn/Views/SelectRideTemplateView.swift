@@ -79,7 +79,6 @@ struct SelectRideTemplateView: View {
         .onAppear() {
             RideTemplates.instance.loadTemplates()
         }
-
     }
 }
 

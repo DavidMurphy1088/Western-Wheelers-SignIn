@@ -14,6 +14,7 @@ class SignedInRiders : ObservableObject {
     }
         
     func save() {
+        print("========== SAVING RIDE TO LOCAL =======")
         do {
             let encoder = JSONEncoder()
             if let data = try? encoder.encode(self.list) {
@@ -83,6 +84,34 @@ class SignedInRiders : ObservableObject {
         firstSignIn = nil
     }
     
+    func setLeader(rider:Rider, way:Bool) {
+        for r in list {
+            if r.name == rider.name {
+                r.isLeader = way
+                r.isSelected = true
+            }
+            else {
+                r.isLeader = false
+            }
+        }
+        list.append(Rider(name: "", phone: "", emrg: "", email: ""))
+        list.remove(at: list.count-1)
+    }
+    
+    func setCoLeader(rider:Rider, way:Bool) {
+        for r in list {
+            if r.name == rider.name {
+                r.isCoLeader = way
+                r.isSelected = true
+            }
+            else {
+                r.isCoLeader = false
+            }
+        }
+        list.append(Rider(name: "", phone: "", emrg: "", email: ""))
+        list.remove(at: list.count-1)
+    }
+
     func loadTempate(name:String) {
         list = []
         self.templateName = name
@@ -117,6 +146,7 @@ class SignedInRiders : ObservableObject {
             }
         }
         //force an array change to publish the row change
+        //TODO fIX
         list.append(Rider(name: "", phone: "", emrg: "", email: ""))
         list.remove(at: list.count-1)
     }
@@ -189,6 +219,17 @@ class SignedInRiders : ObservableObject {
     
     func getHTMLContent() -> String {
         var content = "<html><body>"
+        content += "<h3>Rider Leaders</h3>"
+        for rider in self.list {
+            if rider.isLeader {
+                content += "Ride Leader:"+rider.name+"<br>"
+            }
+        }
+        for rider in self.list {
+            if rider.isCoLeader {
+                content += "Ride Co-Leader:"+rider.name+"<br>"
+            }
+        }
         content += "<h3>Riders</h3>"
         for rider in self.list {
             if rider.selected() {
