@@ -14,7 +14,6 @@ class SignedInRiders : ObservableObject {
     }
         
     func save() {
-        print("========== SAVING RIDE TO LOCAL =======")
         do {
             let encoder = JSONEncoder()
             if let data = try? encoder.encode(self.list) {
@@ -146,7 +145,6 @@ class SignedInRiders : ObservableObject {
             }
         }
         //force an array change to publish the row change
-        //TODO fIX
         list.append(Rider(name: "", phone: "", emrg: "", email: ""))
         list.remove(at: list.count-1)
     }

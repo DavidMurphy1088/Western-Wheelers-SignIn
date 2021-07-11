@@ -4,7 +4,6 @@ import GoogleSignIn
 import MessageUI
 
 struct AddGuestView: View {
-    @Binding var scrollToRiderName:String
     var addRider : (Rider, Bool) -> Void
     @Environment(\.presentationMode) private var presentationMode
     @State var enteredGuestName: String = ""

@@ -1,6 +1,5 @@
 import Foundation
 
-//TODO should be observlabe, publish
 class Rider : Hashable, Equatable, Identifiable, Encodable, Decodable, ObservableObject {
     var name:String
     var phone:String

@@ -161,7 +161,7 @@ class WAApi : ObservableObject {
     
     func apiCall(path: String, withToken:Bool, usrMsg:String, completion: @escaping (Any, Data, ApiType, String, Bool) -> (), apiType: ApiType, tellUsers:Bool) {
         apiCallNum += 1
-        print(apiCallNum, path)
+        //print(apiCallNum, path)
         let user = apiKey(key: "WA_username")
         //TODO private data is exposed, e.g. phone numbers, emails
         var pwd = apiKey(key: "WA_pwd")

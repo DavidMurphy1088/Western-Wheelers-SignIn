@@ -3,7 +3,8 @@ import CoreData
 import GoogleSignIn
 import MessageUI
 
-var riderForDetail:Rider? = nil //TODO cannot get binding approach to work :(
+var riderForDetail:Rider? = nil //cannot get binding approach to work :(
+//TODO message waiting on first list download
 
 struct RiderView: View {
     @Binding var activeSheet:ActiveSheet?
@@ -23,7 +24,7 @@ struct RiderView: View {
                     self.selectedAction()
                 })
                 //.font(rider.selected() ? Font.headline.weight(.semibold) : Font.headline.weight(.regular))
-                .foregroundColor(.black)
+                //.foregroundColor(.black)
                 Spacer()
                 if self.rider.isLeader {
                     Text("Leader").italic()
@@ -100,10 +101,47 @@ enum ActiveSheet: Identifiable {
         hashValue
     }
 }
+enum CommunicationType: Identifiable {
+    case phone, text, email
+    var id: Int {
+        hashValue
+    }
+}
+
+extension  CurrentRideView {
+    private class MessageComposerDelegate: NSObject, MFMessageComposeViewControllerDelegate {
+        func messageComposeViewController(_ controller: MFMessageComposeViewController, didFinishWith result: MessageComposeResult) {
+            controller.dismiss(animated: true)
+        }
+    }
+    private class MailComposerDelegate: NSObject, MFMailComposeViewControllerDelegate {
+        func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+            controller.dismiss(animated: true)
+        }
+    }
+
+    private func presentMessageCompose(rider:Rider, way:CommunicationType) {
+        guard MFMessageComposeViewController.canSendText() else {
+            return
+        }
+        let vc = UIApplication.shared.windows.filter {$0.isKeyWindow}.first?.rootViewController
+        if way == CommunicationType.text {
+            let composeVC = MFMessageComposeViewController()
+            composeVC.recipients = [rider.phone]
+            composeVC.messageComposeDelegate = messageComposeDelegate
+            vc?.present(composeVC, animated: true)
+        }
+        if way == CommunicationType.email {
+            let mailVC = MFMailComposeViewController()
+            mailVC.setToRecipients([rider.email])
+            mailVC.mailComposeDelegate = mailComposeDelegate
+            vc?.present(mailVC, animated: true)
+        }
+    }
+}
 
 struct CurrentRideView: View {
     @ObservedObject var signedInRiders = SignedInRiders.instance
-    @ObservedObject var messages = Messages.instance
     @State private var selectRideTemplateSheet = false
     @State private var emailShowing = false
     @State private var confirmShowing = false
@@ -111,9 +149,16 @@ struct CurrentRideView: View {
     @State var scrollToRiderName:String = ""
     @State var confirmClean:Bool = false
     @State var activeSheet: ActiveSheet?
+    private let messageComposeDelegate = MessageComposerDelegate()
+    private let mailComposeDelegate = MailComposerDelegate()
+
+    @ObservedObject var messages = Messages.instance
 
     func addRider(rider:Rider, clubMember: Bool) {
         rider.setSelected(true)
+        if ClubMembers.instance.get(name: rider.name) != nil {
+            rider.inDirectory = true
+        }
         SignedInRiders.instance.add(rider: Rider(rider: rider))
         SignedInRiders.instance.setSelected(name: rider.name)
         self.scrollToRiderName = rider.name
@@ -127,6 +172,29 @@ struct CurrentRideView: View {
         return info
     }
     
+    func riderCommunicate(rider:Rider, way:CommunicationType) {
+        DispatchQueue.global(qos: .userInitiated).async {
+            //only way to get this to work. i.e. wait for detail view to be shut down fully before text ui is displayed
+            usleep(500000)
+            DispatchQueue.main.async {
+                if way == CommunicationType.phone {
+                    //let url:NSURL = URL(string: "TEL://0123456789")! as NSURL
+                    var phone = ""
+                    for c in rider.phone {
+                        if c.isNumber {
+                            phone += String(c)
+                        }
+                    }
+                    let url:NSURL = URL(string: "TEL://\(phone)")! as NSURL
+                    UIApplication.shared.open(url as URL, options: [:], completionHandler: nil)
+                }
+                else {
+                    self.presentMessageCompose(rider: rider, way: way)
+                }
+            }
+        }
+    }
+
     var body: some View {
         VStack {
             if SignedInRiders.instance.list.count > 0 {
@@ -209,9 +277,9 @@ struct CurrentRideView: View {
             case .templates:
                 SelectRideTemplateView()
             case .addRider:
-                AddRiderView(scrollToRiderName: $scrollToRiderName, addRider: self.addRider(rider:clubMember:))
+                AddRiderView(addRider: self.addRider(rider:clubMember:))
             case .addGuest:
-                AddGuestView(scrollToRiderName: $scrollToRiderName, addRider: self.addRider(rider:clubMember:))
+                AddGuestView(addRider: self.addRider(rider:clubMember:))
             case .email:
                 let msg = SignedInRiders.instance.getHTMLContent()
                 SendMailView(isShowing: $emailShowing, result: $result,
@@ -219,7 +287,7 @@ struct CurrentRideView: View {
                              messageSubject: "Western Wheelers Ride Sign Up Sheet",
                              messageContent: msg)
             case .showDetail:
-                RiderDetailView(rider: riderForDetail!)
+                RiderDetailView(rider: riderForDetail!, prepareText: self.riderCommunicate(rider:way:))
             }
         }
         .onAppear() {
@@ -231,9 +299,27 @@ struct CurrentRideView: View {
     }
 }
 
+
+
+//struct MessageView: View {
+//    @Environment(\.scenePhase) var scenePhase
+//
+//    private let messageComposeDelegate = MessageComposerDelegate()
+//
+//    var body: some View {
+//        VStack {
+//            Text("MESSAE VIEW")
+//        }
+//        .onAppear() {
+//            print("ON APPEAR ...........................")
+//            self.presentMessageCompose()
+//        }
+//    }
+//}
+
 struct MainView: View {
     @Environment(\.scenePhase) var scenePhase
-
+    
     var body: some View {
         TabView {
             CurrentRideView()

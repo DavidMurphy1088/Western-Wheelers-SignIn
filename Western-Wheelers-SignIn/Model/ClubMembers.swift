@@ -22,6 +22,9 @@ class ClubMembers : ObservableObject {
                 Messages.instance.reportError(context: "ClubRiders", msg: msg)
             }
         }
+        else {
+            Messages.instance.sendMessage(msg: "Please wait for the club member list to download")
+        }
     }
     
     func get(name:String) -> Rider? {
@@ -107,8 +110,6 @@ class ClubMembers : ObservableObject {
                 let values = try docPath.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey])
                 if let cap = values.volumeAvailableCapacityForImportantUsage {
                     capacity = cap
-                } else {
-                    Messages.instance.reportError(context: "ClubRiders", msg:"Capacity is unavailable")
                 }
 
                 let encoder = JSONEncoder()
