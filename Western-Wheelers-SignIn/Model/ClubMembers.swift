@@ -4,7 +4,7 @@ class ClubMembers : ObservableObject {
     @Published public var clubList:[Rider] = []
     static let instance:ClubMembers = ClubMembers()
     static let savedDataName = "MemberListData"
-    
+
     private init() {
         WAApi.instance()
         let savedData = UserDefaults.standard.object(forKey: ClubMembers.savedDataName)
@@ -15,6 +15,9 @@ class ClubMembers : ObservableObject {
                 if let list = try? decoder.decode([Rider].self, from: json as Data) {
                     clubList = list
                     Messages.instance.sendMessage(msg: "Restored \(list.count) club members from local")
+                }
+                else {
+                    Messages.instance.reportError(context: "ClubRiders", msg: "Unable to restore riders")
                 }
             }
             catch {
@@ -54,6 +57,11 @@ class ClubMembers : ObservableObject {
         }
         return nil
     }
+    func pushChange() {
+        //force an array change to publish the row change
+        clubList.append(Rider(id: "", name: "", phone: "", emrg: "", email: ""))
+        clubList.remove(at: clubList.count-1)
+    }
 
     func filter(name: String) {
         var fnd = 0
@@ -66,9 +74,7 @@ class ClubMembers : ObservableObject {
                 r.setSelected(false)
             }
         }
-        //force an array change to publish the row change
-        clubList.append(Rider(name: "", phone: "", emrg: "", email: ""))
-        clubList.remove(at: clubList.count-1)
+        self.pushChange()
     }
     
     func setSelected(name: String) {
@@ -80,9 +86,7 @@ class ClubMembers : ObservableObject {
                 r.setSelected(false)
             }
         }
-        //force an array change to publish the row change
-        clubList.append(Rider(name: "", phone: "", emrg: "", email: ""))
-        clubList.remove(at: clubList.count-1)
+        self.pushChange()
     }
     
     func clearSelected() {
@@ -90,7 +94,7 @@ class ClubMembers : ObservableObject {
             r.setSelected(false)
         }
         //force an array change to publish the row change
-        clubList.append(Rider(name: "", phone: "", emrg: "", email: ""))
+        clubList.append(Rider(id: "", name: "", phone: "", emrg: "", email: ""))
         clubList.remove(at: clubList.count-1)
     }
 

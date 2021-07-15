@@ -73,4 +73,13 @@ emegecy phone and email added
 popup detail of email, phone
 default mail send
 
+TODO
+- rider phone for template members (3rd column), email
+- ride title from tempalte
+- assume onl one leader, co-leader
+Drive account, hardcode?
+- sign in date should be last sign in
+I suggest a change in layout that places the ride title, date, distance and ascent (from the Notes section) at the beginning of the email text.  I cut and pasted from the Notes section to do this. - see the email copy.
+tempalte data, nomeaning
 
+- sort names on insert

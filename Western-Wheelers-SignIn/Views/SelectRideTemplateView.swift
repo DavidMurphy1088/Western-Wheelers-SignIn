@@ -22,7 +22,7 @@ struct RideTemplateCell: View {
             self.Action()
         })
         .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
-        .foregroundColor(isSelected ? .blue : .black)
+        //.foregroundColor(isSelected ? .blue : .black)
     }
 }
 
@@ -36,8 +36,8 @@ struct SelectRideTemplateView: View {
             Text("Ride Templates").font(.title2).foregroundColor(Color.blue)
             Text("Select a ride template to pre-populate your ride. The template can contain any data such as the ride name, ride leader, routes, notes etc. In the template, names followed immediately on the row by check boxes are treated as riders to include for this ride.").font(.callout)
                 .padding()
-            if SignedInRiders.instance.list.count > 0 {
-                Text("The ride sheet already has \(SignedInRiders.instance.list.count) riders. Selecting another template will clear the ride sheet. Cancel to retain the current ride sheet.")
+            if SignedInRiders.instance.getCount() > 0 {
+                Text("The ride sheet already has \(SignedInRiders.instance.getCount()) riders. Selecting another template will clear the ride sheet. Cancel to retain the current ride sheet.")
                     .foregroundColor(Color.red)
                     .padding()
             }

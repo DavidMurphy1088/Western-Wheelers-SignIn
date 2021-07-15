@@ -41,7 +41,7 @@ struct AddGuestView: View {
             HStack {
                 Spacer()
                 Button(action: {
-                    addRider(Rider(name: enteredGuestName, phone: enteredPhone, emrg: enteredEmergecny, email: ""), false)
+                    addRider(Rider(id: "", name: enteredGuestName, phone: enteredPhone, emrg: enteredEmergecny, email: "", isGuest:true), false)
                     self.presentationMode.wrappedValue.dismiss()
                 }, label: {
                     Text("Add")

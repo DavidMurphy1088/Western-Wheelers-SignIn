@@ -4,9 +4,8 @@ import GoogleSignIn
 import MessageUI
 
 struct RiderDetailView: View {
-    @State var rider:Rider
+    @ObservedObject var rider:Rider
     var prepareText : (Rider, CommunicationType) -> Void
-
     @Environment(\.presentationMode) private var presentationMode
     @ObservedObject var signedInRiders = SignedInRiders.instance
     
@@ -16,18 +15,25 @@ struct RiderDetailView: View {
             Text("\(self.rider.name)").font(.title2).foregroundColor(Color.blue)
             Text("")
             VStack {
-            if rider.phone.count > 0 {
-                Text("Cell Phone: \(rider.phone)")
-            }
-            if rider.emergencyPhone.count > 0 {
-                Text("Emergency: \(rider.emergencyPhone)")
-            }
-            if rider.email.count > 0 {
-                Text("Email: \(rider.email)")
-            }
-            if !rider.inDirectory {
-                Text("Rider name not in member directory")
-            }
+                if rider.inDirectory {
+                    if rider.isPrivacyVerified {
+                        if rider.phone.count > 0 {
+                            Text("Cell Phone: \(rider.phone)")
+                        }
+                        if rider.emergencyPhone.count > 0 {
+                            Text("Emergency: \(rider.emergencyPhone)")
+                        }
+                        if rider.email.count > 0 {
+                            Text("Email: \(rider.email)")
+                        }
+                    }
+                    else {
+                        Text("Checking privacy...")
+                    }
+                }
+                else {
+                    Text("Rider name not in member directory")
+                }
             }
             Text("")
             VStack {
@@ -48,7 +54,7 @@ struct RiderDetailView: View {
                 }
             }
             VStack {
-                if rider.phone.count > 0 {
+                if rider.isPrivacyVerified && rider.phone.count > 0 {
                     Text("")
                     Button(action: {
                         prepareText(rider, CommunicationType .text)
@@ -66,7 +72,7 @@ struct RiderDetailView: View {
                             .font(.title2)
                     })
                 }
-                if rider.email.count > 0 {
+                if rider.isPrivacyVerified && rider.email.count > 0 {
                     Text("")
                     Button(action: {
                         prepareText(rider, CommunicationType .email)

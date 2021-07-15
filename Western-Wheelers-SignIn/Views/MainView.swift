@@ -4,7 +4,6 @@ import GoogleSignIn
 import MessageUI
 
 var riderForDetail:Rider? = nil //cannot get binding approach to work :(
-//TODO message waiting on first list download
 
 struct RiderView: View {
     @Binding var activeSheet:ActiveSheet?
@@ -23,7 +22,7 @@ struct RiderView: View {
                 Button(rider.name, action: {
                     self.selectedAction()
                 })
-                //.font(rider.selected() ? Font.headline.weight(.semibold) : Font.headline.weight(.regular))
+                .font(rider.isHilighted ? Font.headline.weight(.bold) : Font.headline.weight(.regular))
                 //.foregroundColor(.black)
                 Spacer()
                 if self.rider.isLeader {
@@ -38,7 +37,7 @@ struct RiderView: View {
                 Image(systemName: ("ellipsis.bubble")).foregroundColor(.purple)
                     .onTapGesture {
                         riderForDetail = self.rider
-                        activeSheet = .showDetail
+                        activeSheet = .riderDetail
                     }
                 Text("  ")
                 Image(systemName: ("minus.circle")).foregroundColor(.purple)
@@ -65,7 +64,7 @@ struct RidersView: View {
             ScrollView {
                 ScrollViewReader { proxy in
                     VStack {
-                        ForEach(signedInRiders.list, id: \.self.name) { rider in
+                        ForEach(signedInRiders.getList(), id: \.self.name) { rider in
                             RiderView(activeSheet: $activeSheet, rider: rider,
                                      selectedAction: {
                                          DispatchQueue.main.async {
@@ -96,7 +95,7 @@ struct RidersView: View {
 }
 
 enum ActiveSheet: Identifiable {
-    case templates, addRider, addGuest, email, showDetail
+    case templates, addRider, addGuest, email, riderDetail, rideInfoEdit
     var id: Int {
         hashValue
     }
@@ -153,14 +152,17 @@ struct CurrentRideView: View {
     private let mailComposeDelegate = MailComposerDelegate()
 
     @ObservedObject var messages = Messages.instance
+    @Environment(\.openURL) var openURL
 
     func addRider(rider:Rider, clubMember: Bool) {
         rider.setSelected(true)
         if ClubMembers.instance.get(name: rider.name) != nil {
             rider.inDirectory = true
         }
-        SignedInRiders.instance.add(rider: Rider(rider: rider))
+        //SignedInRiders.instance.add(rider: Rider(rider: rider))
+        SignedInRiders.instance.add(rider: rider)
         SignedInRiders.instance.setSelected(name: rider.name)
+        SignedInRiders.instance.setHilighted(name: rider.name)
         self.scrollToRiderName = rider.name
         ClubMembers.instance.clearSelected()
     }
@@ -197,7 +199,7 @@ struct CurrentRideView: View {
 
     var body: some View {
         VStack {
-            if SignedInRiders.instance.list.count > 0 {
+            if SignedInRiders.instance.getCount() > 0 {
                 Button("Clear Ride Sheet") {
                     confirmClean = true
                 }
@@ -212,31 +214,39 @@ struct CurrentRideView: View {
                         secondaryButton: .cancel()
                     )
                 }
-                .font(.title2).font(.callout).foregroundColor(.blue)
+                //.font(.title2).font(.callout).foregroundColor(.blue)
+            }
+            if SignedInRiders.instance.getCount() == 0 {
+                Button("Select Ride Template") {
+//                    if SignedInRiders.instance.list.count > 0 {
+//                        confirmClean = true
+//                    }
+//                    else {
+                        activeSheet = .templates
+//                    }
+                }
+                //.font(.title2).font(.callout).foregroundColor(.blue)
+            }
+            
+            if SignedInRiders.instance.getCount() > 0 && SignedInRiders.instance.selectedCount() < SignedInRiders.instance.getCount() {
+                Button("Remove Unselected Riders") {
+                    SignedInRiders.instance.removeUnselected()
+                }
+                //.font(.title2).font(.callout).foregroundColor(.blue)
             }
 
-            Button("Select Ride Template") {
-                if SignedInRiders.instance.list.count > 0 {
-                    confirmClean = true
-                }
-                else {
-                    activeSheet = .templates
-                }
-            }
-            .font(.title2).font(.callout).foregroundColor(.blue)
-            
             RidersView(activeSheet: $activeSheet, scrollToRiderName: $scrollToRiderName)
-            
+            VStack {
             HStack {
                 Spacer()
                 Button(action: {
                     activeSheet = .addRider
                 }) {
                     HStack {
-                        Image(systemName: "plus.circle")
-                            .resizable()
-                            .foregroundColor(.purple)
-                            .frame(width: 30, height: 30)
+//                        Image(systemName: "plus.circle")
+//                            .resizable()
+//                            .foregroundColor(.purple)
+//                            .frame(width: 30, height: 30)
                         Text("Add Rider")
                     }
                 }
@@ -246,24 +256,36 @@ struct CurrentRideView: View {
                     
                 }) {
                     HStack {
-                        Image(systemName: "plus.circle")
-                            .resizable()
-                            .foregroundColor(.purple)
-                            .frame(width: 30, height: 30)
+//                        Image(systemName: "plus.circle")
+//                            .resizable()
+//                            .foregroundColor(.purple)
+//                            .frame(width: 30, height: 30)
                         Text("Add Guest")
                     }
                 }
                 Spacer()
             }
-            if signedInRiders.selectedCount() > 0 {
+            Text("")
+            HStack {
+                Spacer()
+                Button(action: {
+                    activeSheet = .rideInfoEdit
+                }, label: {
+                    Text("Ride Info")
+                })
+                Spacer()
                 Button(action: {
                     activeSheet = .email
                 }, label: {
-                    Text("Email Sign Up Sheet")
+                    Text("Email Sheet")
                 })
-                .font(.title2).font(.callout).foregroundColor(.blue)
-                Text("Signed up \(SignedInRiders.instance.selectedCount()) riders").font(.footnote)
+                //.font(.title2).font(.callout).foregroundColor(.blue)
+                .disabled(signedInRiders.selectedCount() == 0)
+                Spacer()
             }
+            }
+            Text("")
+            Text("Signed up \(SignedInRiders.instance.selectedCount()) riders").font(.footnote)
             if let msg = messages.message {
                 Text(msg).font(.footnote)
             }
@@ -286,8 +308,10 @@ struct CurrentRideView: View {
                              messageRecipient:"stats@westernwheelers.org",
                              messageSubject: "Western Wheelers Ride Sign Up Sheet",
                              messageContent: msg)
-            case .showDetail:
+            case .riderDetail:
                 RiderDetailView(rider: riderForDetail!, prepareText: self.riderCommunicate(rider:way:))
+            case .rideInfoEdit:
+                RideInfoEditView()
             }
         }
         .onAppear() {

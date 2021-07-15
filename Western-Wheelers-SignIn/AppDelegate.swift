@@ -13,6 +13,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         GIDSignIn.sharedInstance().delegate = GoogleDrive.instance
         GIDSignIn.sharedInstance()?.scopes = [kGTLRAuthScopeDrive]
         SignedInRiders.instance.restore()
+        PrivacyChecker.instance.start()
         return true
     }
 //    does not work - is never called?

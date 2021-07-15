@@ -2,7 +2,7 @@
 import Foundation
 import os.log
 
-// Wild Apricot user
+//TODO verify identity via ww sign in
 
 class WAApi : ObservableObject {
 
@@ -56,7 +56,7 @@ class WAApi : ObservableObject {
                     let members = val as! NSArray
                     for member in members {
                         let memberDict = member as! NSDictionary
-                        //let enabled = memberDict["MembershipEnabled"]
+
                         if let val = memberDict["Status"]  {
                             //TODO check with Vito this is right selector
                             let active = val as! NSString == "Active"
@@ -67,6 +67,9 @@ class WAApi : ObservableObject {
                         else {
                             continue
                         }
+                        //if
+                        let name = memberDict["DisplayName"] as! String
+                        let id = memberDict["Id"] as! Int
                         var homePhone = ""
                         var cellPhone = ""
                         var emergencyPhone = ""
@@ -99,13 +102,14 @@ class WAApi : ObservableObject {
                                     email = e
                                 }
                             }
+
                         }
                         var phone = cellPhone
                         if phone == "" {
                             phone = homePhone
                         }
                         cnt += 1
-                        memberList.append(Rider(name: memberDict["DisplayName"] as! String, phone: phone, emrg: emergencyPhone, email: email))
+                        memberList.append(Rider(id: String(id), name: name, phone: phone, emrg: emergencyPhone, email: email))
                     }
                 }
             }
@@ -143,7 +147,10 @@ class WAApi : ObservableObject {
         //url = "https://api.wildapricot.org/v2.1/Accounts/"+self.accountId+"/Contacts/?$select='Email'"
         //adding 'async=false mysterioulsy means the status field of a member is never returned
         //url = "https://api.wildapricot.org/v2.1/Accounts/"+self.accountId+"/Contacts/?$async=false&$select='Email'"
-        url = "https://api.wildapricot.org/v2.2/Accounts/"+self.accountId+"/Contacts/?$select='Email','Status','Home%20Phone','Cell%20Phone','Emergency%20Phone'"
+        //url = "https://api.wildapricot.org/v2.2/Accounts/"+self.accountId+"/Contacts/?$select='Email','Status','Home%20Phone','Cell%20Phone','Emergency%20Phone'"
+        //url = "https://api.wildapricot.org/v2.2/Accounts/"+self.accountId+"/Contacts/?$select='Email','Status','Home%20Phone','Cell%20Phone','Emergency%20Phone','Access%20to%20profile%20by%20others')"
+        //setting fields to filter has unpredicatable effects on which fields actually get reutnred. So go for every field below, slower but safer
+        url = "https://api.wildapricot.org/v2.2/Accounts/"+self.accountId+"/Contacts"
         apiCall(path: url, withToken: true, usrMsg: "", completion: parseMembers, apiType: ApiType.LoadMembers, tellUsers: true)
     }
     
@@ -161,11 +168,15 @@ class WAApi : ObservableObject {
     
     func apiCall(path: String, withToken:Bool, usrMsg:String, completion: @escaping (Any, Data, ApiType, String, Bool) -> (), apiType: ApiType, tellUsers:Bool) {
         apiCallNum += 1
-        //print(apiCallNum, path)
+        if apiCallNum % 5 == 0 {
+            print(apiCallNum, path)
+        }
         let user = apiKey(key: "WA_username")
+        //let user = "ios"
         //TODO private data is exposed, e.g. phone numbers, emails
         var pwd = apiKey(key: "WA_pwd")
         pwd = pwd+pwd+pwd
+
         let url = URL(string: path)
         var request = URLRequest(url: url!)
 

@@ -32,28 +32,31 @@ class RideTemplate: Identifiable, Hashable, Equatable {
                     var email = ""
                     var emerg = ""
                     var inDirectory = false
+                    var id = ""
+                    if row.count > 2 {
+                        phone = row[2]
+                    }
+                    if row.count > 3 {
+                        email = row[3]
+                    }
                     if let rider = ClubMembers.instance.get(name: name) {
                         //load the rider data from the directory if possible
-                        phone = rider.phone
-                        email = rider.email
+                        if phone == "" {
+                            phone = rider.phone
+                        }
+                        if email == "" {
+                            email = rider.email
+                        }
                         emerg = rider.emergencyPhone
                         inDirectory = true
+                        id = rider.id
                     }
-                    else {
-                        if row.count > 2 {
-                            phone = row[2]
-                        }
-                        if row.count > 3 {
-                            email = row[3]
-                        }
-                        
-                    }
-                    let rider = Rider(name: name, phone: phone, emrg: emerg, email: email)
+                    let rider = Rider(id: id, name: name, phone: phone, emrg: emerg, email: email)
                     rider.inDirectory = inDirectory
                     if row[1] == "TRUE" {
                         rider.setSelected(true)
                     }
-                    SignedInRiders.instance.list.append(rider)
+                    SignedInRiders.instance.add(rider: rider)
                 }
             }
             else {
@@ -64,6 +67,7 @@ class RideTemplate: Identifiable, Hashable, Equatable {
                 SignedInRiders.instance.notes.append(note)
             }
         }
+        SignedInRiders.instance.sort()
     }
 }
 
