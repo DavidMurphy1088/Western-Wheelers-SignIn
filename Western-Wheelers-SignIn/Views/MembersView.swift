@@ -17,7 +17,7 @@ struct MembersView: View {
                 ForEach(memberList.clubList, id: \.self) { member in
                     HStack {
                         Text(" ")
-                        Text(member.name)
+                        Text(member.getDisplayName())
                         Spacer()
                         Text(member.phone)
                         Text(" ")

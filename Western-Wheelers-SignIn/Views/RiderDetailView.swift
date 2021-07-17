@@ -7,32 +7,22 @@ struct RiderDetailView: View {
     @ObservedObject var rider:Rider
     var prepareText : (Rider, CommunicationType) -> Void
     @Environment(\.presentationMode) private var presentationMode
+
     @ObservedObject var signedInRiders = SignedInRiders.instance
     
     var body: some View {
         VStack {
-            //Spacer()
-            Text("\(self.rider.name)").font(.title2).foregroundColor(Color.blue)
+            Text("\(self.rider.nameLast), \(self.rider.nameFirst)").font(.title).foregroundColor(Color.blue)
             Text("")
             VStack {
-                if rider.inDirectory {
-                    if rider.isPrivacyVerified {
-                        if rider.phone.count > 0 {
-                            Text("Cell Phone: \(rider.phone)")
-                        }
-                        if rider.emergencyPhone.count > 0 {
-                            Text("Emergency: \(rider.emergencyPhone)")
-                        }
-                        if rider.email.count > 0 {
-                            Text("Email: \(rider.email)")
-                        }
-                    }
-                    else {
-                        Text("Checking privacy...")
-                    }
+                if rider.phone.count > 0 {
+                    Text("Cell Phone: \(rider.phone)")
                 }
-                else {
-                    Text("Rider name not in member directory")
+                if rider.emergencyPhone.count > 0 {
+                    Text("Emergency: \(rider.emergencyPhone)")
+                }
+                if rider.email.count > 0 {
+                    Text("Email: \(rider.email)")
                 }
             }
             Text("")
@@ -54,35 +44,38 @@ struct RiderDetailView: View {
                 }
             }
             VStack {
-                if rider.isPrivacyVerified && rider.phone.count > 0 {
+                if !rider.phone.isEmpty {
                     Text("")
                     Button(action: {
                         prepareText(rider, CommunicationType .text)
                         self.presentationMode.wrappedValue.dismiss()
                     }, label: {
                         Text("Text Rider")
-                            .font(.title2)
+                            //.font(.title2)
                     })
+                }
+                if !rider.phone.isEmpty {
                     Text("")
                     Button(action: {
                         prepareText(rider, CommunicationType .phone)
                         self.presentationMode.wrappedValue.dismiss()
                     }, label: {
                         Text("Phone Rider")
-                            .font(.title2)
+                            //.font(.title2)
                     })
                 }
-                if rider.isPrivacyVerified && rider.email.count > 0 {
+                if !rider.email.isEmpty {
                     Text("")
                     Button(action: {
                         prepareText(rider, CommunicationType .email)
                         self.presentationMode.wrappedValue.dismiss()
                     }, label: {
                         Text("EMail Rider")
-                            .font(.title2)
+                            //.font(.title2)
                     })
-
                 }
+
+                Text("")
                 Text("")
                 Text("")
                 Button(action: {

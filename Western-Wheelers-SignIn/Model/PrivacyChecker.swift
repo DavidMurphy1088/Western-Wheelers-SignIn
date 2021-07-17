@@ -1,65 +1,58 @@
 import Foundation
 import SwiftSoup
 
+//No longer required. This class attempted to look up the user's privacy settings for access to email and phone
+//However WA finally advised (16Jul2021)that their 'non-admin' API now honors the usrs privacy settings so this class below is not needed now.
+
 class PrivacyChecker {
     static let instance:PrivacyChecker = PrivacyChecker()
     var queue:[Rider] = []
     private let shared = URLSession.shared
-        
+
     init() {
         shared.configuration.httpCookieStorage = HTTPCookieStorage.shared
         shared.configuration.httpCookieAcceptPolicy = .always
         shared.configuration.httpShouldSetCookies = true
     }
 
-    func start() {
-        DispatchQueue.global(qos: .background).async { [self] in
-            while true {
-                if queue.count > 0 {
-                    let checkMember = queue.remove(at: 0)
-                    print("---------> PrivacyChecker", checkMember.name)
-                    if checkMember.id != "" {
-                        getContact(rider: checkMember)
-                        DispatchQueue.main.async {
-                            checkMember.isPrivacyVerified = true
-                        }
-                    }
-                }
-                //print("---------> PrivacyChecker sleep")
-                sleep(1)
-            }
-        }
-    }
+//    func start() {
+//        DispatchQueue.global(qos: .background).async { [self] in
+//            while true {
+//                if queue.count > 0 {
+//                    let checkMember = queue.remove(at: 0)
+//                    print("\n---------> PrivacyChecker", checkMember.name)
+//                    if checkMember.id != "" {
+//                        getContact(rider: checkMember)
+//                        DispatchQueue.main.async {
+//                            checkMember.isPrivacyVerified = true
+//                        }
+//                    }
+//                }
+//                sleep(1)
+//            }
+//        }
+//    }
     
-    func checkRider(rider:Rider) {
-        queue.append(rider)
-    }
+//    func checkRider(rider:Rider) {
+//        queue.append(rider)
+//    }
 
-    func getContact(rider:Rider) {
-        let id = rider.id
-        get(url: "https://westernwheelersbicycleclub.wildapricot.org/Sys/Login?ReturnUrl=/admin/contacts/details/?contactId=\(id)")
-        
-        post(url: "https://westernwheelersbicycleclub.wildapricot.org/Sys/Login?ReturnUrl=/admin/contacts/details/?contactId==\(id)")
-        //post(url: "https://westernwheelersbicycleclub.wildapricot.org/Sys/Login")
-//        var ret = get(url: "https://westernwheelersbicycleclub.wildapricot.org/admin/contacts/details/?contactId=60826411", show: false)
-//        print(ret.contains("murphy1088"))
-//        ret = get(url: "https://westernwheelersbicycleclub.wildapricot.org/admin/contacts/details/privacy/?contactId=60826411", show: false)
-//        print(ret.contains("murphy1088"))
-//        ret = get(url: "https://westernwheelersbicycleclub.wildapricot.org/Admin/Contacts/Details/ContactTab/ContactView.aspx?contactId=60826411", show: false)
-//        print(ret.contains("murphy1088"))
-        
-        let html = get(url: "https://westernwheelersbicycleclub.wildapricot.org/Admin/Contacts/Details/ProfileAccessSettingsTab/ProfileAccessSettingsView.aspx?contactId=\(id)", show: false)
-        if let html = html {
-            let emails = self.getPrivacySetting(html: html, tag: "e-Mail")
-            let cell = self.getPrivacySetting(html: html, tag: "Cell Phone")
-            let home = self.getPrivacySetting(html: html, tag: "Home Phone")
-            let emerg = self.getPrivacySetting(html: html, tag: "Emergency Phone")
-            print("OK====> email?", html.contains(rider.email), "mail", emails, "cell", cell, "home", home, "emerg", emerg) //, phones)
-        }
-        else {
-            //Messages.instance.reportError(context: "Privacy", msg: "Cannot get privacy for \(rider.name)")
-        }
-    }
+//    func getContact(rider:Rider) {
+//        let id = rider.id
+//        get(url: "https://westernwheelersbicycleclub.wildapricot.org/Sys/Login?ReturnUrl=/admin/contacts/details/?contactId=\(id)")
+//        
+//        post(url: "https://westernwheelersbicycleclub.wildapricot.org/Sys/Login?ReturnUrl=/admin/contacts/details/?contactId==\(id)")
+//"https://westernwheelersbicycleclub.wildapricot.org/Admin/Contacts/Details/ContactTab/ContactView.aspx?contactId=60826411", show: false)
+//        
+//        let html = get(url: "https://westernwheelersbicycleclub.wildapricot.org/Admin/Contacts/Details/ProfileAccessSettingsTab/ProfileAccessSettingsView.aspx?contactId=\(id)", show: false)
+//        print("XXXXXX=======", rider.email, rider.id, html?.count, rider.email.isEmpty, html!.contains(rider.email))
+//        if let html = html {
+//        }
+//        else {
+//            //Messages.instance.reportError(context: "Privacy", msg: "Cannot get privacy for \(rider.name)")
+//        }
+//
+//    }
     
     func getPrivacySetting(html:String, tag:String) -> String {
         var res = ""
@@ -101,6 +94,7 @@ class PrivacyChecker {
     func handleResponse(ctx:String, url:String, data:Data?, response:URLResponse?, error:Error?) -> String! {
         var ret:String! = nil
         guard error == nil else  {
+            Messages.instance.reportError(context: "Privacy", msg: error?.localizedDescription ?? "")
             return ret
         }
         guard let response = response as? HTTPURLResponse else {
@@ -133,22 +127,6 @@ class PrivacyChecker {
         return req
     }
     
-    func get(url:String, show:Bool = false) -> String! {
-        let req = getReq(url: url, post: false)
-        var ret:String? = nil
-        let semaphore: DispatchSemaphore = DispatchSemaphore(value: 0)
-        let task = shared.dataTask(with: req) { data, response, error in
-            ret = self.handleResponse(ctx: "Get", url: url, data: data, response: response, error: error)
-            semaphore.signal()
-        }
-        task.resume()
-        semaphore.wait()
-        if show {
-            print (ret)
-        }
-        return ret
-    }
-
     func post(url: String) {
         let semaphore: DispatchSemaphore = DispatchSemaphore(value: 0)
         var request = getReq(url: url, post: true)
@@ -163,7 +141,7 @@ class PrivacyChecker {
         request.httpBody = postString.data(using: String.Encoding.utf8);
 
         let task = shared.dataTask(with: request) { [self] data, response, error in
-            self.handleResponse(ctx: "Post", url: url, data: data, response: response, error: error)
+            //self.handleResponse(ctx: "Post", url: url, data: data, response: response, error: error)
             semaphore.signal()
         }
         task.resume()

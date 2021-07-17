@@ -28,18 +28,21 @@ class RideTemplate: Identifiable, Hashable, Equatable {
             if row.count > 1 && (row[1] == "TRUE" || row[1] == "FALSE") { // and row.count == 2
                 if row[0] != "" {
                     let name = row[0]
+                    let components = name.components(separatedBy: ",")
+                    let nameLast = components[0].trimmingCharacters(in: .whitespacesAndNewlines)
+                    let nameFirst = components[1].trimmingCharacters(in: .whitespacesAndNewlines)
                     var phone = ""
                     var email = ""
                     var emerg = ""
                     var inDirectory = false
                     var id = ""
-                    if row.count > 2 {
-                        phone = row[2]
-                    }
-                    if row.count > 3 {
-                        email = row[3]
-                    }
-                    if let rider = ClubMembers.instance.get(name: name) {
+//                    if row.count > 2 {
+//                        phone = row[2]
+//                    }
+//                    if row.count > 3 {
+//                        email = row[3]
+//                    }
+                    if let rider = ClubMembers.instance.getByName(displayName: nameLast+", "+nameFirst) { 
                         //load the rider data from the directory if possible
                         if phone == "" {
                             phone = rider.phone
@@ -51,7 +54,7 @@ class RideTemplate: Identifiable, Hashable, Equatable {
                         inDirectory = true
                         id = rider.id
                     }
-                    let rider = Rider(id: id, name: name, phone: phone, emrg: emerg, email: email)
+                    let rider = Rider(id: id, nameFirst: nameFirst, nameLast: nameLast, phone: phone, emrg: emerg, email: email)
                     rider.inDirectory = inDirectory
                     if row[1] == "TRUE" {
                         rider.setSelected(true)
@@ -64,7 +67,7 @@ class RideTemplate: Identifiable, Hashable, Equatable {
                 for fld in row {
                     note += fld
                 }
-                SignedInRiders.instance.notes.append(note)
+                SignedInRiders.instance.rideData.notes.append(note)
             }
         }
         SignedInRiders.instance.sort()

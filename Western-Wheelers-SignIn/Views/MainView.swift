@@ -16,14 +16,13 @@ struct RiderView: View {
             HStack {
                 Text(" ")
                 Image(systemName: (self.rider.selected() ? "checkmark.square" : "square"))
+                    .foregroundColor(rider.isHilighted ? .blue : .black)
                 .onTapGesture {
                     self.selectedAction()
                 }
-                Button(rider.name, action: {
+                Button(rider.getDisplayName(), action: {
                     self.selectedAction()
                 })
-                .font(rider.isHilighted ? Font.headline.weight(.bold) : Font.headline.weight(.regular))
-                //.foregroundColor(.black)
                 Spacer()
                 if self.rider.isLeader {
                     Text("Leader").italic()
@@ -50,13 +49,13 @@ struct RiderView: View {
         }
         .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
         //.foregroundColor(rider.selected() ? .black : .secondary)
-        .id(self.rider.name)
+        .id(self.rider.id)
     }
 }
 
 struct RidersView: View {
     @Binding var activeSheet:ActiveSheet?
-    @Binding var scrollToRiderName:String
+    @Binding var scrollToRiderId:String
     @ObservedObject var signedInRiders = SignedInRiders.instance
     
     var body: some View {
@@ -64,24 +63,24 @@ struct RidersView: View {
             ScrollView {
                 ScrollViewReader { proxy in
                     VStack {
-                        ForEach(signedInRiders.getList(), id: \.self.name) { rider in
+                        ForEach(signedInRiders.getList(), id: \.self.id) { rider in
                             RiderView(activeSheet: $activeSheet, rider: rider,
                                      selectedAction: {
                                          DispatchQueue.main.async {
-                                             signedInRiders.toggleSelected(name: rider.name)
+                                             signedInRiders.toggleSelected(id: rider.id)
                                          }
                                      },
                                      deletedAction: {
                                         DispatchQueue.main.async {
-                                            signedInRiders.remove(name: rider.name)
+                                            signedInRiders.remove(id: rider.id)
                                         }
                                      })
                         }
                     }
-                    .onChange(of: scrollToRiderName) { target in
-                        if scrollToRiderName != "" {
+                    .onChange(of: scrollToRiderId) { target in
+                        if scrollToRiderId != "" {
                             withAnimation {
-                                proxy.scrollTo(scrollToRiderName)
+                                proxy.scrollTo(scrollToRiderId)
                             }
                         }
                     }
@@ -145,7 +144,7 @@ struct CurrentRideView: View {
     @State private var emailShowing = false
     @State private var confirmShowing = false
     @State var result: Result<MFMailComposeResult, Error>? = nil
-    @State var scrollToRiderName:String = ""
+    @State var scrollToRiderId:String = ""
     @State var confirmClean:Bool = false
     @State var activeSheet: ActiveSheet?
     private let messageComposeDelegate = MessageComposerDelegate()
@@ -156,14 +155,14 @@ struct CurrentRideView: View {
 
     func addRider(rider:Rider, clubMember: Bool) {
         rider.setSelected(true)
-        if ClubMembers.instance.get(name: rider.name) != nil {
+        if ClubMembers.instance.getByName(displayName: rider.getDisplayName()) != nil {
             rider.inDirectory = true
         }
         //SignedInRiders.instance.add(rider: Rider(rider: rider))
         SignedInRiders.instance.add(rider: rider)
-        SignedInRiders.instance.setSelected(name: rider.name)
-        SignedInRiders.instance.setHilighted(name: rider.name)
-        self.scrollToRiderName = rider.name
+        SignedInRiders.instance.setSelected(id: rider.id)
+        SignedInRiders.instance.setHilighted(id: rider.id)
+        self.scrollToRiderId = rider.id
         ClubMembers.instance.clearSelected()
     }
     
@@ -199,33 +198,36 @@ struct CurrentRideView: View {
 
     var body: some View {
         VStack {
-            if SignedInRiders.instance.getCount() > 0 {
-                Button("Clear Ride Sheet") {
-                    confirmClean = true
+            VStack{
+                Text("")
+                if SignedInRiders.instance.getCount() > 0 {
+                    Button("Clear Ride Sheet") {
+                        confirmClean = true
+                    }
+                    .alert(isPresented:$confirmClean) {
+                        Alert(
+                            title: Text("Are you sure you want to clear this ride sheet?"),
+                            message: Text("There are \(SignedInRiders.instance.selectedCount()) selected riders"),
+                            primaryButton: .destructive(Text("Clear")) {
+                                SignedInRiders.instance.clearData()
+                                //activeSheet = .templates
+                            },
+                            secondaryButton: .cancel()
+                        )
+                    }
+                    //.font(.title2).font(.callout).foregroundColor(.blue)
                 }
-                .alert(isPresented:$confirmClean) {
-                    Alert(
-                        title: Text("Are you sure you want to clear this ride sheet?"),
-                        message: Text("There are \(SignedInRiders.instance.selectedCount()) selected riders"),
-                        primaryButton: .destructive(Text("Clear")) {
-                            SignedInRiders.instance.clearData()
-                            //activeSheet = .templates
-                        },
-                        secondaryButton: .cancel()
-                    )
+                if SignedInRiders.instance.getCount() == 0 {
+                    Button("Select Ride Template") {
+    //                    if SignedInRiders.instance.list.count > 0 {
+    //                        confirmClean = true
+    //                    }
+    //                    else {
+                            activeSheet = .templates
+    //                    }
+                    }
+                    //.font(.title2).font(.callout).foregroundColor(.blue)
                 }
-                //.font(.title2).font(.callout).foregroundColor(.blue)
-            }
-            if SignedInRiders.instance.getCount() == 0 {
-                Button("Select Ride Template") {
-//                    if SignedInRiders.instance.list.count > 0 {
-//                        confirmClean = true
-//                    }
-//                    else {
-                        activeSheet = .templates
-//                    }
-                }
-                //.font(.title2).font(.callout).foregroundColor(.blue)
             }
             
             if SignedInRiders.instance.getCount() > 0 && SignedInRiders.instance.selectedCount() < SignedInRiders.instance.getCount() {
@@ -235,7 +237,7 @@ struct CurrentRideView: View {
                 //.font(.title2).font(.callout).foregroundColor(.blue)
             }
 
-            RidersView(activeSheet: $activeSheet, scrollToRiderName: $scrollToRiderName)
+            RidersView(activeSheet: $activeSheet, scrollToRiderId: $scrollToRiderId)
             VStack {
             HStack {
                 Spacer()
@@ -311,7 +313,7 @@ struct CurrentRideView: View {
             case .riderDetail:
                 RiderDetailView(rider: riderForDetail!, prepareText: self.riderCommunicate(rider:way:))
             case .rideInfoEdit:
-                RideInfoEditView()
+                RideInfoView(signedInRiders: signedInRiders)
             }
         }
         .onAppear() {
@@ -324,48 +326,40 @@ struct CurrentRideView: View {
 }
 
 
-
-//struct MessageView: View {
-//    @Environment(\.scenePhase) var scenePhase
-//
-//    private let messageComposeDelegate = MessageComposerDelegate()
-//
-//    var body: some View {
-//        VStack {
-//            Text("MESSAE VIEW")
-//        }
-//        .onAppear() {
-//            print("ON APPEAR ...........................")
-//            self.presentMessageCompose()
-//        }
-//    }
-//}
-
 struct MainView: View {
     @Environment(\.scenePhase) var scenePhase
-    
+    @State var signedIn = true
+
     var body: some View {
-        TabView {
-            CurrentRideView()
-            .tabItem {
-                Label("Ride", systemImage: "bicycle.circle.fill")
+        if signedIn {
+            TabView {
+                CurrentRideView()
+                .tabItem {
+                    Label("Ride", systemImage: "bicycle.circle.fill")
+                }
+                MembersView()
+                .tabItem {
+                    Label("Members", systemImage: "person.3.fill")
+                }
             }
-            MembersView()
-            .tabItem {
-                Label("Members", systemImage: "person.3.fill")
+            .onChange(of: scenePhase) { newScenePhase in
+              switch newScenePhase {
+              case .active:
+                break
+              case .inactive:
+                SignedInRiders.instance.save()
+             case .background:
+                SignedInRiders.instance.save()
+              @unknown default:
+                break
+              }
             }
+//        .sheet(item: $signedIn) { item in
+//            SignInView()
+//        }
         }
-        .onChange(of: scenePhase) { newScenePhase in
-          switch newScenePhase {
-          case .active:
-            break
-          case .inactive:
-            SignedInRiders.instance.save()
-         case .background:
-            SignedInRiders.instance.save()
-          @unknown default:
-            break
-          }
+        else {
+            SignInView(isPresented: $signedIn)
         }
     }
 }

@@ -23,6 +23,7 @@ struct RideTemplateCell: View {
         })
         .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
         //.foregroundColor(isSelected ? .blue : .black)
+        Text("")
     }
 }
 

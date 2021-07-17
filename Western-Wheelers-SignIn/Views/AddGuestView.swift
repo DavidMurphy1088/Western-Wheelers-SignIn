@@ -6,7 +6,8 @@ import MessageUI
 struct AddGuestView: View {
     var addRider : (Rider, Bool) -> Void
     @Environment(\.presentationMode) private var presentationMode
-    @State var enteredGuestName: String = ""
+    @State var enteredGuestNameFirst: String = ""
+    @State var enteredGuestNameLast: String = ""
     @State var enteredPhone: String = ""
     @State var enteredEmergecny: String = ""
 
@@ -20,8 +21,14 @@ struct AddGuestView: View {
             
             HStack {
                 Spacer()
-                Text("       Name").multilineTextAlignment(.trailing)
-                TextField("Name", text: $enteredGuestName).frame(width: 150)
+                Text(" First Name").multilineTextAlignment(.trailing)
+                TextField("First Name", text: $enteredGuestNameFirst).frame(width: 150)
+                Spacer()
+            }
+            HStack {
+                Spacer()
+                Text("  Last Name").multilineTextAlignment(.trailing)
+                TextField("Last Name", text: $enteredGuestNameLast).frame(width: 150)
                 Spacer()
             }
             HStack {
@@ -41,7 +48,7 @@ struct AddGuestView: View {
             HStack {
                 Spacer()
                 Button(action: {
-                    addRider(Rider(id: "", name: enteredGuestName, phone: enteredPhone, emrg: enteredEmergecny, email: "", isGuest:true), false)
+                    addRider(Rider(id: SignedInRiders.instance.getGuestId(), nameFirst: enteredGuestNameFirst, nameLast: enteredGuestNameLast, phone: enteredPhone, emrg: enteredEmergecny, email: "", isGuest:true), false)
                     self.presentationMode.wrappedValue.dismiss()
                 }, label: {
                     Text("Add")
