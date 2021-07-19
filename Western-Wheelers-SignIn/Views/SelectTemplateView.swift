@@ -27,7 +27,7 @@ struct RideTemplateCell: View {
     }
 }
 
-struct SelectRideTemplateView: View {
+struct SelectTemplateView: View {
     @Environment(\.presentationMode) private var presentationMode
     @ObservedObject var templates = RideTemplates.instance
     @State var selectedTemplate:String? = nil
@@ -37,11 +37,11 @@ struct SelectRideTemplateView: View {
             Text("Ride Templates").font(.title2).foregroundColor(Color.blue)
             Text("Select a ride template to pre-populate your ride. The template can contain any data such as the ride name, ride leader, routes, notes etc. In the template, names followed immediately on the row by check boxes are treated as riders to include for this ride.").font(.callout)
                 .padding()
-            if SignedInRiders.instance.getCount() > 0 {
-                Text("The ride sheet already has \(SignedInRiders.instance.getCount()) riders. Selecting another template will clear the ride sheet. Cancel to retain the current ride sheet.")
-                    .foregroundColor(Color.red)
-                    .padding()
-            }
+//            if SignedInRiders.instance.getCount() > 0 {
+//                Text("The ride sheet already has \(SignedInRiders.instance.getCount()) riders. Selecting another template will clear the ride sheet. Cancel to retain the current ride sheet.")
+//                    .foregroundColor(Color.red)
+//                    .padding()
+//            }
 
             VStack {
                 ForEach(templates.templates, id: \.self) { temp in

@@ -16,13 +16,18 @@ struct RiderView: View {
             HStack {
                 Text(" ")
                 Image(systemName: (self.rider.selected() ? "checkmark.square" : "square"))
-                    .foregroundColor(rider.isHilighted ? .blue : .black)
                 .onTapGesture {
                     self.selectedAction()
                 }
+                Text(" ")
+
                 Button(rider.getDisplayName(), action: {
-                    self.selectedAction()
+                    riderForDetail = self.rider
+                    activeSheet = .riderDetail
                 })
+                if rider.isHilighted {
+                    Image(systemName: ("arrow.left"))
+                }
                 Spacer()
                 if self.rider.isLeader {
                     Text("Leader").italic()
@@ -32,13 +37,6 @@ struct RiderView: View {
                         Text("Co-leader").italic()
                     }
                 }
-
-                Image(systemName: ("ellipsis.bubble")).foregroundColor(.purple)
-                    .onTapGesture {
-                        riderForDetail = self.rider
-                        activeSheet = .riderDetail
-                    }
-                Text("  ")
                 Image(systemName: ("minus.circle")).foregroundColor(.purple)
                     .onTapGesture {
                         self.deletedAction()
@@ -48,7 +46,6 @@ struct RiderView: View {
             Text("")
         }
         .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
-        //.foregroundColor(rider.selected() ? .black : .secondary)
         .id(self.rider.id)
     }
 }
@@ -86,15 +83,14 @@ struct RidersView: View {
                     }
                 }
             }
-            .border(Color.blue)
+            .border(Color.black)
             .padding()
-
         }
      }
 }
 
 enum ActiveSheet: Identifiable {
-    case templates, addRider, addGuest, email, riderDetail, rideInfoEdit
+    case selectTemplate, selectRide, addRider, addGuest, email, riderDetail, rideInfoEdit
     var id: Int {
         hashValue
     }
@@ -140,6 +136,8 @@ extension  CurrentRideView {
 
 struct CurrentRideView: View {
     @ObservedObject var signedInRiders = SignedInRiders.instance
+    //@State var ride: Ride?
+
     @State private var selectRideTemplateSheet = false
     @State private var emailShowing = false
     @State private var confirmShowing = false
@@ -152,6 +150,10 @@ struct CurrentRideView: View {
 
     @ObservedObject var messages = Messages.instance
     @Environment(\.openURL) var openURL
+
+    func addRide(ride:ClubRide) {
+        signedInRiders.rideData.ride = ride
+    }
 
     func addRider(rider:Rider, clubMember: Bool) {
         rider.setSelected(true)
@@ -200,7 +202,17 @@ struct CurrentRideView: View {
         VStack {
             VStack{
                 Text("")
-                if SignedInRiders.instance.getCount() > 0 {
+                if signedInRiders.rideData.ride == nil {
+                    Button("Select A Ride") {
+                        activeSheet = .selectRide
+                    }
+                }
+                else {
+                    if signedInRiders.selectedCount() == 0 {
+                        Button("Select Ride Template") {
+                            activeSheet = .selectTemplate
+                        }
+                    }
                     Button("Clear Ride Sheet") {
                         confirmClean = true
                     }
@@ -210,81 +222,58 @@ struct CurrentRideView: View {
                             message: Text("There are \(SignedInRiders.instance.selectedCount()) selected riders"),
                             primaryButton: .destructive(Text("Clear")) {
                                 SignedInRiders.instance.clearData()
-                                //activeSheet = .templates
                             },
                             secondaryButton: .cancel()
                         )
                     }
-                    //.font(.title2).font(.callout).foregroundColor(.blue)
-                }
-                if SignedInRiders.instance.getCount() == 0 {
-                    Button("Select Ride Template") {
-    //                    if SignedInRiders.instance.list.count > 0 {
-    //                        confirmClean = true
-    //                    }
-    //                    else {
-                            activeSheet = .templates
-    //                    }
-                    }
-                    //.font(.title2).font(.callout).foregroundColor(.blue)
-                }
-            }
             
-            if SignedInRiders.instance.getCount() > 0 && SignedInRiders.instance.selectedCount() < SignedInRiders.instance.getCount() {
-                Button("Remove Unselected Riders") {
-                    SignedInRiders.instance.removeUnselected()
-                }
-                //.font(.title2).font(.callout).foregroundColor(.blue)
-            }
-
-            RidersView(activeSheet: $activeSheet, scrollToRiderId: $scrollToRiderId)
-            VStack {
-            HStack {
-                Spacer()
-                Button(action: {
-                    activeSheet = .addRider
-                }) {
-                    HStack {
-//                        Image(systemName: "plus.circle")
-//                            .resizable()
-//                            .foregroundColor(.purple)
-//                            .frame(width: 30, height: 30)
-                        Text("Add Rider")
+                    if SignedInRiders.instance.getCount() > 0 && SignedInRiders.instance.selectedCount() < SignedInRiders.instance.getCount() {
+                        Button("Remove Unselected Riders") {
+                            SignedInRiders.instance.removeUnselected()
+                        }
                     }
-                }
-                Spacer()
-                Button(action: {
-                    activeSheet = .addGuest
                     
-                }) {
-                    HStack {
-//                        Image(systemName: "plus.circle")
-//                            .resizable()
-//                            .foregroundColor(.purple)
-//                            .frame(width: 30, height: 30)
-                        Text("Add Guest")
+                    RidersView(activeSheet: $activeSheet, scrollToRiderId: $scrollToRiderId)
+                    
+                    VStack {
+                        HStack {
+                            Spacer()
+                            Button(action: {
+                                activeSheet = .addRider
+                            }) {
+                                HStack {
+                                    Text("Add Rider")
+                                }
+                            }
+                            Spacer()
+                            Button(action: {
+                                activeSheet = .addGuest
+                            }) {
+                                HStack {
+                                    Text("Add Guest")
+                                }
+                            }
+                            Spacer()
+                        }
+                        Text("")
+                        HStack {
+                            Spacer()
+                            Button(action: {
+                                activeSheet = .rideInfoEdit
+                            }, label: {
+                                Text("Ride Info")
+                            })
+                            Spacer()
+                            Button(action: {
+                                activeSheet = .email
+                            }, label: {
+                                Text("Email Sheet")
+                            })
+                            .disabled(signedInRiders.selectedCount() == 0)
+                            Spacer()
+                        }
                     }
                 }
-                Spacer()
-            }
-            Text("")
-            HStack {
-                Spacer()
-                Button(action: {
-                    activeSheet = .rideInfoEdit
-                }, label: {
-                    Text("Ride Info")
-                })
-                Spacer()
-                Button(action: {
-                    activeSheet = .email
-                }, label: {
-                    Text("Email Sheet")
-                })
-                //.font(.title2).font(.callout).foregroundColor(.blue)
-                .disabled(signedInRiders.selectedCount() == 0)
-                Spacer()
-            }
             }
             Text("")
             Text("Signed up \(SignedInRiders.instance.selectedCount()) riders").font(.footnote)
@@ -298,8 +287,10 @@ struct CurrentRideView: View {
         }
         .sheet(item: $activeSheet) { item in
             switch item {
-            case .templates:
-                SelectRideTemplateView()
+            case .selectTemplate:
+                SelectTemplateView()
+            case .selectRide:
+                SelectRide( addRide: self.addRide(ride:)) 
             case .addRider:
                 AddRiderView(addRider: self.addRider(rider:clubMember:))
             case .addGuest:
@@ -313,7 +304,7 @@ struct CurrentRideView: View {
             case .riderDetail:
                 RiderDetailView(rider: riderForDetail!, prepareText: self.riderCommunicate(rider:way:))
             case .rideInfoEdit:
-                RideInfoView(signedInRiders: signedInRiders)
+                RideInfoView(signedInRiders: signedInRiders, ride: signedInRiders.rideData.ride!)
             }
         }
         .onAppear() {

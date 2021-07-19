@@ -6,7 +6,7 @@ import os.log
 
 class WAApi : ObservableObject {
 
-    static private var shared:WAApi! = nil
+    //static private var shared:WAApi! = nil
     private var token: String! = nil
     private var accountId:String! = nil
 
@@ -16,12 +16,12 @@ class WAApi : ObservableObject {
         case LoadMembers, AuthenticateUser, None
     }
     
-    static func instance() -> WAApi {
-        if shared == nil {
-            shared = WAApi()
-        }
-        return shared
-    }
+//    static func instance() -> WAApi {
+//        if shared == nil {
+//            shared = WAApi()
+//        }
+//        return shared
+//    }
     
     func apiKey(key:String) -> String {
         let path = Bundle.main.path(forResource: "api_keys.txt", ofType: nil)!

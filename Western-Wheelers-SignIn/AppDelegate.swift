@@ -13,11 +13,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         GIDSignIn.sharedInstance().delegate = GoogleDrive.instance
         GIDSignIn.sharedInstance()?.scopes = [kGTLRAuthScopeDrive]
         SignedInRiders.instance.restore()
-        //PrivacyChecker.instance.start()
+        ClubRides.instance //start the rides loading here rather than the popup that uses it so it loads at start up
         return true
     }
-//    does not work - is never called?
-//    func applicationDidEnterBackground(_ application: UIApplication) {
-//        SignedInRiders.instance.save()
-//    }
+
 }

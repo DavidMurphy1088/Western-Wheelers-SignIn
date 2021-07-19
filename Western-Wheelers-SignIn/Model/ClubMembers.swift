@@ -5,7 +5,8 @@ class ClubMembers : ObservableObject {
     static let instance:ClubMembers = ClubMembers()
     static let savedDataName = "MemberListData"
     private var pageList:[Rider] = []
-    
+    private let api = WAApi()
+    //TODO blanket privacy block works?
     private init() {
         //https://app.swaggerhub.com/apis/WildApricot/wild-apricot_api_for_non_administrative_access/7.15.0#/Contacts/get_accounts__accountId__contacts
         DispatchQueue.global(qos: .userInitiated).async {
@@ -19,7 +20,7 @@ class ClubMembers : ObservableObject {
                 var url = "https://api.wildapricot.org/publicview/v1/accounts/$id/contacts"
                 url += "?%24skip=\(pos)&%24top=\(pageSize)"
                 self.pageList = []
-                WAApi.instance().apiCall(url: url, username:nil, password:nil, completion: self.loadMembers)
+                self.api.apiCall(url: url, username:nil, password:nil, completion: self.loadMembers)
                 print ("++++", self.pageList.count, self.clubList.count)
                 pos += pageSize
                 downloadList.append(contentsOf: self.pageList)

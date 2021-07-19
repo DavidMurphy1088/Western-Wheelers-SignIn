@@ -65,9 +65,12 @@ class RideTemplate: Identifiable, Hashable, Equatable {
             else {
                 var note = ""
                 for fld in row {
-                    note += fld
+                    note += " " + fld
                 }
-                SignedInRiders.instance.rideData.notes.append(note)
+                if SignedInRiders.instance.rideData.notes == nil {
+                    SignedInRiders.instance.rideData.notes = ""
+                }
+                SignedInRiders.instance.rideData.notes! += note + "\n"
             }
         }
         SignedInRiders.instance.sort()

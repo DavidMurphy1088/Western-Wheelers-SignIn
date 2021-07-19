@@ -140,7 +140,7 @@ class PrivacyChecker {
         postString += "&browserData=WebKit;Exec Command;Client Cookies Enabled;Platform Compatible;Javascript Enabled;" //required to avoid HTTP 501
         request.httpBody = postString.data(using: String.Encoding.utf8);
 
-        let task = shared.dataTask(with: request) { [self] data, response, error in
+        let task = shared.dataTask(with: request) { data, response, error in
             //self.handleResponse(ctx: "Post", url: url, data: data, response: response, error: error)
             semaphore.signal()
         }

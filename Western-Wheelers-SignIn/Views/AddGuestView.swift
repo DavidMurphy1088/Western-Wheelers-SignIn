@@ -10,6 +10,7 @@ struct AddGuestView: View {
     @State var enteredGuestNameLast: String = ""
     @State var enteredPhone: String = ""
     @State var enteredEmergecny: String = ""
+    @State var maxText: CGFloat = 200
 
     var body: some View {
         VStack {
@@ -21,26 +22,34 @@ struct AddGuestView: View {
             
             HStack {
                 Spacer()
-                Text(" First Name").multilineTextAlignment(.trailing)
-                TextField("First Name", text: $enteredGuestNameFirst).frame(width: 150)
+                Text("First Name").multilineTextAlignment(.trailing)
+                TextField("first name", text: $enteredGuestNameFirst).frame(width: 150)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .frame(maxWidth: maxText)
                 Spacer()
             }
             HStack {
                 Spacer()
-                Text("  Last Name").multilineTextAlignment(.trailing)
-                TextField("Last Name", text: $enteredGuestNameLast).frame(width: 150)
+                Text("Last Name").multilineTextAlignment(.trailing)
+                TextField("last name", text: $enteredGuestNameLast).frame(width: 150)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .frame(maxWidth: maxText)
                 Spacer()
             }
             HStack {
                 Spacer()
-                Text("      Phone").multilineTextAlignment(.trailing)
-                TextField("Cell phone", text: $enteredPhone).frame(width: 150)
+                Text("Cell Phone").multilineTextAlignment(.trailing)
+                TextField("cell phone", text: $enteredPhone).frame(width: 150)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .frame(maxWidth: maxText)
                 Spacer()
             }
             HStack {
                 Spacer()
                 Text("Emergency").multilineTextAlignment(.trailing)
-                TextField("Emergency phone", text: $enteredEmergecny).frame(width: 150) //.multilineTextAlignment(.leading).
+                TextField("emergency phone", text: $enteredEmergecny).frame(width: 150)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .frame(maxWidth: maxText)
                 Spacer()
             }
             Spacer()

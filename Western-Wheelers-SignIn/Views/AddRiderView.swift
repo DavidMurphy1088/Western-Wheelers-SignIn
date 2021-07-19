@@ -17,10 +17,11 @@ struct SelectScrollView : View {
                             if rider.selected() {
                                 HStack {
                                     //Text(rider.name)
-                                    Button(rider.getDisplayName(), action: {
+                                    Button("   "+rider.getDisplayName()+"   ", action: {
                                         self.addRider(Rider(rider: rider), true)
                                         self.presentationMode.wrappedValue.dismiss()
                                     })
+                                    //.padding()
                                 }
                                 Text("")
                             }
@@ -28,7 +29,7 @@ struct SelectScrollView : View {
                     }
                 }
             }
-            .border(Color.blue)
+            .border(Color.black)
             .padding()
         }
      }
@@ -68,17 +69,17 @@ struct AddRiderView: View {
                 Spacer()
                 Image(systemName: "magnifyingglass")
                 Text("Last Name")
-                TextField("name", text: enteredNameLast)
+                TextField("last name", text: enteredNameLast)
                     .frame(minWidth: 0, maxWidth: 250)  //, minHeight: 0, maxHeight: 200)
                     .simultaneousGesture(TapGesture().onEnded {
                     })
-                //.font(.title2).foregroundColor(Color.black)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
                 Text("First Name")
-                TextField("name", text: enteredNameFirst)
+                TextField("first name", text: enteredNameFirst)
                     .frame(minWidth: 0, maxWidth: 250)  //, minHeight: 0, maxHeight: 200)
                     .simultaneousGesture(TapGesture().onEnded {
                     })
-                //.font(.title2).foregroundColor(Color.black)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
                 Spacer()
             }
         }

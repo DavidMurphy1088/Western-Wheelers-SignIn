@@ -51,7 +51,6 @@ struct RiderDetailView: View {
                         self.presentationMode.wrappedValue.dismiss()
                     }, label: {
                         Text("Text Rider")
-                            //.font(.title2)
                     })
                 }
                 if !rider.phone.isEmpty {
@@ -61,7 +60,6 @@ struct RiderDetailView: View {
                         self.presentationMode.wrappedValue.dismiss()
                     }, label: {
                         Text("Phone Rider")
-                            //.font(.title2)
                     })
                 }
                 if !rider.email.isEmpty {
@@ -71,7 +69,6 @@ struct RiderDetailView: View {
                         self.presentationMode.wrappedValue.dismiss()
                     }, label: {
                         Text("EMail Rider")
-                            //.font(.title2)
                     })
                 }
 

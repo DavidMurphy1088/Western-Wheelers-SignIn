@@ -5,7 +5,7 @@ import os.log
 
 struct SignInView: View {
     @Binding var isPresented: Bool
-    @ObservedObject private var api = WAApi.instance()
+    @ObservedObject private var api = WAApi()
     @State private var username = "" //daxvixdp.murphy@sbcglobal.net" //TxODO
     @State private var password = ""
     @State private var failedSigin = false
@@ -14,7 +14,7 @@ struct SignInView: View {
     var body: some View {
         VStack  {
             if self.keyboardHeight == 0 {
-                Text("Western Wheelers Sign In").font(.title)
+                Text("Western Wheelers Sign In").font(.title2)
                 Text("")
                 Text("Member verification for using this app is required one time. Please sign in using the email and password you use to sign into the Western Wheelers site as illustrated.").font(.footnote).padding().fixedSize(horizontal: false, vertical: true)
                 Image("Image_SignIn").resizable().frame(width: 180, height: 180)

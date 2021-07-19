@@ -10,7 +10,6 @@
 		2FE2C4770AAE25847CEE03B7 /* Pods_Western_Wheelers_SignIn.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B0364D7F46014F8A7B8FFFB /* Pods_Western_Wheelers_SignIn.framework */; };
 		7B1A8F9126953C51002E4EF1 /* AddRiderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1A8F9026953C51002E4EF1 /* AddRiderView.swift */; };
 		7B1A8F992695422C002E4EF1 /* AddGuestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1A8F982695422C002E4EF1 /* AddGuestView.swift */; };
-		7B22417A269E224500F06EB6 /* RideInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B224179269E224500F06EB6 /* RideInfoView.swift */; };
 		7B224184269F4E4100F06EB6 /* PrivacyChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B224183269F4E4100F06EB6 /* PrivacyChecker.swift */; };
 		7B22418D269FEF0A00F06EB6 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = 7B22418C269FEF0A00F06EB6 /* SwiftSoup */; };
 		7B2241A626A0A49000F06EB6 /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B2241A526A0A48F00F06EB6 /* SignInView.swift */; };
@@ -29,13 +28,17 @@
 		7B999965268038AA00F3E65D /* Notes in Resources */ = {isa = PBXBuildFile; fileRef = 7B999964268038AA00F3E65D /* Notes */; };
 		7B99996A268039F300F3E65D /* Podfile in Resources */ = {isa = PBXBuildFile; fileRef = 7B999969268039F300F3E65D /* Podfile */; };
 		7B9999BB2680582900F3E65D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B9999BA2680582900F3E65D /* AppDelegate.swift */; };
+		7BA71C0926A3A0CC00885D12 /* ClubRides.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA71C0826A3A0CC00885D12 /* ClubRides.swift */; };
+		7BA71C0E26A3A1D000885D12 /* SelectRide.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA71C0D26A3A1CF00885D12 /* SelectRide.swift */; };
+		7BA71C1F26A5087000885D12 /* ClubRide.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA71C1E26A5087000885D12 /* ClubRide.swift */; };
+		7BA71C3426A54B1800885D12 /* RideInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA71C3326A54B1800885D12 /* RideInfoView.swift */; };
 		7BB6B1F2268A8C8E007941D2 /* WAApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB6B1F1268A8C8E007941D2 /* WAApi.swift */; };
 		7BB6B1F7268A8E19007941D2 /* api_keys.txt in Resources */ = {isa = PBXBuildFile; fileRef = 7BB6B1F6268A8E19007941D2 /* api_keys.txt */; };
 		7BB6B209268C124D007941D2 /* MembersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB6B208268C124D007941D2 /* MembersView.swift */; };
 		7BB6B20E268C1379007941D2 /* ClubMembers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB6B20D268C1379007941D2 /* ClubMembers.swift */; };
 		7BB6B223268C4789007941D2 /* Rider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB6B222268C4789007941D2 /* Rider.swift */; };
 		7BB6B232268E5725007941D2 /* SendMailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB6B231268E5725007941D2 /* SendMailView.swift */; };
-		7BF9449726831D610034A70B /* SelectRideTemplateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF9449626831D610034A70B /* SelectRideTemplateView.swift */; };
+		7BF9449726831D610034A70B /* SelectTemplateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF9449626831D610034A70B /* SelectTemplateView.swift */; };
 		7BFDDEDD2698DD8E00497A21 /* RiderDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BFDDEDC2698DD8E00497A21 /* RiderDetailView.swift */; };
 /* End PBXBuildFile section */
 
@@ -60,7 +63,6 @@
 		4B0364D7F46014F8A7B8FFFB /* Pods_Western_Wheelers_SignIn.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Western_Wheelers_SignIn.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B1A8F9026953C51002E4EF1 /* AddRiderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddRiderView.swift; sourceTree = "<group>"; };
 		7B1A8F982695422C002E4EF1 /* AddGuestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddGuestView.swift; sourceTree = "<group>"; };
-		7B224179269E224500F06EB6 /* RideInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RideInfoView.swift; sourceTree = "<group>"; };
 		7B224183269F4E4100F06EB6 /* PrivacyChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyChecker.swift; sourceTree = "<group>"; };
 		7B2241A526A0A48F00F06EB6 /* SignInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInView.swift; sourceTree = "<group>"; };
 		7B306D8B2683F92500DA337E /* GoogleDrive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleDrive.swift; sourceTree = "<group>"; };
@@ -84,13 +86,17 @@
 		7B999964268038AA00F3E65D /* Notes */ = {isa = PBXFileReference; lastKnownFileType = text; path = Notes; sourceTree = "<group>"; };
 		7B999969268039F300F3E65D /* Podfile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Podfile; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		7B9999BA2680582900F3E65D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		7BA71C0826A3A0CC00885D12 /* ClubRides.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClubRides.swift; sourceTree = "<group>"; };
+		7BA71C0D26A3A1CF00885D12 /* SelectRide.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectRide.swift; sourceTree = "<group>"; };
+		7BA71C1E26A5087000885D12 /* ClubRide.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClubRide.swift; sourceTree = "<group>"; };
+		7BA71C3326A54B1800885D12 /* RideInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RideInfoView.swift; sourceTree = "<group>"; };
 		7BB6B1F1268A8C8E007941D2 /* WAApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WAApi.swift; sourceTree = "<group>"; };
 		7BB6B1F6268A8E19007941D2 /* api_keys.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = api_keys.txt; sourceTree = "<group>"; };
 		7BB6B208268C124D007941D2 /* MembersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MembersView.swift; sourceTree = "<group>"; };
 		7BB6B20D268C1379007941D2 /* ClubMembers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClubMembers.swift; sourceTree = "<group>"; };
 		7BB6B222268C4789007941D2 /* Rider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Rider.swift; sourceTree = "<group>"; };
 		7BB6B231268E5725007941D2 /* SendMailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendMailView.swift; sourceTree = "<group>"; };
-		7BF9449626831D610034A70B /* SelectRideTemplateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectRideTemplateView.swift; sourceTree = "<group>"; };
+		7BF9449626831D610034A70B /* SelectTemplateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectTemplateView.swift; sourceTree = "<group>"; };
 		7BFDDEDC2698DD8E00497A21 /* RiderDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RiderDetailView.swift; sourceTree = "<group>"; };
 		81137720A85A9149B994B378 /* Pods-Western-Wheelers-SignIn.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Western-Wheelers-SignIn.debug.xcconfig"; path = "Target Support Files/Pods-Western-Wheelers-SignIn/Pods-Western-Wheelers-SignIn.debug.xcconfig"; sourceTree = "<group>"; };
 		D79024AE02648849B27C3E29 /* Pods-Western-Wheelers-SignIn.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Western-Wheelers-SignIn.release.xcconfig"; path = "Target Support Files/Pods-Western-Wheelers-SignIn/Pods-Western-Wheelers-SignIn.release.xcconfig"; sourceTree = "<group>"; };
@@ -205,10 +211,11 @@
 				7B1A8F9026953C51002E4EF1 /* AddRiderView.swift */,
 				7B99992A2680110300F3E65D /* MainView.swift */,
 				7BB6B208268C124D007941D2 /* MembersView.swift */,
-				7BF9449626831D610034A70B /* SelectRideTemplateView.swift */,
-				7BB6B231268E5725007941D2 /* SendMailView.swift */,
+				7BA71C3326A54B1800885D12 /* RideInfoView.swift */,
 				7BFDDEDC2698DD8E00497A21 /* RiderDetailView.swift */,
-				7B224179269E224500F06EB6 /* RideInfoView.swift */,
+				7BA71C0D26A3A1CF00885D12 /* SelectRide.swift */,
+				7BF9449626831D610034A70B /* SelectTemplateView.swift */,
+				7BB6B231268E5725007941D2 /* SendMailView.swift */,
 				7B2241A526A0A48F00F06EB6 /* SignInView.swift */,
 			);
 			path = Views;
@@ -219,13 +226,15 @@
 			children = (
 				7BB6B1F6268A8E19007941D2 /* api_keys.txt */,
 				7BB6B20D268C1379007941D2 /* ClubMembers.swift */,
+				7BA71C1E26A5087000885D12 /* ClubRide.swift */,
+				7BA71C0826A3A0CC00885D12 /* ClubRides.swift */,
 				7B306D8B2683F92500DA337E /* GoogleDrive.swift */,
 				7B8EA5E02690D8ED00313FF0 /* Messages.swift */,
+				7B224183269F4E4100F06EB6 /* PrivacyChecker.swift */,
 				7BB6B222268C4789007941D2 /* Rider.swift */,
 				7B306D90268428CD00DA337E /* RideTemplates.swift */,
 				7B306DA526845B2E00DA337E /* SignedInRiders.swift */,
 				7BB6B1F1268A8C8E007941D2 /* WAApi.swift */,
-				7B224183269F4E4100F06EB6 /* PrivacyChecker.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -438,16 +447,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7B22417A269E224500F06EB6 /* RideInfoView.swift in Sources */,
 				7B9999322680110400F3E65D /* Persistence.swift in Sources */,
 				7B1A8F9126953C51002E4EF1 /* AddRiderView.swift in Sources */,
-				7BF9449726831D610034A70B /* SelectRideTemplateView.swift in Sources */,
+				7BF9449726831D610034A70B /* SelectTemplateView.swift in Sources */,
 				7BB6B223268C4789007941D2 /* Rider.swift in Sources */,
 				7BB6B209268C124D007941D2 /* MembersView.swift in Sources */,
 				7BB6B1F2268A8C8E007941D2 /* WAApi.swift in Sources */,
 				7B306D8C2683F92500DA337E /* GoogleDrive.swift in Sources */,
+				7BA71C3426A54B1800885D12 /* RideInfoView.swift in Sources */,
 				7BB6B232268E5725007941D2 /* SendMailView.swift in Sources */,
+				7BA71C0926A3A0CC00885D12 /* ClubRides.swift in Sources */,
 				7BFDDEDD2698DD8E00497A21 /* RiderDetailView.swift in Sources */,
+				7BA71C1F26A5087000885D12 /* ClubRide.swift in Sources */,
 				7B8EA5E12690D8ED00313FF0 /* Messages.swift in Sources */,
 				7B1A8F992695422C002E4EF1 /* AddGuestView.swift in Sources */,
 				7B9999352680110400F3E65D /* Western_Wheelers_SignIn.xcdatamodeld in Sources */,
@@ -455,6 +466,7 @@
 				7B224184269F4E4100F06EB6 /* PrivacyChecker.swift in Sources */,
 				7B2241A626A0A49000F06EB6 /* SignInView.swift in Sources */,
 				7B9999BB2680582900F3E65D /* AppDelegate.swift in Sources */,
+				7BA71C0E26A3A1D000885D12 /* SelectRide.swift in Sources */,
 				7B99992B2680110300F3E65D /* MainView.swift in Sources */,
 				7B9999292680110300F3E65D /* Western_Wheelers_SignInApp.swift in Sources */,
 				7BB6B20E268C1379007941D2 /* ClubMembers.swift in Sources */,

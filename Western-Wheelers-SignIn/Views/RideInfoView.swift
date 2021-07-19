@@ -3,65 +3,139 @@ import CoreData
 import GoogleSignIn
 import MessageUI
 
-//TODO Before ride submission is there a way to enter actual miles, climb and leader average speed and include that data in the notes.
-//Can a template be added for a non-recurring ride which asks for the posted ride name, ride rating, mileage, distance and climb?
+#if canImport(UIKit)
+extension View {
+    func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+}
+#endif
+
+class KeyboardHeightHelper: ObservableObject {
+    @Published var keyboardHeight: CGFloat = 0
+    init() {
+        self.listenForKeyboardNotifications()
+        
+    }
+    private func listenForKeyboardNotifications() {
+        NotificationCenter.default.addObserver(forName: UIResponder.keyboardDidShowNotification,
+                                               object: nil,
+                                               queue: .main) { [self] (notification) in
+                                                guard let userInfo = notification.userInfo,
+                                                    let keyboardRect = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
+                                                
+                                                self.keyboardHeight = keyboardRect.height
+                                                //print("==========", keyboardHeight)
+        }
+        
+        NotificationCenter.default.addObserver(forName: UIResponder.keyboardDidHideNotification,
+                                               object: nil,
+                                               queue: .main) { (notification) in
+                                                self.keyboardHeight = 0
+        }
+    }
+}
 
 struct RideInfoView: View {
     @Environment(\.presentationMode) private var presentationMode
+    @ObservedObject var keyboardHeightHelper = KeyboardHeightHelper()
+
     @State var signedInRiders:SignedInRiders
-    @State var title: String = ""
+    @State var ride:ClubRide
+    @State var rating: String = ""
     @State var miles: String = ""
     @State var climbed: String = ""
     @State var avgSpeed: String = ""
-
+    @State var notes: String = ""
+    @State var notesInFocus = false
+    @State var maxText:CGFloat = 200
+    
     var body: some View {
         VStack {
-            Spacer()
-            Text("Ride Data").font(.title).foregroundColor(Color.blue)
-            Text("Provide ride data for club statistics")
-            .font(.footnote).padding()
-            .multilineTextAlignment(.center)
-            
-            HStack {
-                Text("Title")
-                TextField("", text: $title).frame(width: 150)
+            Text(ride.name).font(.title2).foregroundColor(Color.blue)
+            if !notesInFocus {
+                Text("Optional ride info for this ride")
+                .font(.footnote).padding()
+                HStack {
+                    Text("Total miles")
+                    Spacer()
+                    TextField("miles", text: $miles)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .frame(maxWidth: maxText)
+                        .keyboardType(.numberPad)
+                }
+                .padding(.horizontal, 20)
+                HStack {
+                    Text("Climbed")
+                    Spacer()
+                    TextField("climbed", text: $climbed)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .frame(maxWidth: maxText)
+                        .keyboardType(.numberPad)
+                }
+                .padding(.horizontal, 20)
+                HStack {
+                    Text("Average Speed")
+                    Spacer()
+                    TextField("avg speed", text: $avgSpeed)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .frame(maxWidth: maxText)
+                        .keyboardType(.decimalPad)
+                    }
+                    .padding(.horizontal, 20)
             }
-            HStack {
-                Text("Miles")
-                TextField("miles", text: $miles).frame(width: 150)
-            }
-            HStack {
-                Text("Climbed")
-                TextField("feet", text: $climbed).frame(width: 150)
-            }
-            HStack {
-                Text("Average Speed")
-                TextField("mph", text: $avgSpeed).frame(width: 150)
+        
+            Text("Notes")
+            TextEditor(text: $notes)
+                .multilineTextAlignment(.leading)
+                .border(Color.black)
+                .padding()
+            .onTapGesture {
+                self.notesInFocus = true
             }
 
-            Button(action: {
-                signedInRiders.rideData.title = title
-                signedInRiders.rideData.totalMiles = miles
-                signedInRiders.rideData.totalClimb = climbed
-                self.presentationMode.wrappedValue.dismiss()
-            }, label: {
-                Text("Ok")
-            })
-            Spacer()
-            Button(action: {
-                self.presentationMode.wrappedValue.dismiss()
-            }, label: {
-                Text("Cancel")
-            })
-
+            if keyboardHeightHelper.keyboardHeight > 0 {
+                HStack {
+                    Spacer()
+                    Button("Hide Keyboard") {
+                        self.notesInFocus = false
+                        self.hideKeyboard()
+                    }
+                    Spacer()
+                }
+            }
+            else {
+                if keyboardHeightHelper.keyboardHeight == 0 {
+                    Button(action: {
+                        signedInRiders.rideData.rating = rating
+                        signedInRiders.rideData.totalMiles = miles
+                        signedInRiders.rideData.totalClimb = climbed
+                        signedInRiders.rideData.avgSpeed = avgSpeed
+                        signedInRiders.rideData.notes = notes
+                        self.presentationMode.wrappedValue.dismiss()
+                    }, label: {
+                        Text("Ok")
+                    })
+                    Spacer()
+                    Text("")
+                    Button(action: {
+                        self.presentationMode.wrappedValue.dismiss()
+                    }, label: {
+                        Text("Cancel")
+                    })
+                    Spacer()
+                    Text("")
+                }
+            }
         }
-        .border(Color.blue)
-        .padding()
-        .scaledToFit()
         .onAppear() {
-            title = signedInRiders.rideData.title ?? ""
+            rating = signedInRiders.rideData.rating ?? ""
             miles = signedInRiders.rideData.totalMiles ?? ""
             climbed = signedInRiders.rideData.totalClimb ?? ""
+            avgSpeed = signedInRiders.rideData.avgSpeed ?? ""
+            notes = signedInRiders.rideData.notes ?? ""
+            notesInFocus = false
         }
+
     }
 }

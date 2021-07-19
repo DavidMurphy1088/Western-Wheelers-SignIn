@@ -1,17 +1,24 @@
 import Foundation
 
 class RideData : Encodable, Decodable {
-    var title:String?
+    var templateName:String?
+    var rating:String?
     var totalMiles:String?
     var totalClimb:String?
+    var avgSpeed:String?
     var lastSignIn:String?
-    var notes:[String] = []
-
+    var notes:String?
+    var ride:ClubRide?
+    
     func clear() {
-        title = nil
+        templateName = nil
+        rating = nil
         totalMiles = nil
+        totalClimb = nil
         lastSignIn = nil
-        notes = []
+        avgSpeed = nil
+        notes = nil
+        ride = nil
     }
 }
 
@@ -50,13 +57,9 @@ class SignedInRiders : ObservableObject {
                 let compressedData = try (data as NSData).compressed(using: .lzfse)
                 UserDefaults.standard.set(compressedData, forKey: SignedInRiders.savedList)
             }
-//            if let data = try? encoder.encode(self.notes) {
-//                let compressedData = try (data as NSData).compressed(using: .lzfse)
-//                UserDefaults.standard.set(compressedData, forKey: SignedInRiders.savedDataName2)
-//            }
-                if let data = try? encoder.encode(self.rideData) {
-                    UserDefaults.standard.set(data, forKey: SignedInRiders.savedData)
-                }
+            if let data = try? encoder.encode(self.rideData) {
+                UserDefaults.standard.set(data, forKey: SignedInRiders.savedData)
+            }
         }
         catch {
             let msg = "Error saving rider list \(error.localizedDescription)"
@@ -80,28 +83,7 @@ class SignedInRiders : ObservableObject {
                 Messages.instance.reportError(context: "ClubRiders", msg: msg)
             }
         }
-//        savedData = UserDefaults.standard.object(forKey: SignedInRiders.savedDataName2)
-//        if let savedData = savedData {
-//            do {
-//                let json = try (savedData as! NSData).decompressed(using: .lzfse)
-//                let decoder = JSONDecoder()
-//                if let decoded = try? decoder.decode([String].self, from: json as Data) {
-//                    notes = decoded
-//                }
-//            }
-//            catch {
-//                let msg = "Error restoring rider list \(error.localizedDescription)"
-//                Messages.instance.reportError(context: "ClubRiders", msg: msg)
-//            }
-//        }
-//        savedData = UserDefaults.standard.object(forKey: SignedInRiders.savedDataName3)
-//        if let savedData = savedData {
-//            let json = savedData as! NSData
-//            let decoder = JSONDecoder()
-//            if let decoded = try? decoder.decode(String.self, from: json as Data) {
-//                lastSignIn = decoded
-//            }
-//        }
+
         savedData = UserDefaults.standard.object(forKey: SignedInRiders.savedData)
         if let savedData = savedData {
             let json = savedData as! NSData
@@ -147,7 +129,7 @@ class SignedInRiders : ObservableObject {
         list = []
         for template in RideTemplates.instance.templates {
             if template.name == name {
-                self.rideData.title = name
+                self.rideData.templateName = name
                 template.requestLoad(ident: template.ident)
                 break
             }
@@ -194,7 +176,7 @@ class SignedInRiders : ObservableObject {
     func setSignInDate() {
         let today = Date()
         let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm EEEE, d MMM y"
+        formatter.dateFormat = "EEEE, d MMM y, HH:mm a"
         let dateStr = formatter.string(from: today)
         rideData.lastSignIn = dateStr
     }
@@ -263,9 +245,6 @@ class SignedInRiders : ObservableObject {
             list.append(rider)
         }
         sort()
-//        if rider.inDirectory && !rider.isPrivacyVerified {
-//            PrivacyChecker.instance.checkRider(rider: rider)
-//        }
     }
     
     func remove(id:String) {
@@ -282,8 +261,11 @@ class SignedInRiders : ObservableObject {
     
     func getHTMLContent() -> String {
         var content = "<html><body>"
-        if let title = rideData.title {
+        if let title = rideData.templateName {
             content += "<h3>\(title)</h3>"
+        }
+        if let rating = rideData.rating {
+            content += "<h2>\(rating)</h2>"
         }
         content += "<h3>Ride Info</h3>"
         if let first = self.rideData.lastSignIn  {
@@ -304,6 +286,34 @@ class SignedInRiders : ObservableObject {
 
         content += "Member Riders Total: \(members)<br>"
         content += "Guest  Riders Total: \(guests)<br>"
+                
+        var notes = ""
+        if let miles = self.rideData.totalMiles {
+            notes += "<br>Total miles: " + miles
+        }
+        if let climb = self.rideData.totalClimb {
+            notes += "<br>Total ascent: " + climb
+        }
+        if let avg = self.rideData.avgSpeed {
+            notes += "<br>Average Speed: " + avg
+        }
+        if let ns = self.rideData.notes  {
+            let lines = ns.components(separatedBy: "\n")
+            var first = true
+            for line in lines {
+                if !line.isEmpty {
+                    if first {
+                        notes += "<br>"
+                        first = false
+                    }
+                    notes += "<br>"+line
+                }
+            }
+        }
+        if !notes.isEmpty {
+            content += "<h3>Notes</h3>"
+            content += notes.suffix(notes.count-4)
+        }
 
         content += "<h3>Ride Leaders</h3>"
         for rider in self.list {
@@ -327,15 +337,6 @@ class SignedInRiders : ObservableObject {
             }
         }
 
-        if self.rideData.notes.count > 0 {
-            content += "<h3>Notes</h3>"
-            for note in self.rideData.notes {
-                content += note+"<br>"
-            }
-        }
-        if let title = self.rideData.title {
-            content += "Title:"+title+"<br>"
-        }
         content += "</body></html>"
         return content        
     }
