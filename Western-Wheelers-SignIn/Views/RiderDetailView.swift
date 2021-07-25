@@ -12,7 +12,7 @@ struct RiderDetailView: View {
     
     var body: some View {
         VStack {
-            Text("\(self.rider.nameLast), \(self.rider.nameFirst)").font(.title).foregroundColor(Color.blue)
+            Text("\(self.rider.getDisplayName())").font(.title).foregroundColor(Color.blue)
             Text("")
             VStack {
                 if rider.phone.count > 0 {

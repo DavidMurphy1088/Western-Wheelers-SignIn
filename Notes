@@ -74,16 +74,24 @@ popup detail of email, phone
 default mail send
 
 TODO
-- add select ride
-- rider privacy
-- list alpah sorted
-- one time verifcation identity
-- ride data miles, etc
-- ride title from tempalte
-- assume onl one leader, co-leader
 Drive account, hardcode?
-- sign in date should be last sign in
-I suggest a change in layout that places the ride title, date, distance and ascent (from the Notes section) at the beginning of the email text.  I cut and pasted from the Notes section to do this. - see the email copy.
-tempalte data, nomeaning
 
-- sort names on insert
+- Please make sure to ---delete the existing version--- before installing the new version. Touch and hold the app then select 'remove’ and then confirm.
+ 
+- One time WW sign in required. This ensures that not just anybody downloading the app can see WW member info. Required once only after install. (this concern was raised by Eric)
+ 
+- App now asks the user to select the ride from the upcoming rides listed on the WW site. This provides Eric with the exact ride name (which may not have been reliably evident from a ride template). It also provides the app with the offered ride levels.
+ 
+- For rides that are split into >1 level (e.g. LDT rides) the app asks the user to select which level(s) (C-, C+, D, etc) they are signing up. In this case, the email specifies which level is being reported.
+ 
+- Member privacy honored. If a member blocks their entire WW record they don't show on the select list (although they could be entered as a guest rider). If the member blocks certain fields (e.g. email, phone, etc) that data is not shown on the app (this concern was raised by David S)
+ 
+- The rider list is now always sorted alphabetically (suggested by Jim).
+ 
+- A new button is provided to clear riders off the list who are not checked (suggested by Jim). In any event, only checked riders are shown in the sign-up email.
+ 
+- Optional post-ride data can be entered (e.g. exact miles, feet climbed) and if entered will be included in the email.
+ 
+- Ride leader and co-leader can be specified on the rider list and will be shown in the email.
+ 
+

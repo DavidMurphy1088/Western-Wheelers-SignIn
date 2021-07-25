@@ -6,6 +6,8 @@ class RideTemplate: Identifiable, Hashable, Equatable {
     var name: String = ""
     var ident: String = ""
     var isSelected: Bool = false
+    var nextId: Int = 10000
+    
     init(name: String, ident: String){
         self.name = name
         self.ident = ident
@@ -29,8 +31,16 @@ class RideTemplate: Identifiable, Hashable, Equatable {
                 if row[0] != "" {
                     let name = row[0]
                     let components = name.components(separatedBy: ",")
-                    let nameLast = components[0].trimmingCharacters(in: .whitespacesAndNewlines)
-                    let nameFirst = components[1].trimmingCharacters(in: .whitespacesAndNewlines)
+                    var nameLast = ""
+                    var nameFirst = ""
+                    if components.count < 2 {
+                        //nameLast = components[0].trimmingCharacters(in: .whitespacesAndNewlines)
+                        nameFirst = components[0].trimmingCharacters(in: .whitespacesAndNewlines)
+                    }
+                    else {
+                        nameLast = components[0].trimmingCharacters(in: .whitespacesAndNewlines)
+                        nameFirst = components[1].trimmingCharacters(in: .whitespacesAndNewlines)
+                    }
                     var phone = ""
                     var email = ""
                     var emerg = ""
@@ -53,6 +63,10 @@ class RideTemplate: Identifiable, Hashable, Equatable {
                         emerg = rider.emergencyPhone
                         inDirectory = true
                         id = rider.id
+                    }
+                    else {
+                        id = String(self.nextId)
+                        self.nextId += 1
                     }
                     let rider = Rider(id: id, nameFirst: nameFirst, nameLast: nameLast, phone: phone, emrg: emerg, email: email)
                     rider.inDirectory = inDirectory

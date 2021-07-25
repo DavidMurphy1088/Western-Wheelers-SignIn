@@ -26,7 +26,8 @@ struct RiderView: View {
                     activeSheet = .riderDetail
                 })
                 if rider.isHilighted {
-                    Image(systemName: ("arrow.left"))
+                    //Image(systemName: ("arrow.left"))
+                    Text("added").font(.footnote).foregroundColor(.gray)
                 }
                 Spacer()
                 if self.rider.isLeader {
@@ -83,6 +84,7 @@ struct RidersView: View {
                     }
                 }
             }
+            
             .border(Color.black)
             .padding()
         }
@@ -136,7 +138,6 @@ extension  CurrentRideView {
 
 struct CurrentRideView: View {
     @ObservedObject var signedInRiders = SignedInRiders.instance
-    //@State var ride: Ride?
 
     @State private var selectRideTemplateSheet = false
     @State private var emailShowing = false
@@ -152,7 +153,7 @@ struct CurrentRideView: View {
     @Environment(\.openURL) var openURL
 
     func addRide(ride:ClubRide) {
-        signedInRiders.rideData.ride = ride
+        signedInRiders.setRide(ride: ride)
     }
 
     func addRider(rider:Rider, clubMember: Bool) {
@@ -208,13 +209,11 @@ struct CurrentRideView: View {
                     }
                 }
                 else {
-                    if signedInRiders.selectedCount() == 0 {
-                        Button("Select Ride Template") {
-                            activeSheet = .selectTemplate
-                        }
-                    }
                     Button("Clear Ride Sheet") {
                         confirmClean = true
+                    }
+                    Button("Select Ride Template") {
+                        activeSheet = .selectTemplate
                     }
                     .alert(isPresented:$confirmClean) {
                         Alert(
@@ -283,7 +282,16 @@ struct CurrentRideView: View {
             if let errMsg = messages.errMessage {
                 Text(errMsg).font(.footnote).foregroundColor(Color.red)
             }
-            Text(version()).font(.footnote).foregroundColor(Color .gray)
+            HStack {
+                Text(version())
+                Button(action: {
+                    VerifiedMember.instance.signOut()
+                }, label: {
+                    Text("Sign Out") //TODO keep?
+                })
+
+            }
+            .font(.footnote).foregroundColor(Color .gray)
         }
         .sheet(item: $activeSheet) { item in
             switch item {
@@ -304,7 +312,7 @@ struct CurrentRideView: View {
             case .riderDetail:
                 RiderDetailView(rider: riderForDetail!, prepareText: self.riderCommunicate(rider:way:))
             case .rideInfoEdit:
-                RideInfoView(signedInRiders: signedInRiders, ride: signedInRiders.rideData.ride!)
+                RideInfoView(signedInRiders: signedInRiders)
             }
         }
         .onAppear() {
@@ -319,10 +327,10 @@ struct CurrentRideView: View {
 
 struct MainView: View {
     @Environment(\.scenePhase) var scenePhase
-    @State var signedIn = true
+    @ObservedObject var verifiedMember:VerifiedMember = VerifiedMember.instance
 
     var body: some View {
-        if signedIn {
+        if verifiedMember.username != nil {
             TabView {
                 CurrentRideView()
                 .tabItem {
@@ -338,19 +346,18 @@ struct MainView: View {
               case .active:
                 break
               case .inactive:
+                VerifiedMember.instance.save()
                 SignedInRiders.instance.save()
-             case .background:
+              case .background:
+                VerifiedMember.instance.save()
                 SignedInRiders.instance.save()
               @unknown default:
                 break
               }
             }
-//        .sheet(item: $signedIn) { item in
-//            SignInView()
-//        }
         }
         else {
-            SignInView(isPresented: $signedIn)
+            SignInView()
         }
     }
 }

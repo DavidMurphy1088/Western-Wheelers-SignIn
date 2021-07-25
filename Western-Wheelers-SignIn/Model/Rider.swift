@@ -30,10 +30,6 @@ class Rider : Hashable, Equatable, Identifiable, Encodable, Decodable, Observabl
         self.isLeader = false
         self.isCoLeader = false
         self.inDirectory = false
-//        self.isPrivacyVerified = false
-//        self.accessPhone = false
-//        self.accessEmergencyPhone = false
-//        self.accessEmail = false
         self.isGuest = isGuest
     }
     
@@ -49,10 +45,6 @@ class Rider : Hashable, Equatable, Identifiable, Encodable, Decodable, Observabl
         self.isLeader = rider.isLeader
         self.isCoLeader = rider.isCoLeader
         self.inDirectory = rider.inDirectory
-//        self.isPrivacyVerified = rider.isPrivacyVerified
-//        self.accessPhone = rider.accessPhone
-//        self.accessEmergencyPhone = rider.accessEmergencyPhone
-//        self.accessEmail = rider.accessEmail
         self.isGuest = rider.isGuest
     }
     
@@ -90,10 +82,6 @@ class Rider : Hashable, Equatable, Identifiable, Encodable, Decodable, Observabl
         try container.encode(isCoLeader, forKey: .isCoLeader)
         try container.encode(inDirectory, forKey: .inDirectory)
         try container.encode(isGuest, forKey: .isGuest)
-//        try container.encode(isPrivacyVerified, forKey: .isPrivacyVerified)
-//        try container.encode(accessEmail, forKey: .accessEmail)
-//        try container.encode(accessPhone, forKey: .accessPhone)
-//        try container.encode(accessEmergencyPhone, forKey: .accessEmergencyPhone)
     }
     
     required init(from decoder: Decoder) throws {
@@ -110,10 +98,6 @@ class Rider : Hashable, Equatable, Identifiable, Encodable, Decodable, Observabl
         self.isCoLeader = try container.decode(Bool.self, forKey: .isCoLeader)
         self.inDirectory = try container.decode(Bool.self, forKey: .inDirectory)
         self.isGuest = try container.decode(Bool.self, forKey: .isGuest)
-//        self.isPrivacyVerified = try container.decode(Bool.self, forKey: .isPrivacyVerified)
-//        self.accessEmail = try container.decode(Bool.self, forKey: .accessEmail)
-//        self.accessPhone = try container.decode(Bool.self, forKey: .accessPhone)
-//        self.accessEmergencyPhone = try container.decode(Bool.self, forKey: .accessEmergencyPhone)
     }
     
     func selected() -> Bool {
@@ -140,6 +124,12 @@ class Rider : Hashable, Equatable, Identifiable, Encodable, Decodable, Observabl
     }
     
     func getDisplayName() -> String {
+        if nameFirst.isEmpty {
+            return nameLast
+        }
+        if nameLast.isEmpty {
+            return nameFirst
+        }
         return nameLast + ", " + nameFirst
     }
     

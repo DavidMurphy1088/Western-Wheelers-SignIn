@@ -14,10 +14,8 @@ class ClubRides : ObservableObject {
             let startDate = Calendar.current.date(byAdding: .day, value: 0, to: Date())!
             formatter.dateFormat = "yyyy-01-01"
             let startDateStr = formatter.string(from: startDate)
-            print("API Filter date", startDateStr, eventsUrl)
             eventsUrl = eventsUrl + "?%24filter=StartDate%20gt%20\(startDateStr)"
-            print("start loading ride evetns...")
-            self.api.apiCall(url: eventsUrl, username:nil, password:nil, completion: self.loadRides)
+            self.api.apiCall(url: eventsUrl, username:nil, password:nil, completion: self.loadRides, fail: self.loadRidesFailed)
         }
     }
     
@@ -46,6 +44,10 @@ class ClubRides : ObservableObject {
         else {
             return Date(timeIntervalSince1970: 0)
         }
+    }
+    
+    func loadRidesFailed(msg:String) {
+        Messages.instance.reportError(context: "Load Rides", msg: "cannot load rides")
     }
 
     func loadRides(rawData: Data) {
@@ -98,7 +100,7 @@ class ClubRides : ObservableObject {
                         var sessionNum = 0
                         for session in sessions {
                             session.name = ride.name
-                            session.id = ride.id
+                            session.id = ride.id + "_" + String(sessionNum)
                             session.sessionId = String(sessionNum)
                             rideList.append(session)
                             sessionNum += 1
@@ -110,11 +112,11 @@ class ClubRides : ObservableObject {
                 }
             }
         }
-        print ("Rides count from API:", rideList.count)
-
+        
         var filteredRides:[ClubRide] = []
         for ride in rideList {
             if ride.nearTerm()  {
+                ride.setLevels()
                 filteredRides.append(ride)
             }
         }
@@ -122,8 +124,7 @@ class ClubRides : ObservableObject {
         let sortedRides = filteredRides.sorted(by: {
             $0.dateTime < $1.dateTime
         })
-
-        print ("Ride count after filter:", sortedRides.count, ", First event[", sortedRides[0].dateTime, "], Last event[", sortedRides[sortedRides.count-1].dateTime,"]")
+//        print ("Ride count after filter:", sortedRides.count, ", First event[", sortedRides[0].dateTime, "], Last event[", sortedRides[sortedRides.count-1].dateTime,"]")
         DispatchQueue.main.async {
             self.list.append(contentsOf: sortedRides)
             Messages.instance.sendMessage(msg: "Downloaded \(self.list.count) club rides")

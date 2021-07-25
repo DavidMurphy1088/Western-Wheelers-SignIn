@@ -5,7 +5,6 @@ import MessageUI
 
 struct SelectRide : View {
     @ObservedObject var rides = ClubRides.instance
-    //@ObservedObject var ridezs = ClubRides.instance.list
     @Environment(\.presentationMode) private var presentationMode
     var addRide : (ClubRide) -> Void
 
@@ -24,7 +23,7 @@ struct SelectRide : View {
                                 }, label: {
                                     Text(ride.name)
                                 })
-                                Text(ride.dateDisp())
+                                Text(ride.dateDisplay())
                                 }
                                 .padding()
                             }

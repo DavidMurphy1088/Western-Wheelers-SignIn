@@ -14,12 +14,19 @@ class Messages : ObservableObject {
     }
     func reportError(context:String, msg: String) {
         DispatchQueue.main.async {
-            print("ERROR", context, msg)
-            self.errMessage = context + " " + msg
+            var message = msg
+            if !NetworkReachability().checkConnection() {
+                message += "\nInternet appears to be offline"
+            }
+            print("ERROR", context, message)
+            self.errMessage = context + " " + message
         }
     }
     func clearError() {
-        self.errMessage = ""
+        DispatchQueue.main.async {
+            self.errMessage = ""
+            //self.message = ""
+        }
     }
 
 }

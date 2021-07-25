@@ -25,7 +25,6 @@ class KeyboardHeightHelper: ObservableObject {
                                                     let keyboardRect = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
                                                 
                                                 self.keyboardHeight = keyboardRect.height
-                                                //print("==========", keyboardHeight)
         }
         
         NotificationCenter.default.addObserver(forName: UIResponder.keyboardDidHideNotification,
@@ -36,12 +35,14 @@ class KeyboardHeightHelper: ObservableObject {
     }
 }
 
+
+
 struct RideInfoView: View {
     @Environment(\.presentationMode) private var presentationMode
     @ObservedObject var keyboardHeightHelper = KeyboardHeightHelper()
+    @ObservedObject var signedInRiders:SignedInRiders
+    //@ObservedObject var levels = Levels()
 
-    @State var signedInRiders:SignedInRiders
-    @State var ride:ClubRide
     @State var rating: String = ""
     @State var miles: String = ""
     @State var climbed: String = ""
@@ -52,9 +53,9 @@ struct RideInfoView: View {
     
     var body: some View {
         VStack {
-            Text(ride.name).font(.title2).foregroundColor(Color.blue)
+            Text(signedInRiders.rideData.ride?.name ?? "").font(.title2).foregroundColor(Color.blue)
             if !notesInFocus {
-                Text("Optional ride info for this ride")
+                Text("Ride info for this ride")
                 .font(.footnote).padding()
                 HStack {
                     Text("Total miles")
@@ -82,9 +83,26 @@ struct RideInfoView: View {
                         .frame(maxWidth: maxText)
                         .keyboardType(.decimalPad)
                     }
-                    .padding(.horizontal, 20)
+                .padding(.horizontal, 20)
+                if signedInRiders.levels?.count ?? [].count > 1 {
+                    Text("Check the level(s) you are leading")
+                    .font(.footnote).padding()
+
+                    HStack {
+                        ForEach(signedInRiders.levels ?? [], id: \.self.name) { level in
+                            HStack {
+                                Image(systemName: (level.selected ? "checkmark.square" : "square"))
+                                .onTapGesture {
+                                    signedInRiders.toggleLevel(level: level)
+                                }
+                                Text(level.name)
+                                Text(" ")
+                            }
+                        }
+                    }
+                }
             }
-        
+            Text(" ")
             Text("Notes")
             TextEditor(text: $notes)
                 .multilineTextAlignment(.leading)
@@ -107,29 +125,28 @@ struct RideInfoView: View {
             else {
                 if keyboardHeightHelper.keyboardHeight == 0 {
                     Button(action: {
-                        signedInRiders.rideData.rating = rating
                         signedInRiders.rideData.totalMiles = miles
                         signedInRiders.rideData.totalClimb = climbed
                         signedInRiders.rideData.avgSpeed = avgSpeed
                         signedInRiders.rideData.notes = notes
+                        //signedInRiders.levels = levels.list
                         self.presentationMode.wrappedValue.dismiss()
                     }, label: {
                         Text("Ok")
                     })
                     Spacer()
-                    Text("")
-                    Button(action: {
-                        self.presentationMode.wrappedValue.dismiss()
-                    }, label: {
-                        Text("Cancel")
-                    })
+//                    Text("")
+//                    Button(action: {
+//                        self.presentationMode.wrappedValue.dismiss()
+//                    }, label: {
+//                        Text("Cancel")
+//                    })
                     Spacer()
                     Text("")
                 }
             }
         }
         .onAppear() {
-            rating = signedInRiders.rideData.rating ?? ""
             miles = signedInRiders.rideData.totalMiles ?? ""
             climbed = signedInRiders.rideData.totalClimb ?? ""
             avgSpeed = signedInRiders.rideData.avgSpeed ?? ""

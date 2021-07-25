@@ -6,7 +6,7 @@ class ClubMembers : ObservableObject {
     static let savedDataName = "MemberListData"
     private var pageList:[Rider] = []
     private let api = WAApi()
-    //TODO blanket privacy block works?
+
     private init() {
         //https://app.swaggerhub.com/apis/WildApricot/wild-apricot_api_for_non_administrative_access/7.15.0#/Contacts/get_accounts__accountId__contacts
         DispatchQueue.global(qos: .userInitiated).async {
@@ -20,8 +20,7 @@ class ClubMembers : ObservableObject {
                 var url = "https://api.wildapricot.org/publicview/v1/accounts/$id/contacts"
                 url += "?%24skip=\(pos)&%24top=\(pageSize)"
                 self.pageList = []
-                self.api.apiCall(url: url, username:nil, password:nil, completion: self.loadMembers)
-                print ("++++", self.pageList.count, self.clubList.count)
+                self.api.apiCall(url: url, username:nil, password:nil, completion: self.loadMembers, fail: self.loadMembersFailed)
                 pos += pageSize
                 downloadList.append(contentsOf: self.pageList)
                 if self.pageList.count < pageSize {
@@ -58,25 +57,20 @@ class ClubMembers : ObservableObject {
         }
     }
     
+    func loadMembersFailed(msg: String) {
+    }
+
     func loadMembers(rawData: Data) {
         var cnt = 0
         
         if let contacts = try! JSONSerialization.jsonObject(with: rawData, options: []) as? [String: Any] {
             for (key, val) in contacts {
-                print("===", key)
-//                if key == "ResultUrl" {
-//                    resultsUrl = (val as! String)
-//                }
-//                if key == "State" {
-//                    responseComplete = (val as! String == "Complete")
-//                }
+
                 if key == "Contacts" {
                     let members = val as! NSArray
                     for member in members {
                         let memberDict = member as! NSDictionary
-//                        for d in memberDict {
-//                            print(d)
-//                        }
+
                         let id = memberDict["Id"] as! Int
                         if id == 3922122 {
                             //cnt = 0
@@ -89,16 +83,6 @@ class ClubMembers : ObservableObject {
                         if let name = memberDict["FirstName"] as? String {
                             firstName = name
                         }
-
-//                        if let val = memberDict["Status"]  { non admin API returns only active members
-//                            let active=true
-//                            if !active {
-//                                continue
-//                            }
-//                        }
-//                        else {
-//                            continue
-//                        }
                         
                         //var homePhone = ""
                         var cellPhone = ""
@@ -112,11 +96,7 @@ class ClubMembers : ObservableObject {
                             let fieldName = fields["FieldName"]
                             let fieldValue = fields["Value"]
                             c = c+1
-//                            if fieldName as! String == "Home Phone" {
-//                                if let e = fieldValue as? String {
-//                                    homePhone = e
-//                                }
-//                            }
+
                             if fieldName as! String == "Cell Phone" {
                                 if let e = fieldValue as? String {
                                     cellPhone = e
@@ -140,29 +120,6 @@ class ClubMembers : ObservableObject {
                 }
             }
         }
-//        if memberList.count > 0 {
-////            memberList.sort {
-////                $0.name < $1.name
-////            }
-//            ClubMembers.instance.updateList(updList: memberList)
-//            responseComplete = true
-//        }
-//        else {
-//            if responseComplete {
-//                //the first response says the query results are 'complete' so go fetch them now
-//                DispatchQueue.global(qos: .userInitiated).async {
-//                    //load the members from the result URL
-////                    self.apiCallOld(path: resultsUrl!, withToken: true, usrMsg: usrMsg, completion: self.parseMembers, apiType: apiType, tellUsers: tellUsers)
-//                }
-//            }
-//            else {
-//                DispatchQueue.global(qos: .userInitiated).async {
-//                    //poll again for results
-//                    sleep(4)
-////                    self.apiCallOld(path: resultsUrl!, withToken: true, usrMsg: usrMsg, completion: self.parseMembers, apiType: apiType, tellUsers: tellUsers)
-//                }
-//            }
-//        }
     }
 
     func get(id:String) -> Rider? {
@@ -227,18 +184,6 @@ class ClubMembers : ObservableObject {
         self.pushChange()
     }
     
-//    func setSelected(name: String) {
-//        for r in clubList {
-//            if r.name == name {
-//                r.setSelected(true)
-//            }
-//            else {
-//                r.setSelected(false)
-//            }
-//        }
-//        self.pushChange()
-//    }
-//
     func clearSelected() {
         for r in clubList {
             r.setSelected(false)

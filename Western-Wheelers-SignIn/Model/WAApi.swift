@@ -1,8 +1,29 @@
-
 import Foundation
 import os.log
+import SystemConfiguration
 
-//TODO verify identity via ww sign in
+class NetworkReachability: ObservableObject {
+    @Published private(set) var reachable: Bool = false
+    private let reachability = SCNetworkReachabilityCreateWithName(nil, "www.google.com")
+
+    init() {
+        self.reachable = checkConnection()
+    }
+
+    private func isNetworkReachable(with flags: SCNetworkReachabilityFlags) -> Bool {
+        let isReachable = flags.contains(.reachable)
+        let connectionRequired = flags.contains(.connectionRequired)
+        let canConnectAutomatically = flags.contains(.connectionOnDemand) || flags.contains(.connectionOnTraffic)
+        let canConnectWithoutIntervention = canConnectAutomatically && !flags.contains(.interventionRequired)
+        return isReachable && (!connectionRequired || canConnectWithoutIntervention)
+    }
+
+    func checkConnection() -> Bool {
+        var flags = SCNetworkReachabilityFlags()
+        SCNetworkReachabilityGetFlags(reachability!, &flags)
+        return isNetworkReachable(with: flags)
+    }
+}
 
 class WAApi : ObservableObject {
 
@@ -15,14 +36,7 @@ class WAApi : ObservableObject {
     enum ApiType {
         case LoadMembers, AuthenticateUser, None
     }
-    
-//    static func instance() -> WAApi {
-//        if shared == nil {
-//            shared = WAApi()
-//        }
-//        return shared
-//    }
-    
+        
     func apiKey(key:String) -> String {
         let path = Bundle.main.path(forResource: "api_keys.txt", ofType: nil)!
         do {
@@ -34,23 +48,13 @@ class WAApi : ObservableObject {
         }
     }
             
-    func authenticateQuery() {
-        let url = "https://api.wildapricot.org/publicview/v1/accounts/\(accountId)/contacts/me"
-//        apiCallOld(path: url, withToken: true, usrMsg: "", completion: parseMembers, apiType: ApiType.LoadMembers, tellUsers: true)
-    }
-
-    func authenticateUserFromWASite (user: String, pwd: String) {
-        let url = "https://oauth.wildapricot.org/auth/token"
-//        makeApiCall(path: url, withToken: false, usrMsg: "Authenticating Wild Apricot Account", completion: parseAccessToken, apiType: ApiType.AuthenticateUser, tellUsers: false)
-    }
-    
     func runTask(req:URLRequest) -> Data? {
         let semaphore: DispatchSemaphore = DispatchSemaphore(value: 0)
         var result:Data? = nil
         
         let task = URLSession.shared.dataTask(with: req) { data, response, error in
             if let error = error {
-                Messages.instance.reportError(context: "Privacy", msg: error.localizedDescription)
+                Messages.instance.reportError(context: "WAApi", msg: error.localizedDescription)
             }
             else {
                 if let response = response as? HTTPURLResponse {
@@ -62,7 +66,7 @@ class WAApi : ObservableObject {
                             result = data
                         }
                         else {
-                            Messages.instance.reportError(context: "Privacy", msg: "no data in response")
+                            Messages.instance.reportError(context: "WAApi", msg: "no data in response")
                         }
                     }
                 }
@@ -74,11 +78,12 @@ class WAApi : ObservableObject {
         return result
     }
     
-    func apiCall(url:String, username:String?, password:String?, completion: @escaping (Data) -> ()) {
+    func apiCall(url:String, username:String?, password:String?,
+                 completion: @escaping (Data) -> (), fail: @escaping (String) -> ()) {
         apiCallNum += 1
-        if apiCallNum % 1 == 0 {
-            print(apiCallNum, url)
-        }
+//        if apiCallNum % 1 == 0 {
+//            print(apiCallNum, url)
+//        }
         var user = ""
         var pwd = ""
         if let uname = username {
@@ -104,7 +109,9 @@ class WAApi : ObservableObject {
         let data = self.runTask(req: tokenRequest)
         
         guard let tokenData = data else {
-            Messages.instance.reportError(context: "WAApi", msg: "did not receive token data")
+            let msg = "did not receive API token"
+            Messages.instance.reportError(context: "WAApi", msg: msg)
+            fail(msg)
             return
         }
         var token:String?

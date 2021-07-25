@@ -30,9 +30,9 @@ class GoogleDrive : NSObject, GIDSignInDelegate {
         // This delegate will then be called at the end of this process indicating success or failure
         if let error = error {
             if (error as NSError).code == GIDSignInErrorCode.hasNoAuthInKeychain.rawValue {
-                //print("The user has not signed in before or they have since signed out.")
+                //("The user has not signed in before or they have since signed out.")
             } else {
-                Messages.instance.reportError(context: "GoogleDrive sign in", msg: error.localizedDescription)
+                //Messages.instance.reportError(context: "GoogleDrive sign in", msg: error.localizedDescription)
             }
         }
         NotificationCenter.default.post(name: Notification.Name(self.notificationName!), object: error)
@@ -88,7 +88,9 @@ class GoogleDrive : NSObject, GIDSignInDelegate {
     func readSheet(id:String, onCompleted: @escaping ([[String]]) -> ())  {
         let query = GTLRSheetsQuery_SpreadsheetsValuesGet.query(withSpreadsheetId: id, range: "A1:Z100")
         let service = GTLRSheetsService()
-        service.authorizer = GIDSignIn.sharedInstance().currentUser.authentication.fetcherAuthorizer()
+        if let user = GIDSignIn.sharedInstance().currentUser {
+            service.authorizer = user.authentication.fetcherAuthorizer()
+        }
 
         service.executeQuery(query) { (ticket:GTLRServiceTicket, result:Any?, error:Error?) in
             var sheetData:[[String]] = []

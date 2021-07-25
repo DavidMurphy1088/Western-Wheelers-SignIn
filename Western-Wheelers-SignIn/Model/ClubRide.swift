@@ -7,6 +7,7 @@ class ClubRide : Identifiable, Decodable, Encodable, ObservableObject {
     var timeWasSpecified:Bool = true
     var dateTime: Date = Date()
     var activeStatus: Int = 0
+    var levels:[String] = []
     static let LONGEST_RIDE_IN_HOURS = 8.0 //asume max ride length of 8 hrs
 
     init(id:String, name:String) {
@@ -20,7 +21,6 @@ class ClubRide : Identifiable, Decodable, Encodable, ObservableObject {
         let words = name.components(separatedBy: " ")
         var cnt = 0
         for word in words {
-            //print(".", word, ".", name)
             if word.contains("/") || word.count <= 1 {
                 rideName = rideName + " " + word
             }
@@ -31,6 +31,45 @@ class ClubRide : Identifiable, Decodable, Encodable, ObservableObject {
             cnt += 1
         }
         self.name = rideName.trimmingCharacters(in: .whitespaces)
+    }
+    
+    func setLevels() {
+        var titleLevels: [String] = []
+        //let name = "C/3/15+; D/4/15+ TUESDAY EVENING RIDE"
+        let specs = name.components(separatedBy: ";")
+        for spec in specs {
+            let parts = spec.components(separatedBy: "/")
+            for part in parts {
+                let upPart = part.uppercased().trimmingCharacters(in: .whitespaces)
+                var lvl = ""
+                for c in upPart {
+                    if c >= "A" && c <= "E" {
+                        if !lvl.isEmpty {
+                            titleLevels.append(lvl)
+                        }
+                        lvl = String(c)
+                    }
+                    else {
+                        if c == "+" || c == "-" {
+                            lvl  += String(c)
+                        }
+                        else {
+                            lvl = ""
+                            break
+                        }
+                    }
+                }
+                if !lvl.isEmpty {
+                    titleLevels.append(lvl)
+                }
+            }
+        }
+        let levelSet = Set(titleLevels)
+        titleLevels = []
+        titleLevels.append(contentsOf: levelSet)
+        titleLevels.sort()
+        levels = []
+        levels.append(contentsOf: titleLevels)
     }
     
     func nearTerm() -> Bool {
@@ -62,7 +101,7 @@ class ClubRide : Identifiable, Decodable, Encodable, ObservableObject {
         }
     }
     
-    func dateDisp() -> String {
+    func dateDisplay() -> String {
         let formatter = DateFormatter() // this formats the day,time according to users local timezone
         formatter.dateFormat = "EEEE MMM d"
         let dayDisp = formatter.string(from: self.dateTime)

@@ -1,21 +1,35 @@
 import Foundation
 
+class Level : Decodable, Encodable, Hashable, Equatable  {
+    var name:String
+    var selected:Bool = false
+    private static var saveLevels = "RIDE_LEVEL"
+    
+    init(name:String) {
+        self.name = name
+    }
+    
+    static func == (lhs: Level, rhs: Level) -> Bool {
+        return lhs.name == rhs.name
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(name)
+    }
+}
+
 class RideData : Encodable, Decodable {
     var templateName:String?
-    var rating:String?
     var totalMiles:String?
     var totalClimb:String?
     var avgSpeed:String?
-    var lastSignIn:String?
     var notes:String?
     var ride:ClubRide?
     
     func clear() {
         templateName = nil
-        rating = nil
         totalMiles = nil
         totalClimb = nil
-        lastSignIn = nil
         avgSpeed = nil
         notes = nil
         ride = nil
@@ -25,13 +39,16 @@ class RideData : Encodable, Decodable {
 class SignedInRiders : ObservableObject {
     static let instance:SignedInRiders = SignedInRiders()
     @Published private var list:[Rider] = []
+    var levels:[Level]?
+    @Published var levelSelected = false
     
     var nextGuestId = 100
     var rideData:RideData
     
     private static var savedList = "RIDE_LIST"
     private static var savedData = "RIDE_DATA"
-    
+    private static var savedLevels = "RIDE_LEVELS"
+
     private init() {
        rideData = RideData()
     }
@@ -48,17 +65,27 @@ class SignedInRiders : ObservableObject {
     func getList() -> [Rider] {
         return list
     }
-
+    
+    func setRide(ride:ClubRide) {
+        rideData.ride = ride
+        self.levels = []
+        for level in ride.levels {
+            self.levels!.append(Level(name:level))
+        }
+    }
+    
     func save() {
         do {
             let encoder = JSONEncoder()
-
             if let data = try? encoder.encode(self.list) {
                 let compressedData = try (data as NSData).compressed(using: .lzfse)
                 UserDefaults.standard.set(compressedData, forKey: SignedInRiders.savedList)
             }
             if let data = try? encoder.encode(self.rideData) {
                 UserDefaults.standard.set(data, forKey: SignedInRiders.savedData)
+            }
+            if let data = try? encoder.encode(self.levels) {
+                UserDefaults.standard.set(data, forKey: SignedInRiders.savedLevels)
             }
         }
         catch {
@@ -79,11 +106,10 @@ class SignedInRiders : ObservableObject {
                 }
             }
             catch {
-                let msg = "Error restoring member list \(error.localizedDescription)"
-                Messages.instance.reportError(context: "ClubRiders", msg: msg)
+                let msg = "Error restoring ride signin \(error.localizedDescription)"
+                Messages.instance.reportError(context: "SignedInRiders", msg: msg)
             }
         }
-
         savedData = UserDefaults.standard.object(forKey: SignedInRiders.savedData)
         if let savedData = savedData {
             let json = savedData as! NSData
@@ -92,11 +118,33 @@ class SignedInRiders : ObservableObject {
                 rideData = decoded
             }
         }
+        savedData = UserDefaults.standard.object(forKey: SignedInRiders.savedLevels)
+        if let savedData = savedData {
+            let json = savedData as! NSData
+            let decoder = JSONDecoder()
+            if let decoded = try? decoder.decode([Level].self, from: json as Data) {
+                levels = decoded
+            }
+        }
     }
     
     func clearData() {
         list = []
         rideData.clear()
+    }
+    
+    func toggleLevel(level:Level) {
+        if let levelSet = levels {
+            for l in levelSet {
+                if l.name == level.name {
+                    l.selected = !l.selected
+                    //force a published update
+                    DispatchQueue.main.async {
+                        self.levelSelected = !self.levelSelected
+                    }
+                }
+            }
+        }
     }
     
     func setLeader(rider:Rider, way:Bool) {
@@ -126,10 +174,10 @@ class SignedInRiders : ObservableObject {
     }
 
     func loadTempate(name:String) {
-        list = []
+        //list = []
         for template in RideTemplates.instance.templates {
             if template.name == name {
-                self.rideData.templateName = name
+                self.rideData.templateName = name.trimmingCharacters(in: .whitespaces)
                 template.requestLoad(ident: template.ident)
                 break
             }
@@ -149,7 +197,6 @@ class SignedInRiders : ObservableObject {
     func removeUnselected() {
         var dels:[Int] = []
         for cnt in 0...list.count-1 {
-            print("====", cnt)
             if !list[cnt].selected() {
                 dels.append(cnt)
             }
@@ -172,14 +219,6 @@ class SignedInRiders : ObservableObject {
         }
         self.pushChange()
     }
-    
-    func setSignInDate() {
-        let today = Date()
-        let formatter = DateFormatter()
-        formatter.dateFormat = "EEEE, d MMM y, HH:mm a"
-        let dateStr = formatter.string(from: today)
-        rideData.lastSignIn = dateStr
-    }
 
     func setSelected(id: String) {
         for r in list {
@@ -188,7 +227,7 @@ class SignedInRiders : ObservableObject {
                 break
             }
         }
-        setSignInDate()
+        //setSignInDate()
         self.pushChange()
     }
     
@@ -211,18 +250,14 @@ class SignedInRiders : ObservableObject {
     }
 
     func toggleSelected(id: String) {
-        var fnd = false
         for r in list {
             if r.id == id {
                 r.setSelected(!r.selected())
-                if r.selected() {
-                    fnd = true
-                    setSignInDate()
-                }
+//                if r.selected() {
+//                    //fnd = true
+//                    //setSignInDate()
+//                }
             }
-        }
-        if !fnd {
-            rideData.lastSignIn = nil
         }
         self.pushChange()
     }
@@ -261,16 +296,21 @@ class SignedInRiders : ObservableObject {
     
     func getHTMLContent() -> String {
         var content = "<html><body>"
-        if let title = rideData.templateName {
-            content += "<h3>\(title)</h3>"
+        if let name = rideData.ride?.name {
+            content += "<h3>\(name)</h3>"
         }
-        if let rating = rideData.rating {
-            content += "<h2>\(rating)</h2>"
+        if let day = rideData.ride?.dateDisplay() {
+            content += "\(day)"
         }
+        if let levels = self.levels {
+            for level in levels {
+                if level.selected {
+                    content += "<br>Level: \(level.name)"
+                }
+            }
+        }
+
         content += "<h3>Ride Info</h3>"
-        if let first = self.rideData.lastSignIn  {
-            content += "Ride Date: \(first)<br>"
-        }
         var members = 0
         var guests = 0
         for rider in self.list {
@@ -284,57 +324,74 @@ class SignedInRiders : ObservableObject {
             }
         }
 
-        content += "Member Riders Total: \(members)<br>"
-        content += "Guest  Riders Total: \(guests)<br>"
-                
-        var notes = ""
+        //ride info
+        
+        content += "Member Riders Total: \(members)"
+        if guests > 0 {
+            content += "<br>Guest  Riders Total: \(guests)"
+        }
+        
         if let miles = self.rideData.totalMiles {
-            notes += "<br>Total miles: " + miles
+            if !miles.isEmpty {
+                content += "<br>Total miles: " + miles
+            }
         }
         if let climb = self.rideData.totalClimb {
-            notes += "<br>Total ascent: " + climb
+            if !climb.isEmpty {
+                content += "<br>Total ascent: " + climb
+            }
         }
         if let avg = self.rideData.avgSpeed {
-            notes += "<br>Average Speed: " + avg
+            if !avg.isEmpty {
+                content += "<br>Average Speed: " + avg
+            }
         }
+        
+        content += "<h3>Ride Leaders</h3>"
+        var leaders = ""
+        for rider in self.list {
+            if rider.isLeader {
+                leaders += "<br>Ride Leader: "+rider.getDisplayName()
+            }
+        }
+        for rider in self.list {
+            if rider.isCoLeader {
+                leaders += "<br>Ride Co-Leader: "+rider.getDisplayName()
+            }
+        }
+        if !leaders.isEmpty {
+            content += leaders.suffix(leaders.count-4)
+        }
+        
+        content += "<h3>Riders</h3>"
+        var riders = ""
+        for rider in self.list {
+            if rider.selected() {
+                riders += "<br>" + rider.getDisplayName()
+                if rider.isGuest {
+                    riders += " (guest)"
+                }
+            }
+        }
+        if !riders.isEmpty {
+            content += riders.suffix(riders.count-4)
+        }
+
+        // template notes
+        
+        var notes = ""
         if let ns = self.rideData.notes  {
             let lines = ns.components(separatedBy: "\n")
-            var first = true
             for line in lines {
                 if !line.isEmpty {
-                    if first {
-                        notes += "<br>"
-                        first = false
-                    }
                     notes += "<br>"+line
                 }
             }
         }
         if !notes.isEmpty {
-            content += "<h3>Notes</h3>"
-            content += notes.suffix(notes.count-4)
-        }
-
-        content += "<h3>Ride Leaders</h3>"
-        for rider in self.list {
-            if rider.isLeader {
-                content += "Ride Leader: "+rider.getDisplayName()+"<br>"
-            }
-        }
-        for rider in self.list {
-            if rider.isCoLeader {
-                content += "Ride Co-Leader: "+rider.getDisplayName()+"<br>"
-            }
-        }
-        content += "<h3>Riders</h3>"
-        for rider in self.list {
-            if rider.selected() {
-                content += rider.getDisplayName()
-                if rider.isGuest {
-                    content += " (guest)"
-                }
-                content += "<br>"
-            }
+            content += "<h3>Template Notes</h3>"
+            content += "Template name: "+(rideData.templateName ?? "")
+            content += notes
         }
 
         content += "</body></html>"
