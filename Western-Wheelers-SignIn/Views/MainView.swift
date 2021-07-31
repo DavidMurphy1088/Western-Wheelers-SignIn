@@ -47,7 +47,7 @@ struct RiderView: View {
             Text("")
         }
         .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
-        .id(self.rider.id)
+        .id(self.rider.id) 
     }
 }
 
