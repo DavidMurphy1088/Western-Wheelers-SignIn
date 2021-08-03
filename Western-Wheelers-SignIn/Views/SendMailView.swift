@@ -11,7 +11,6 @@ struct SendMailView: UIViewControllerRepresentable {
     @State var messageContent: String
 
     class Coordinator: NSObject, MFMailComposeViewControllerDelegate {
-
         @Binding var isShowing: Bool
         @Binding var result: Result<MFMailComposeResult, Error>?
 
@@ -37,9 +36,9 @@ struct SendMailView: UIViewControllerRepresentable {
     }
 
     func makeCoordinator() -> Coordinator {
-        return Coordinator(isShowing: $isShowing,
-                           result: $result)
+        return Coordinator(isShowing: $isShowing, result: $result)
     }
+    
     func makeUIViewController(context: UIViewControllerRepresentableContext<SendMailView>) -> MFMailComposeViewController {
         let vc = MFMailComposeViewController()
         vc.setSubject(messageSubject)

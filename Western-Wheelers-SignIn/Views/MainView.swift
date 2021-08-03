@@ -141,10 +141,10 @@ struct CurrentRideView: View {
 
     @State private var selectRideTemplateSheet = false
     @State private var emailShowing = false
-    @State private var confirmShowing = false
-    @State var result: Result<MFMailComposeResult, Error>? = nil
+    @State var emailResult: Result<MFMailComposeResult, Error>? = nil
     @State var scrollToRiderId:String = ""
     @State var confirmClean:Bool = false
+    @State var emailConfirmed:Bool = false
     @State var activeSheet: ActiveSheet?
     private let messageComposeDelegate = MessageComposerDelegate()
     private let mailComposeDelegate = MailComposerDelegate()
@@ -198,7 +198,7 @@ struct CurrentRideView: View {
             }
         }
     }
-
+    
     var body: some View {
         VStack {
             VStack{
@@ -269,6 +269,9 @@ struct CurrentRideView: View {
                                 Text("Email Sheet")
                             })
                             .disabled(signedInRiders.selectedCount() == 0)
+                            .alert(isPresented: $emailConfirmed) { () -> Alert in
+                                Alert(title: Text("Signup sheet sent for \(SignedInRiders.instance.selectedCount()) riders."))
+                            }
                             Spacer()
                         }
                     }
@@ -304,8 +307,8 @@ struct CurrentRideView: View {
             case .addGuest:
                 AddGuestView(addRider: self.addRider(rider:clubMember:))
             case .email:
-                let msg = SignedInRiders.instance.getHTMLContent()
-                SendMailView(isShowing: $emailShowing, result: $result,
+                let msg = SignedInRiders.instance.getHTMLContent(version: version())
+                SendMailView(isShowing: $emailShowing, result: $emailResult,
                              messageRecipient:"stats@westernwheelers.org",
                              messageSubject: "Western Wheelers Ride Sign Up Sheet",
                              messageContent: msg)
@@ -321,9 +324,13 @@ struct CurrentRideView: View {
 //            }
             GIDSignIn.sharedInstance()?.presentingViewController = UIApplication.shared.windows.first?.rootViewController
         }
+        .onChange(of: emailResult.debugDescription) {result in
+            if result.contains("success") {
+                self.emailConfirmed = true
+            }
+        }
     }
 }
-
 
 struct MainView: View {
     @Environment(\.scenePhase) var scenePhase

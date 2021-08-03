@@ -294,7 +294,7 @@ class SignedInRiders : ObservableObject {
         sort()
     }
     
-    func getHTMLContent() -> String {
+    func getHTMLContent(version:String) -> String {
         var content = "<html><body>"
         if let name = rideData.ride?.name {
             content += "<h3>\(name)</h3>"
@@ -394,7 +394,7 @@ class SignedInRiders : ObservableObject {
             content += notes
         }
 
-        content += "</body></html>"
+        content += "<br><br>App version: \(version)</body></html>"
         return content        
     }
 }

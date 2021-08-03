@@ -124,7 +124,7 @@ class ClubRides : ObservableObject {
         let sortedRides = filteredRides.sorted(by: {
             $0.dateTime < $1.dateTime
         })
-//        print ("Ride count after filter:", sortedRides.count, ", First event[", sortedRides[0].dateTime, "], Last event[", sortedRides[sortedRides.count-1].dateTime,"]")
+
         DispatchQueue.main.async {
             self.list.append(contentsOf: sortedRides)
             Messages.instance.sendMessage(msg: "Downloaded \(self.list.count) club rides")

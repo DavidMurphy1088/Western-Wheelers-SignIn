@@ -121,6 +121,7 @@ struct RideInfoView: View {
                     }
                     Spacer()
                 }
+                Spacer()
             }
             else {
                 if keyboardHeightHelper.keyboardHeight == 0 {

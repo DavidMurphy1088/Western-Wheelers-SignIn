@@ -43,7 +43,6 @@ class VerifiedMember : ObservableObject {
                 if let data = try? encoder.encode(self.username) {
                     let compressedData = try (data as NSData).compressed(using: .lzfse)
                     UserDefaults.standard.set(compressedData, forKey: VerifiedMember.savedKey)
-                    //print("--------------- SAVED VERIICATION")
                 }
             }
         }
