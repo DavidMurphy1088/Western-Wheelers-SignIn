@@ -175,7 +175,7 @@ class SignedInRiders : ObservableObject {
 
     func loadTempate(name:String) {
         //list = []
-        for template in RideTemplates.instance.templates {
+        for template in DriveRideTemplates.instance.templates {
             if template.name == name {
                 self.rideData.templateName = name.trimmingCharacters(in: .whitespaces)
                 template.requestLoad(ident: template.ident)

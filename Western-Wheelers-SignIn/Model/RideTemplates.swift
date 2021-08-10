@@ -1,16 +1,21 @@
 import Foundation
-import GoogleAPIClientForREST
+import CloudKit
+import Combine
 
 class RideTemplate: Identifiable, Hashable, Equatable {
     var id = UUID()
     var name: String = ""
-    var ident: String = ""
-    var isSelected: Bool = false
-    var nextId: Int = 10000
+    //var nextId: Int = 10000
+    var riders:[Rider] = []
+    var notes:String = ""
     
-    init(name: String, ident: String){
+    init(name: String, notes:String, riders:[Rider]){
         self.name = name
-        self.ident = ident
+        self.notes = notes
+        //self.riders.append(Rider(id:"X", nameFirst:"F", nameLast:"L", phone:"P", emrg:"E", email:"EM"))
+        for rider in riders {
+            self.riders.append(rider)
+        }
     }
     
     static func == (lhs: RideTemplate, rhs: RideTemplate) -> Bool {
@@ -21,110 +26,68 @@ class RideTemplate: Identifiable, Hashable, Equatable {
         hasher.combine(name)
     }
     
-    func requestLoad(ident:String) {
-        GoogleDrive.instance.readSheet(id: self.ident, onCompleted:loadData(data:))
-    }
-    
-    func loadData(data:[[String]]) {
-        for row in data {
-            if row.count > 1 && (row[1] == "TRUE" || row[1] == "FALSE") { // and row.count == 2
-                if row[0] != "" {
-                    let name = row[0]
-                    let components = name.components(separatedBy: ",")
-                    var nameLast = ""
-                    var nameFirst = ""
-                    if components.count < 2 {
-                        //nameLast = components[0].trimmingCharacters(in: .whitespacesAndNewlines)
-                        nameFirst = components[0].trimmingCharacters(in: .whitespacesAndNewlines)
-                    }
-                    else {
-                        nameLast = components[0].trimmingCharacters(in: .whitespacesAndNewlines)
-                        nameFirst = components[1].trimmingCharacters(in: .whitespacesAndNewlines)
-                    }
-                    var phone = ""
-                    var email = ""
-                    var emerg = ""
-                    var inDirectory = false
-                    var id = ""
-//                    if row.count > 2 {
-//                        phone = row[2]
-//                    }
-//                    if row.count > 3 {
-//                        email = row[3]
-//                    }
-                    if let rider = ClubMembers.instance.getByName(displayName: nameLast+", "+nameFirst) { 
-                        //load the rider data from the directory if possible
-                        if phone == "" {
-                            phone = rider.phone
-                        }
-                        if email == "" {
-                            email = rider.email
-                        }
-                        emerg = rider.emergencyPhone
-                        inDirectory = true
-                        id = rider.id
-                    }
-                    else {
-                        id = String(self.nextId)
-                        self.nextId += 1
-                    }
-                    let rider = Rider(id: id, nameFirst: nameFirst, nameLast: nameLast, phone: phone, emrg: emerg, email: email)
-                    rider.inDirectory = inDirectory
-                    if row[1] == "TRUE" {
-                        rider.setSelected(true)
-                    }
-                    SignedInRiders.instance.add(rider: rider)
-                }
+    func remoteAdd(completion: @escaping (CKRecord.ID) -> Void) {
+        let ckRecord = CKRecord(recordType: "RideTemplate")
+        ckRecord["name"] = name as CKRecordValue
+        ckRecord["notes"] = notes as CKRecordValue
+
+        let op = CKModifyRecordsOperation(recordsToSave: [ckRecord], recordIDsToDelete: [])
+        op.queuePriority = .veryHigh
+        op.qualityOfService = .userInteractive
+
+        op.modifyRecordsCompletionBlock = { savedRecords, deletedRecordIDs, error in
+            if error != nil || savedRecords == nil || savedRecords?.count != 1 {
+                //Util.app().reportError(class_type: type(of: self), context: "Cannot add user record", error: error?.localizedDescription ?? "")
+                return
             }
-            else {
-                var note = ""
-                for fld in row {
-                    note += " " + fld
-                }
-                if SignedInRiders.instance.rideData.notes == nil {
-                    SignedInRiders.instance.rideData.notes = ""
-                }
-                SignedInRiders.instance.rideData.notes! += note + "\n"
+            guard let records = savedRecords else {
+                //Util.app().reportError(class_type: type(of: self), context: "add user, nil record")
+                return
             }
+            let record = records[0]
+            guard (record["email"] as? String) != nil else {
+                //Util.app().reportError(class_type: type(of: self), context: "add user but no email stored")
+                return
+            }
+            completion(record.recordID)
         }
-        SignedInRiders.instance.sort()
+        CKContainer.default().publicCloudDatabase.add(op)
     }
 }
 
 class RideTemplates : ObservableObject {
-    static let instance = RideTemplates() //called when shared first referenced
-    @Published var templates:[RideTemplate] = []
-
+    static let instance:RideTemplates = RideTemplates()
+    @Published public var list:[RideTemplate] = []
+    
     private init() {
+        list = []
+        //list.append(RideTemplate(name: "tem[1"))
+        //list.append(RideTemplate(name: "temp2"))
+//        DispatchQueue.global(qos: .userInitiated).async {
+//            var eventsUrl = "https://api.wildapricot.org/v2/accounts/$id/events"
+//            let formatter = DateFormatter()
+//            let startDate = Calendar.current.date(byAdding: .day, value: 0, to: Date())!
+//            formatter.dateFormat = "yyyy-01-01"
+//            let startDateStr = formatter.string(from: startDate)
+//            eventsUrl = eventsUrl + "?%24filter=StartDate%20gt%20\(startDateStr)"
+//            self.api.apiCall(url: eventsUrl, username:nil, password:nil, completion: self.loadRides, fail: self.loadRidesFailed)
+//        }
+    }
+    func added(id:CKRecord.ID) {
+        print("added", id)
+    }
+
+    func save(name:String, notes:String, riders:[Rider]) {
+        let template = RideTemplate(name: name, notes: notes, riders: riders)
+        list.append(template)
+        template.remoteAdd(completion: added)
     }
     
-    func setSelected(name: String) {
-        for t in templates {
-            if t.name == name {
-                t.isSelected = true
-            }
-            else {
-                t.isSelected = false
-            }
-        }
-        //force an array change to publish the row change
-        templates.append(RideTemplate(name: "", ident: ""))
-        templates.remove(at: templates.count-1)
-    }
-    
-    func loadTemplates() {
-        let drive = GoogleDrive.instance
-        drive.listFilesInFolder(onCompleted: self.saveTemplates)
-    }
-    
-    func saveTemplates(files: GTLRDrive_FileList?, error: Error?) {
-        templates = []
-        if let filesList : GTLRDrive_FileList = files {
-            if let filesShow : [GTLRDrive_File] = filesList.files {
-                for file in filesShow {
-                    if let name = file.name {
-                        self.templates.append(RideTemplate(name: name, ident: file.identifier!))
-                    }
+    func load(name:String, signedIn:SignedInRiders) {
+        for template in list {
+            if template.name == name {
+                for rider in template.riders {
+                    signedIn.add(rider: rider)
                 }
             }
         }

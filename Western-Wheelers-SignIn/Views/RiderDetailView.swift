@@ -5,7 +5,7 @@ import MessageUI
 
 struct RiderDetailView: View {
     @ObservedObject var rider:Rider
-    var prepareText : (Rider, CommunicationType) -> Void
+    var prepareText : ([Rider], CommunicationType) -> Void
     @Environment(\.presentationMode) private var presentationMode
 
     @ObservedObject var signedInRiders = SignedInRiders.instance
@@ -47,7 +47,7 @@ struct RiderDetailView: View {
                 if !rider.phone.isEmpty {
                     Text("")
                     Button(action: {
-                        prepareText(rider, CommunicationType .text)
+                        prepareText([rider], CommunicationType .text)
                         self.presentationMode.wrappedValue.dismiss()
                     }, label: {
                         Text("Text Rider")
@@ -56,7 +56,7 @@ struct RiderDetailView: View {
                 if !rider.phone.isEmpty {
                     Text("")
                     Button(action: {
-                        prepareText(rider, CommunicationType .phone)
+                        prepareText([rider], CommunicationType .phone)
                         self.presentationMode.wrappedValue.dismiss()
                     }, label: {
                         Text("Phone Rider")
@@ -65,7 +65,7 @@ struct RiderDetailView: View {
                 if !rider.email.isEmpty {
                     Text("")
                     Button(action: {
-                        prepareText(rider, CommunicationType .email)
+                        prepareText([rider], CommunicationType .email)
                         self.presentationMode.wrappedValue.dismiss()
                     }, label: {
                         Text("EMail Rider")
@@ -79,7 +79,7 @@ struct RiderDetailView: View {
                     self.presentationMode.wrappedValue.dismiss()
                 }, label: {
                     Text("Ok")
-                        .font(.title2)
+                        //.font(.title2)
                 })
                 Text("")
             }

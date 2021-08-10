@@ -92,7 +92,7 @@ struct RidersView: View {
 }
 
 enum ActiveSheet: Identifiable {
-    case selectTemplate, selectRide, addRider, addGuest, email, riderDetail, rideInfoEdit
+    case selectTemplate, selectRide, addRider, addGuest, email, riderDetail, rideInfoEdit, saveTemplate
     var id: Int {
         hashValue
     }
@@ -116,20 +116,26 @@ extension  CurrentRideView {
         }
     }
 
-    private func presentMessageCompose(rider:Rider, way:CommunicationType) {
+    private func presentMessageCompose(riders:[Rider], way:CommunicationType) {
         guard MFMessageComposeViewController.canSendText() else {
             return
         }
         let vc = UIApplication.shared.windows.filter {$0.isKeyWindow}.first?.rootViewController
         if way == CommunicationType.text {
             let composeVC = MFMessageComposeViewController()
-            composeVC.recipients = [rider.phone]
+            var recips:[String] = []
+            for rider in riders {
+                if rider.isSelected && !rider.phone.isEmpty {
+                    recips.append(rider.phone)
+                }
+            }
+            composeVC.recipients = recips
             composeVC.messageComposeDelegate = messageComposeDelegate
             vc?.present(composeVC, animated: true)
         }
         if way == CommunicationType.email {
             let mailVC = MFMailComposeViewController()
-            mailVC.setToRecipients([rider.email])
+            mailVC.setToRecipients([riders[0].email])
             mailVC.mailComposeDelegate = mailComposeDelegate
             vc?.present(mailVC, animated: true)
         }
@@ -138,7 +144,7 @@ extension  CurrentRideView {
 
 struct CurrentRideView: View {
     @ObservedObject var signedInRiders = SignedInRiders.instance
-
+    var rideTemplates = RideTemplates.instance
     @State private var selectRideTemplateSheet = false
     @State private var emailShowing = false
     @State var emailResult: Result<MFMailComposeResult, Error>? = nil
@@ -154,6 +160,14 @@ struct CurrentRideView: View {
 
     func addRide(ride:ClubRide) {
         signedInRiders.setRide(ride: ride)
+    }
+    
+    func loadTemplate(name:String) {
+        rideTemplates.load(name: name, signedIn: signedInRiders)
+    }
+    
+    func saveTemplate(name:String, notes:String) {
+        rideTemplates.save(name: name, notes: notes, riders: signedInRiders.getList())
     }
 
     func addRider(rider:Rider, clubMember: Bool) {
@@ -176,7 +190,7 @@ struct CurrentRideView: View {
         return info
     }
     
-    func riderCommunicate(rider:Rider, way:CommunicationType) {
+    func riderCommunicate(riders:[Rider], way:CommunicationType) {
         DispatchQueue.global(qos: .userInitiated).async {
             //only way to get this to work. i.e. wait for detail view to be shut down fully before text ui is displayed
             usleep(500000)
@@ -184,7 +198,7 @@ struct CurrentRideView: View {
                 if way == CommunicationType.phone {
                     //let url:NSURL = URL(string: "TEL://0123456789")! as NSURL
                     var phone = ""
-                    for c in rider.phone {
+                    for c in riders[0].phone {
                         if c.isNumber {
                             phone += String(c)
                         }
@@ -193,7 +207,7 @@ struct CurrentRideView: View {
                     UIApplication.shared.open(url as URL, options: [:], completionHandler: nil)
                 }
                 else {
-                    self.presentMessageCompose(rider: rider, way: way)
+                    self.presentMessageCompose(riders: riders, way: way)
                 }
             }
         }
@@ -209,9 +223,6 @@ struct CurrentRideView: View {
                     }
                 }
                 else {
-                    Button("Clear Ride Sheet") {
-                        confirmClean = true
-                    }
                     Button("Select Ride Template") {
                         activeSheet = .selectTemplate
                     }
@@ -225,11 +236,13 @@ struct CurrentRideView: View {
                             secondaryButton: .cancel()
                         )
                     }
-            
                     if SignedInRiders.instance.getCount() > 0 && SignedInRiders.instance.selectedCount() < SignedInRiders.instance.getCount() {
                         Button("Remove Unselected Riders") {
                             SignedInRiders.instance.removeUnselected()
                         }
+                    }
+                    Button("Clear Ride Sheet") {
+                        confirmClean = true
                     }
                     
                     RidersView(activeSheet: $activeSheet, scrollToRiderId: $scrollToRiderId)
@@ -244,6 +257,21 @@ struct CurrentRideView: View {
                                     Text("Add Rider")
                                 }
                             }
+                            .frame(alignment: .leading)
+                            Spacer()
+                            Button(action: {
+                                activeSheet = .email
+                            }, label: {
+                                Text("Email Sheet")
+                            })
+                            .disabled(signedInRiders.selectedCount() == 0)
+                            .alert(isPresented: $emailConfirmed) { () -> Alert in
+                                Alert(title: Text("Signup sheet sent for \(SignedInRiders.instance.selectedCount()) riders."))
+                            }
+                            Spacer()
+                        }
+                        Text("")
+                        HStack {
                             Spacer()
                             Button(action: {
                                 activeSheet = .addGuest
@@ -252,6 +280,17 @@ struct CurrentRideView: View {
                                     Text("Add Guest")
                                 }
                             }
+                            .frame(alignment: .leading)
+                            Spacer()
+                            Button(action: {
+                                activeSheet = .saveTemplate
+                            }, label: {
+                                Text("Save Template")
+                            })
+                            .disabled(signedInRiders.getList().count == 0)
+//                            .alert(isPresented: $emailConfirmed) { () -> Alert in
+//                                Alert(title: Text("Signup sheet sent for \(SignedInRiders.instance.selectedCount()) riders."))
+//                            }
                             Spacer()
                         }
                         Text("")
@@ -264,14 +303,10 @@ struct CurrentRideView: View {
                             })
                             Spacer()
                             Button(action: {
-                                activeSheet = .email
+                                riderCommunicate(riders: signedInRiders.getList(), way: CommunicationType.text)
                             }, label: {
-                                Text("Email Sheet")
+                                Text("Text All Riders")
                             })
-                            .disabled(signedInRiders.selectedCount() == 0)
-                            .alert(isPresented: $emailConfirmed) { () -> Alert in
-                                Alert(title: Text("Signup sheet sent for \(SignedInRiders.instance.selectedCount()) riders."))
-                            }
                             Spacer()
                         }
                     }
@@ -287,19 +322,19 @@ struct CurrentRideView: View {
             }
             HStack {
                 Text(version())
-                Button(action: {
-                    VerifiedMember.instance.signOut()
-                }, label: {
-                    Text("Sign Out") //TODO keep?
-                })
-
+//                Button(action: {
+                //                    VerifiedMember.instance.signOut()
+                //                }, label: {
+                //                    Text("Sign Out") //TODO keep?
+                //                })
             }
             .font(.footnote).foregroundColor(Color .gray)
         }
         .sheet(item: $activeSheet) { item in
             switch item {
             case .selectTemplate:
-                SelectTemplateView()
+                //SelectDriveTemplateView()
+                SelectTemplateView(loadTemplate: self.loadTemplate(name:))
             case .selectRide:
                 SelectRide( addRide: self.addRide(ride:)) 
             case .addRider:
@@ -313,9 +348,11 @@ struct CurrentRideView: View {
                              messageSubject: "Western Wheelers Ride Sign Up Sheet",
                              messageContent: msg)
             case .riderDetail:
-                RiderDetailView(rider: riderForDetail!, prepareText: self.riderCommunicate(rider:way:))
+                RiderDetailView(rider: riderForDetail!, prepareText: self.riderCommunicate(riders:way:))
             case .rideInfoEdit:
                 RideInfoView(signedInRiders: signedInRiders)
+            case .saveTemplate:
+                SaveTemplateView(saveTemplate: saveTemplate(name:notes:))
             }
         }
         .onAppear() {
