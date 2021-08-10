@@ -1,6 +1,6 @@
 import Foundation
 import CloudKit
-import Combine
+//import Combine
 
 class RideTemplate: Identifiable, Hashable, Equatable {
     var id = UUID()
@@ -27,7 +27,17 @@ class RideTemplate: Identifiable, Hashable, Equatable {
     }
     
     func remoteAdd(completion: @escaping (CKRecord.ID) -> Void) {
-        let ckRecord = CKRecord(recordType: "RideTemplate")
+        let dcontainer = CKContainer.default()
+
+        if let dcontainerIdentifier = dcontainer.containerIdentifier {
+            print(dcontainerIdentifier)
+        }
+        let container = CKContainer(identifier: "iCloud.com.dmurphy.westernwheelers")
+        if let containerIdentifier = container.containerIdentifier {
+            print(containerIdentifier)
+        }
+
+        let ckRecord = CKRecord(recordType: "RideTemplates")
         ckRecord["name"] = name as CKRecordValue
         ckRecord["notes"] = notes as CKRecordValue
 
@@ -37,7 +47,7 @@ class RideTemplate: Identifiable, Hashable, Equatable {
 
         op.modifyRecordsCompletionBlock = { savedRecords, deletedRecordIDs, error in
             if error != nil || savedRecords == nil || savedRecords?.count != 1 {
-                //Util.app().reportError(class_type: type(of: self), context: "Cannot add user record", error: error?.localizedDescription ?? "")
+                print(error)
                 return
             }
             guard let records = savedRecords else {
@@ -51,7 +61,7 @@ class RideTemplate: Identifiable, Hashable, Equatable {
             }
             completion(record.recordID)
         }
-        CKContainer.default().publicCloudDatabase.add(op)
+        container.publicCloudDatabase.add(op)
     }
 }
 
