@@ -1,21 +1,19 @@
 import Foundation
 import CloudKit
-//import Combine
 
-class RideTemplate: Identifiable, Hashable, Equatable {
+class RideTemplate: RiderList, Identifiable, Hashable, Equatable {
     var id = UUID()
     var name: String = ""
-    //var nextId: Int = 10000
-    var riders:[Rider] = []
+    //var riders:RiderList =
     var notes:String = ""
     
     init(name: String, notes:String, riders:[Rider]){
         self.name = name
         self.notes = notes
         //self.riders.append(Rider(id:"X", nameFirst:"F", nameLast:"L", phone:"P", emrg:"E", email:"EM"))
-        for rider in riders {
-            self.riders.append(rider)
-        }
+//        for rider in riders {
+//            self.riders.append(rider)
+//        }
     }
     
     static func == (lhs: RideTemplate, rhs: RideTemplate) -> Bool {
@@ -27,11 +25,6 @@ class RideTemplate: Identifiable, Hashable, Equatable {
     }
     
     func remoteAdd(completion: @escaping (CKRecord.ID) -> Void) {
-        let dcontainer = CKContainer.default()
-
-        if let dcontainerIdentifier = dcontainer.containerIdentifier {
-            print(dcontainerIdentifier)
-        }
         let container = CKContainer(identifier: "iCloud.com.dmurphy.westernwheelers")
         if let containerIdentifier = container.containerIdentifier {
             print(containerIdentifier)
@@ -40,7 +33,22 @@ class RideTemplate: Identifiable, Hashable, Equatable {
         let ckRecord = CKRecord(recordType: "RideTemplates")
         ckRecord["name"] = name as CKRecordValue
         ckRecord["notes"] = notes as CKRecordValue
-
+        let encoder = JSONEncoder()
+        var jsonRiders:[String] = []
+        do {
+            for rider in self.list {
+                if let data = try? encoder.encode(rider) {
+                    let s = String(data: data, encoding: String.Encoding.utf8)
+                    //print(s ?? "")
+                    jsonRiders.append(s!)
+                    
+                }
+            }
+        }
+        catch {
+            print(error)
+        }
+        ckRecord["rider"] = jsonRiders as CKRecordValue
         let op = CKModifyRecordsOperation(recordsToSave: [ckRecord], recordIDsToDelete: [])
         op.queuePriority = .veryHigh
         op.qualityOfService = .userInteractive
@@ -51,12 +59,12 @@ class RideTemplate: Identifiable, Hashable, Equatable {
                 return
             }
             guard let records = savedRecords else {
-                //Util.app().reportError(class_type: type(of: self), context: "add user, nil record")
+                print("no records")
                 return
             }
             let record = records[0]
-            guard (record["email"] as? String) != nil else {
-                //Util.app().reportError(class_type: type(of: self), context: "add user but no email stored")
+            guard (record["name"] as? String) != nil else {
+                print("no record")
                 return
             }
             completion(record.recordID)
@@ -71,8 +79,8 @@ class RideTemplates : ObservableObject {
     
     private init() {
         list = []
-        //list.append(RideTemplate(name: "tem[1"))
-        //list.append(RideTemplate(name: "temp2"))
+        list.append(RideTemplate(name: "temp1", notes: "xxx", riders: []))
+        list.append(RideTemplate(name: "temp2", notes: "xx", riders: []))
 //        DispatchQueue.global(qos: .userInitiated).async {
 //            var eventsUrl = "https://api.wildapricot.org/v2/accounts/$id/events"
 //            let formatter = DateFormatter()
@@ -87,16 +95,47 @@ class RideTemplates : ObservableObject {
         print("added", id)
     }
 
-    func save(name:String, notes:String, riders:[Rider]) {
-        let template = RideTemplate(name: name, notes: notes, riders: riders)
-        list.append(template)
-        template.remoteAdd(completion: added)
+    func save(saveTemplate:RideTemplate) {
+        var fnd = false
+        //let template = RideTemplate(name: name, notes: notes, riders: riders)
+        var i = 0
+        for template in list {
+            if template.name == saveTemplate.name {
+                list[i] = template
+                fnd = true
+            }
+            i += 1
+        }
+        if !fnd {
+            list.append(saveTemplate)
+        }
+        saveTemplate.remoteAdd(completion: added)
     }
     
+    func delete(name:String) {
+        var i = 0
+        for template in list {
+            if template.name == name {
+                list.remove(at: i)
+                break
+            }
+            i += 1
+        }
+    }
+
+    func get(name:String) -> RideTemplate? {
+        for template in list {
+            if template.name == name {
+                return template
+            }
+        }
+        return nil
+    }
+
     func load(name:String, signedIn:SignedInRiders) {
         for template in list {
             if template.name == name {
-                for rider in template.riders {
+                for rider in template.list {
                     signedIn.add(rider: rider)
                 }
             }

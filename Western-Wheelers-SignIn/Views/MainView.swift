@@ -6,7 +6,7 @@ import MessageUI
 var riderForDetail:Rider? = nil //cannot get binding approach to work :(
 
 struct RiderView: View {
-    @Binding var activeSheet:ActiveSheet?
+    var selectRider : ((Rider) -> Void)!
     @State var rider: Rider
     @State var selectedAction: () -> Void
     @State var deletedAction: () -> Void
@@ -23,7 +23,9 @@ struct RiderView: View {
 
                 Button(rider.getDisplayName(), action: {
                     riderForDetail = self.rider
-                    activeSheet = .riderDetail
+                    if selectRider != nil {
+                        selectRider(rider)
+                    }
                 })
                 if rider.isHilighted {
                     //Image(systemName: ("arrow.left"))
@@ -52,27 +54,28 @@ struct RiderView: View {
 }
 
 struct RidersView: View {
-    @Binding var activeSheet:ActiveSheet?
+    var selectRider : ((Rider) -> Void)!
+    @ObservedObject var riderList:RiderList
     @Binding var scrollToRiderId:String
-    @ObservedObject var signedInRiders = SignedInRiders.instance
     
     var body: some View {
         VStack {
             ScrollView {
                 ScrollViewReader { proxy in
                     VStack {
-                        ForEach(signedInRiders.getList(), id: \.self.id) { rider in
-                            RiderView(activeSheet: $activeSheet, rider: rider,
-                                     selectedAction: {
-                                         DispatchQueue.main.async {
-                                             signedInRiders.toggleSelected(id: rider.id)
-                                         }
-                                     },
-                                     deletedAction: {
-                                        DispatchQueue.main.async {
-                                            signedInRiders.remove(id: rider.id)
-                                        }
-                                     })
+                        ForEach(riderList.list, id: \.self.id) { rider in
+                            RiderView(selectRider: selectRider, rider: rider,
+                                 selectedAction: {
+                                     DispatchQueue.main.async {
+                                         riderList.toggleSelected(id: rider.id)
+                                     }
+                                 },
+                                 deletedAction: {
+                                    DispatchQueue.main.async {
+                                        riderList.remove(id: rider.id)
+                                    }
+                                 }
+                            )
                         }
                     }
                     .onChange(of: scrollToRiderId) { target in
@@ -92,7 +95,7 @@ struct RidersView: View {
 }
 
 enum ActiveSheet: Identifiable {
-    case selectTemplate, selectRide, addRider, addGuest, email, riderDetail, rideInfoEdit, saveTemplate
+    case selectTemplate, selectRide, addRider, addGuest, email, riderDetail, rideInfoEdit
     var id: Int {
         hashValue
     }
@@ -166,8 +169,8 @@ struct CurrentRideView: View {
         rideTemplates.load(name: name, signedIn: signedInRiders)
     }
     
-    func saveTemplate(name:String, notes:String) {
-        rideTemplates.save(name: name, notes: notes, riders: signedInRiders.getList())
+    func selectRider(_: Rider) {
+        activeSheet = ActiveSheet.riderDetail
     }
 
     func addRider(rider:Rider, clubMember: Bool) {
@@ -175,7 +178,6 @@ struct CurrentRideView: View {
         if ClubMembers.instance.getByName(displayName: rider.getDisplayName()) != nil {
             rider.inDirectory = true
         }
-        //SignedInRiders.instance.add(rider: Rider(rider: rider))
         SignedInRiders.instance.add(rider: rider)
         SignedInRiders.instance.setSelected(id: rider.id)
         SignedInRiders.instance.setHilighted(id: rider.id)
@@ -245,11 +247,11 @@ struct CurrentRideView: View {
                         confirmClean = true
                     }
                     
-                    RidersView(activeSheet: $activeSheet, scrollToRiderId: $scrollToRiderId)
+                    RidersView(selectRider: selectRider, riderList: SignedInRiders.instance, scrollToRiderId: $scrollToRiderId)
                     
-                    VStack {
-                        HStack {
-                            Spacer()
+                    HStack {
+                        Spacer()
+                        VStack {
                             Button(action: {
                                 activeSheet = .addRider
                             }) {
@@ -258,21 +260,7 @@ struct CurrentRideView: View {
                                 }
                             }
                             .frame(alignment: .leading)
-                            Spacer()
-                            Button(action: {
-                                activeSheet = .email
-                            }, label: {
-                                Text("Email Sheet")
-                            })
-                            .disabled(signedInRiders.selectedCount() == 0)
-                            .alert(isPresented: $emailConfirmed) { () -> Alert in
-                                Alert(title: Text("Signup sheet sent for \(SignedInRiders.instance.selectedCount()) riders."))
-                            }
-                            Spacer()
-                        }
-                        Text("")
-                        HStack {
-                            Spacer()
+                            //Spacer()
                             Button(action: {
                                 activeSheet = .addGuest
                             }) {
@@ -281,34 +269,31 @@ struct CurrentRideView: View {
                                 }
                             }
                             .frame(alignment: .leading)
-                            Spacer()
-                            Button(action: {
-                                activeSheet = .saveTemplate
-                            }, label: {
-                                Text("Save Template")
-                            })
-                            .disabled(signedInRiders.getList().count == 0)
-//                            .alert(isPresented: $emailConfirmed) { () -> Alert in
-//                                Alert(title: Text("Signup sheet sent for \(SignedInRiders.instance.selectedCount()) riders."))
-//                            }
-                            Spacer()
-                        }
-                        Text("")
-                        HStack {
-                            Spacer()
                             Button(action: {
                                 activeSheet = .rideInfoEdit
                             }, label: {
                                 Text("Ride Info")
                             })
-                            Spacer()
+                        }
+                        Spacer()
+                        VStack {
+                            Button(action: {
+                                activeSheet = .email
+                            }, label: {
+                                Text("Email Ride Sheet")
+                            })
+                            .disabled(signedInRiders.selectedCount() == 0)
+                            .alert(isPresented: $emailConfirmed) { () -> Alert in
+                                Alert(title: Text("Signup sheet sent for \(SignedInRiders.instance.selectedCount()) riders."))
+                            }
                             Button(action: {
                                 riderCommunicate(riders: signedInRiders.getList(), way: CommunicationType.text)
                             }, label: {
                                 Text("Text All Riders")
                             })
-                            Spacer()
+
                         }
+                        Spacer()
                     }
                 }
             }
@@ -351,14 +336,10 @@ struct CurrentRideView: View {
                 RiderDetailView(rider: riderForDetail!, prepareText: self.riderCommunicate(riders:way:))
             case .rideInfoEdit:
                 RideInfoView(signedInRiders: signedInRiders)
-            case .saveTemplate:
-                SaveTemplateView(saveTemplate: saveTemplate(name:notes:))
+            
             }
         }
         .onAppear() {
-//            if signedInRiders.list.count == 0 {
-//                activeSheet = .templates
-//            }
             GIDSignIn.sharedInstance()?.presentingViewController = UIApplication.shared.windows.first?.rootViewController
         }
         .onChange(of: emailResult.debugDescription) {result in
@@ -379,6 +360,10 @@ struct MainView: View {
                 CurrentRideView()
                 .tabItem {
                     Label("Ride", systemImage: "bicycle.circle.fill")
+                }
+                TemplatesView()
+                .tabItem {
+                    Label("Templates", systemImage: "list.bullet.rectangle")
                 }
                 MembersView()
                 .tabItem {

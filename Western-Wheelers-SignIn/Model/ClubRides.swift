@@ -75,9 +75,6 @@ class ClubRides : ObservableObject {
                             }
                             ride.dateTime = self.dateFromJSON(dateStr: value as! String)
                         }
-//                            if key == "Url" {
-//                                ride.url = value as? String
-//                            }
                         if key == "Sessions" {
                             let eventSessions = value as! NSArray
                             for sess in eventSessions {

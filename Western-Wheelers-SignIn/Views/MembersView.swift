@@ -24,7 +24,7 @@ struct MembersView: View {
                     }
                 }
             }
-            .border(Color.blue)
+            .border(Color.black)
             .padding()
             Spacer()
         }

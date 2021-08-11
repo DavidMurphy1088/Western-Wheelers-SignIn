@@ -25,8 +25,10 @@ struct SelectRide : View {
                                 })
                                 Text(ride.dateDisplay())
                                 }
-                                .padding()
+                                //.padding()
+                                
                             }
+                            Text("")
                         }
                     }
                 }

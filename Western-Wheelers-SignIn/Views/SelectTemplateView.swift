@@ -23,7 +23,7 @@ struct SelectTemplateView : View {
                                 }, label: {
                                     Text(template.name)
                                 })
-                                    Text("\(template.riders.count) riders")
+                                    Text("\(template.list.count) riders")
                                 }
                                 .padding()
                             }

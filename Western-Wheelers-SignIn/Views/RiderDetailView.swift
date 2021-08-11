@@ -7,7 +7,6 @@ struct RiderDetailView: View {
     @ObservedObject var rider:Rider
     var prepareText : ([Rider], CommunicationType) -> Void
     @Environment(\.presentationMode) private var presentationMode
-
     @ObservedObject var signedInRiders = SignedInRiders.instance
     
     var body: some View {

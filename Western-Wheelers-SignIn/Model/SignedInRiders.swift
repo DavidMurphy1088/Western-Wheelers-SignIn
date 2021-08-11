@@ -36,9 +36,64 @@ class RideData : Encodable, Decodable {
     }
 }
 
-class SignedInRiders : ObservableObject {
+class RiderList : ObservableObject {
+    @Published var list:[Rider] = []
+    
+    func toggleSelected(id: String) {
+        for r in list {
+            if r.id == id {
+                r.setSelected(!r.selected())
+//                if r.selected() {
+//                    //fnd = true
+//                    //setSignInDate()
+//                }
+            }
+        }
+        self.pushChange()
+    }
+    
+    func pushChange() {
+        //force an array change to publish the row change
+        list.append(Rider(id: "", nameFirst: "", nameLast: "", phone: "", emrg: "", email: ""))
+        list.remove(at: list.count-1)
+    }
+    
+    func add(rider:Rider) {
+        var fnd = false
+        for r in list {
+            if r.id == rider.id {
+                fnd = true
+                break
+            }
+        }
+        if !fnd {
+            list.append(rider)
+        }
+        sort()
+    }
+    
+    func sort () {
+        list.sort {
+            $0.getDisplayName() < $1.getDisplayName()
+        }
+    }
+    
+    func remove(id:String) {
+        var i = 0
+        for r in list {
+            if r.id == id {
+                list.remove(at: i)
+                break
+            }
+            i += 1
+        }
+        sort()
+    }
+}
+
+class SignedInRiders : RiderList {
     static let instance:SignedInRiders = SignedInRiders()
-    @Published private var list:[Rider] = []
+
     var levels:[Level]?
     @Published var levelSelected = false
     
@@ -49,7 +104,7 @@ class SignedInRiders : ObservableObject {
     private static var savedData = "RIDE_DATA"
     private static var savedLevels = "RIDE_LEVELS"
 
-    private init() {
+    private override init() {
        rideData = RideData()
     }
     
@@ -231,12 +286,7 @@ class SignedInRiders : ObservableObject {
         self.pushChange()
     }
     
-    func pushChange() {
-        //force an array change to publish the row change
-        list.append(Rider(id: "", nameFirst: "", nameLast: "", phone: "", emrg: "", email: ""))
-        list.remove(at: list.count-1)
-    }
-    
+
     func setHilighted(id: String) {
         for r in list {
             if r.id == id {
@@ -247,51 +297,6 @@ class SignedInRiders : ObservableObject {
             }
         }
         self.pushChange()
-    }
-
-    func toggleSelected(id: String) {
-        for r in list {
-            if r.id == id {
-                r.setSelected(!r.selected())
-//                if r.selected() {
-//                    //fnd = true
-//                    //setSignInDate()
-//                }
-            }
-        }
-        self.pushChange()
-    }
-
-    func sort () {
-        list.sort {
-            $0.getDisplayName() < $1.getDisplayName()
-        }
-    }
-    
-    func add(rider:Rider) {
-        var fnd = false
-        for r in list {
-            if r.id == rider.id {
-                fnd = true
-                break
-            }
-        }
-        if !fnd {
-            list.append(rider)
-        }
-        sort()
-    }
-    
-    func remove(id:String) {
-        var i = 0
-        for r in list {
-            if r.id == id {
-                list.remove(at: i)
-                break
-            }
-            i += 1
-        }
-        sort()
     }
     
     func getHTMLContent(version:String) -> String {
