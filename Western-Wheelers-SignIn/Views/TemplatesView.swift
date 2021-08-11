@@ -34,7 +34,6 @@ struct TemplatesView: View {
                         Text(" ")
                         Button(template.name, action: {
                             templateForDetail = template.name
-                            print("-", templateForDetail, template.name)
                             activeSheet = ActiveTemplateSheet.editTemplate
                         })
 
