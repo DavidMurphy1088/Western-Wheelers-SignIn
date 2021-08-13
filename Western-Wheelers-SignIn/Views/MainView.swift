@@ -90,7 +90,7 @@ struct RidersView: View {
                 }
             }
             .padding()
-            .border(Color.gray)
+            .border(riderList.list.count == 0 ? Color.white : Color.gray)
             .padding()
         }
      }

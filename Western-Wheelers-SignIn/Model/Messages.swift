@@ -12,11 +12,14 @@ class Messages : ObservableObject {
             self.message = msg
         }
     }
-    func reportError(context:String, msg: String) {
+    func reportError(context:String, msg: String? = nil, error:Error? = nil) {
         DispatchQueue.main.async {
-            var message = msg
+            var message:String = msg ?? ""
             if !NetworkReachability().checkConnection() {
                 message += "\nInternet appears to be offline"
+            }
+            if let err = error {
+                message += " " + err.localizedDescription
             }
             print("ERROR", context, message)
             self.errMessage = context + " " + message
@@ -25,7 +28,6 @@ class Messages : ObservableObject {
     func clearError() {
         DispatchQueue.main.async {
             self.errMessage = ""
-            //self.message = ""
         }
     }
 

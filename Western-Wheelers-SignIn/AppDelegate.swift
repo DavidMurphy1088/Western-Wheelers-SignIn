@@ -8,7 +8,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     internal func application(_ application: UIApplication,
                    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Initialize sign-in
         VerifiedMember.instance.restore()
         GIDSignIn.sharedInstance().clientID = "505823345399-a79vs9g0o24984ionca518phdqdavbuc.apps.googleusercontent.com"
         GIDSignIn.sharedInstance().delegate = GoogleDrive.instance

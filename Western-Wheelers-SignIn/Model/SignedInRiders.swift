@@ -142,6 +142,7 @@ class SignedInRiders : RiderList {
     }
     
     func save() {
+        Messages.instance.clearError()
         do {
             let encoder = JSONEncoder()
             if let data = try? encoder.encode(self.list) {
@@ -156,8 +157,7 @@ class SignedInRiders : RiderList {
             }
         }
         catch {
-            let msg = "Error saving rider list \(error.localizedDescription)"
-            Messages.instance.reportError(context: "SignedInRiders", msg: msg)
+            Messages.instance.reportError(context: "SignedInRiders saving rider list", error: error)
         }
     }
     
@@ -173,8 +173,7 @@ class SignedInRiders : RiderList {
                 }
             }
             catch {
-                let msg = "Error restoring ride signin \(error.localizedDescription)"
-                Messages.instance.reportError(context: "SignedInRiders", msg: msg)
+                Messages.instance.reportError(context: "SignedInRiders restore list", error: error)
             }
         }
         savedData = UserDefaults.standard.object(forKey: SignedInRiders.savedData)

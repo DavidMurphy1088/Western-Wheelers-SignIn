@@ -51,7 +51,7 @@ class WAApi : ObservableObject {
     func runTask(req:URLRequest) -> Data? {
         let semaphore: DispatchSemaphore = DispatchSemaphore(value: 0)
         var result:Data? = nil
-        
+        Messages.instance.clearError()
         let task = URLSession.shared.dataTask(with: req) { data, response, error in
             if let error = error {
                 Messages.instance.reportError(context: "WAApi", msg: error.localizedDescription)
@@ -81,7 +81,7 @@ class WAApi : ObservableObject {
     func apiCall(url:String, username:String?, password:String?,
                  completion: @escaping (Data) -> (), fail: @escaping (String) -> ()) {
         apiCallNum += 1
-
+        Messages.instance.clearError()
         var user = ""
         var pwd = ""
         if let uname = username {

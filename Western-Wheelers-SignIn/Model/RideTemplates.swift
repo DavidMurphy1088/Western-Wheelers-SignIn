@@ -36,9 +36,7 @@ class RideTemplates : ObservableObject {
             if error == nil {
                 print("===>Loaded templates", self.list.count)
             } else {
-                print(error?.localizedDescription)
-                //TODO
-                //Util.app().reportError(class_type: type(of: self), context: "Cannot remote query users", error: error?.localizedDescription ?? "")
+                Messages.instance.reportError(context: "RideTemplates load", error: error)
             }
         }
         RideTemplates.container.publicCloudDatabase.add(operation)

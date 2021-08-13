@@ -193,6 +193,7 @@ class ClubMembers : ObservableObject {
     }
 
     func updateList(updList: [Rider]) {
+        Messages.instance.clearError()
         DispatchQueue.main.async {
             self.clubList = []
             for r in updList {

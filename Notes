@@ -24,6 +24,35 @@ notes to high
 test on phone
 
 -- script
+heres a qick demo of the wheelers ride sign up app
+startapp
+select ride
+
+select template
+- many of the weekly rides have the same people riding each week
+- tempaltes are useful if your ride usually has the same riders sigingup each week
+
+select whcih riders are signing up today
+
+add individula riders
+- show members
+- app has a list of all WW memeber with public profiles
+- if the phone number is public its also shown
+- add David M
+
+show rider info
+- make ride leader
+- can phone or text riders on the ride
+
+start ride
+
+at end of ride restart app
+- email rider list to the club
+- scroll down the list
+
+thanks for watching the demo
+
+
 //Takes a while for members to load
 3rd column can be phone number
 have redirect for generic 'CLub stats person'

@@ -7,8 +7,11 @@ struct TemplateEditView: View {
     @State var template:RideTemplate
     var saveTemplate : (RideTemplate) -> Void
     @Environment(\.presentationMode) private var presentationMode
+    @ObservedObject var keyboardHeightHelper = KeyboardHeightHelper()
+
     @State var activeSheet: ActiveSheet?
     @State var scrollToRiderId:String = ""
+    @State var notesInFocus = false
     
     enum ActiveSheet: Identifiable {
         case addRider
@@ -38,22 +41,35 @@ struct TemplateEditView: View {
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding()
                 Text("Notes:")
-                TextField("notes", text: $template.notes)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                TextEditor(text: $template.notes)
                     .multilineTextAlignment(.leading)
-                    //.frame(minHeight: 100)
-                    //.border(Color.gray)
+                    .border(Color.black)
                     .padding()
+                .onTapGesture {
+                    self.notesInFocus = true
+                }
                 
-                RidersView(riderList: template, scrollToRiderId: $scrollToRiderId)
+                if keyboardHeightHelper.keyboardHeight == 0 {
+                    RidersView(riderList: template, scrollToRiderId: $scrollToRiderId)
+                }
 
                 HStack {
                     Spacer()
-                    Button(action: {
-                        activeSheet = ActiveSheet.addRider
-                    }, label: {
-                        Text("Add Rider")
-                    })
+                    if notesInFocus {
+                        Button(action: {
+                            self.hideKeyboard()
+                            self.notesInFocus = false
+                        }, label: {
+                            Text("Hide Keyboard")
+                        })
+                    }
+                    else {
+                        Button(action: {
+                            activeSheet = ActiveSheet.addRider
+                        }, label: {
+                            Text("Add Rider")
+                        })
+                    }
                     Spacer()
                 }
                 Text("")

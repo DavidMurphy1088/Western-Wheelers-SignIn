@@ -14,7 +14,6 @@ class RideTemplate: RiderList, Hashable {
     
     init(record:CKRecord) {
         super.init()
-
         recordId = record.recordID
         if let data = record["name"] {
             name = data.description
@@ -23,14 +22,13 @@ class RideTemplate: RiderList, Hashable {
             notes = data.description
         }
         let riders = record.object(forKey: "riders") as! NSArray
-            let decoder = JSONDecoder()
-            for r in riders {
-                let json = Data("\(r)".utf8)
-                if let rider = try? decoder.decode(Rider.self, from: json) {
-                    list.append(rider)
-                }
+        let decoder = JSONDecoder()
+        for r in riders {
+            let json = Data("\(r)".utf8)
+            if let rider = try? decoder.decode(Rider.self, from: json) {
+                list.append(rider)
             }
-
+        }
     }
     
     static func == (lhs: RideTemplate, rhs: RideTemplate) -> Bool {
@@ -60,24 +58,23 @@ class RideTemplate: RiderList, Hashable {
         return ckRecord
     }
     
-    func remoteAdd() { //completion: @escaping (CKRecord.ID) -> Void) {
+    func remoteAdd() {
         let op = CKModifyRecordsOperation(recordsToSave: [makeRecord()], recordIDsToDelete: [])
         op.queuePriority = .veryHigh
         op.qualityOfService = .userInteractive
 
         op.modifyRecordsCompletionBlock = { savedRecords, deletedRecordIDs, error in
             if error != nil || savedRecords == nil || savedRecords?.count != 1 {
-                print(error) //TODO
+                Messages.instance.reportError(context: "RideTemplate", error: error)
                 return
             }
             guard let records = savedRecords else {
-                print("no records") //TODO
+                Messages.instance.reportError(context: "RideTemplate", msg: "none added")
                 return
             }
             let record = records[0]
             print("added record", record.recordID)
             self.recordId = record.recordID
-            //completion(record.recordID)
         }
         RideTemplates.container.publicCloudDatabase.add(op)
     }
@@ -89,9 +86,7 @@ class RideTemplate: RiderList, Hashable {
         op.savePolicy = .allKeys  //2 hours later ... required otherwise it does NOTHING :( :(
         op.modifyRecordsCompletionBlock = { savedRecords, deletedRecordIDs, error in
             if error != nil || savedRecords?.count != 1 {
-                print(error?.localizedDescription)            }
-            else {
-                print("modified ok", savedRecords?.count)
+                Messages.instance.reportError(context: "RideTemplate modify", error: error)
             }
         }
         RideTemplates.container.publicCloudDatabase.add(op)
@@ -104,10 +99,7 @@ class RideTemplate: RiderList, Hashable {
         op.savePolicy = .allKeys  //2 hours later ... required otherwwise it does NOTHING :( :(
         op.modifyRecordsCompletionBlock = { savedRecords, deletedRecordIDs, error in
             if error != nil || deletedRecordIDs?.count != 1 {
-                print(error?.localizedDescription)            //TODO
-            }
-            else {
-                //completion()
+                Messages.instance.reportError(context: "RideTemplate delete", error: error)
             }
         }
         RideTemplates.container.publicCloudDatabase.add(op)

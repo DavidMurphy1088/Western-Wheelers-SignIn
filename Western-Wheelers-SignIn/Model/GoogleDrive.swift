@@ -6,7 +6,6 @@ class GoogleDrive : NSObject, GIDSignInDelegate {
     static let instance = GoogleDrive() //first called from AppDelegate didFinishLaunching
     var notificationName:String?
     var listFunc: ((GTLRDrive_FileList?, Error?) -> ())? = nil
-    //TODO hard code credentials?
     
     func application(_ application: UIApplication,
                    open url: URL, sourceApplication: String?, annotation: Any) -> Bool {
@@ -91,7 +90,7 @@ class GoogleDrive : NSObject, GIDSignInDelegate {
         if let user = GIDSignIn.sharedInstance().currentUser {
             service.authorizer = user.authentication.fetcherAuthorizer()
         }
-
+        Messages.instance.clearError()
         service.executeQuery(query) { (ticket:GTLRServiceTicket, result:Any?, error:Error?) in
             var sheetData:[[String]] = []
             if let error = error {
