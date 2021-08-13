@@ -15,7 +15,9 @@
 		7B306D8C2683F92500DA337E /* GoogleDrive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B306D8B2683F92500DA337E /* GoogleDrive.swift */; };
 		7B306D91268428CD00DA337E /* DriveRideTemplates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B306D90268428CD00DA337E /* DriveRideTemplates.swift */; };
 		7B306DA626845B2E00DA337E /* SignedInRiders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B306DA526845B2E00DA337E /* SignedInRiders.swift */; };
+		7B325FDF26C6FF6B001E4354 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B325FDE26C6FF6B001E4354 /* MapKit.framework */; };
 		7B67A55A26C33E4C00188EE5 /* TemplatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B67A55926C33E4C00188EE5 /* TemplatesView.swift */; };
+		7B67A57B26C42F2400188EE5 /* RideTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B67A57A26C42F2400188EE5 /* RideTemplate.swift */; };
 		7B8EA5E12690D8ED00313FF0 /* Messages.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8EA5E02690D8ED00313FF0 /* Messages.swift */; };
 		7B9999292680110300F3E65D /* Western_Wheelers_SignInApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B9999282680110300F3E65D /* Western_Wheelers_SignInApp.swift */; };
 		7B99992B2680110300F3E65D /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B99992A2680110300F3E65D /* MainView.swift */; };
@@ -72,7 +74,9 @@
 		7B306D8B2683F92500DA337E /* GoogleDrive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleDrive.swift; sourceTree = "<group>"; };
 		7B306D90268428CD00DA337E /* DriveRideTemplates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriveRideTemplates.swift; sourceTree = "<group>"; };
 		7B306DA526845B2E00DA337E /* SignedInRiders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedInRiders.swift; sourceTree = "<group>"; };
+		7B325FDE26C6FF6B001E4354 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		7B67A55926C33E4C00188EE5 /* TemplatesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplatesView.swift; sourceTree = "<group>"; };
+		7B67A57A26C42F2400188EE5 /* RideTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RideTemplate.swift; sourceTree = "<group>"; };
 		7B8EA5E02690D8ED00313FF0 /* Messages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Messages.swift; sourceTree = "<group>"; };
 		7B9999252680110300F3E65D /* Western-Wheelers-SignIn.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Western-Wheelers-SignIn.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B9999282680110300F3E65D /* Western_Wheelers_SignInApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Western_Wheelers_SignInApp.swift; sourceTree = "<group>"; };
@@ -120,6 +124,7 @@
 			files = (
 				7BA4C7B726C230C7003F632B /* CloudKit.framework in Frameworks */,
 				2FE2C4770AAE25847CEE03B7 /* Pods_Western_Wheelers_SignIn.framework in Frameworks */,
+				7B325FDF26C6FF6B001E4354 /* MapKit.framework in Frameworks */,
 				7B22418D269FEF0A00F06EB6 /* SwiftSoup in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -248,6 +253,7 @@
 				7B306D8B2683F92500DA337E /* GoogleDrive.swift */,
 				7B8EA5E02690D8ED00313FF0 /* Messages.swift */,
 				7BB6B222268C4789007941D2 /* Rider.swift */,
+				7B67A57A26C42F2400188EE5 /* RideTemplate.swift */,
 				7BA132C126C1EBB600A0E689 /* RideTemplates.swift */,
 				7B306DA526845B2E00DA337E /* SignedInRiders.swift */,
 				7BA71C3E26A5E82B00885D12 /* VerifiedMember.swift */,
@@ -259,6 +265,7 @@
 		C8AD8D138064B51C177A2C41 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				7B325FDE26C6FF6B001E4354 /* MapKit.framework */,
 				7BA4C7B626C230C7003F632B /* CloudKit.framework */,
 				4B0364D7F46014F8A7B8FFFB /* Pods_Western_Wheelers_SignIn.framework */,
 			);
@@ -481,6 +488,7 @@
 				7BA132C226C1EBB600A0E689 /* RideTemplates.swift in Sources */,
 				7BFDDEDD2698DD8E00497A21 /* RiderDetailView.swift in Sources */,
 				7BA132BA26C1E95600A0E689 /* SelectTemplateView.swift in Sources */,
+				7B67A57B26C42F2400188EE5 /* RideTemplate.swift in Sources */,
 				7BA71C1F26A5087000885D12 /* ClubRide.swift in Sources */,
 				7B8EA5E12690D8ED00313FF0 /* Messages.swift in Sources */,
 				7B1A8F992695422C002E4EF1 /* AddGuestView.swift in Sources */,
@@ -651,19 +659,21 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Western-Wheelers-SignIn/Western-Wheelers-SignIn.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_ASSET_PATHS = "\"Western-Wheelers-SignIn/Preview Content\"";
 				DEVELOPMENT_TEAM = 2B6A6N9QBQ;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = "Western-Wheelers-SignIn/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.dmurphy.westernwheelers.Western-Wheelers-SignIn";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -676,19 +686,21 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Western-Wheelers-SignIn/Western-Wheelers-SignIn.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_ASSET_PATHS = "\"Western-Wheelers-SignIn/Preview Content\"";
 				DEVELOPMENT_TEAM = 2B6A6N9QBQ;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = "Western-Wheelers-SignIn/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.dmurphy.westernwheelers.Western-Wheelers-SignIn";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

@@ -18,7 +18,12 @@ target 'MyApp' do
      pod 'GoogleAPIClientForREST'
  end
 
---User
+-- todo
+move jim tempaltes
+notes to high
+test on phone
+
+-- script
 //Takes a while for members to load
 3rd column can be phone number
 have redirect for generic 'CLub stats person'

@@ -14,7 +14,8 @@ struct SelectTemplateView : View {
             ScrollView {
                 ScrollViewReader { proxy in
                     VStack {
-                        ForEach(templates.list, id: \.self.id) { template in
+                        //ForEach(templates.list, id: \.self.id) { template in
+                        ForEach(templates.list, id: \.self.name) { template in
                             HStack {
                                 VStack {
                                 Button(action: {

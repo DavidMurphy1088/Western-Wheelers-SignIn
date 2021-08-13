@@ -8,7 +8,7 @@ struct TemplateEditView: View {
     var saveTemplate : (RideTemplate) -> Void
     @Environment(\.presentationMode) private var presentationMode
     @State var activeSheet: ActiveSheet?
-    @State var scrollToRiderId:String = "" //TODO why
+    @State var scrollToRiderId:String = ""
     
     enum ActiveSheet: Identifiable {
         case addRider
@@ -24,6 +24,8 @@ struct TemplateEditView: View {
         }
         template.add(rider: rider)
         self.scrollToRiderId = rider.id
+        template.setHilighted(id: rider.id)
+
         ClubMembers.instance.clearSelected()
     }
 
@@ -39,7 +41,7 @@ struct TemplateEditView: View {
                 TextField("notes", text: $template.notes)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .multilineTextAlignment(.leading)
-                    .frame(minHeight: 200)
+                    //.frame(minHeight: 100)
                     //.border(Color.gray)
                     .padding()
                 
@@ -54,6 +56,7 @@ struct TemplateEditView: View {
                     })
                     Spacer()
                 }
+                Text("")
                 HStack {
                     Spacer()
                     Button(action: {

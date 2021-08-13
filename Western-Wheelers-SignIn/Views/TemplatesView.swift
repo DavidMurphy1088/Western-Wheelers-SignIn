@@ -12,7 +12,7 @@ enum ActiveTemplateSheet: Identifiable {
     }
 }
 
-var templateForDetail:String? //TODO this should be part of view
+var templateToEdit:String? //TODO this should be part of view
 
 struct TemplatesView: View {
     @ObservedObject var templates = RideTemplates.instance
@@ -20,9 +20,20 @@ struct TemplatesView: View {
     @State var confirmDel:Bool = false
 
     func saveTemplate (template:RideTemplate) {
-        templates.save(saveTemplate: template)
+        if !template.name.isEmpty {
+            templates.save(saveTemplate: template)
+        }
     }
     
+    func editTemplate() -> RideTemplate {
+        if let templateForDetail = templateToEdit {
+            if let templateForDetail = templates.get(name: templateForDetail) {
+                return templateForDetail
+            }
+        }
+        return RideTemplate(name: "", notes: "", riders: [])
+    }
+
     var body: some View {
         VStack {
             Spacer()
@@ -33,11 +44,12 @@ struct TemplatesView: View {
                     HStack {
                         Text(" ")
                         Button(template.name, action: {
-                            templateForDetail = template.name
+                            templateToEdit = template.name
                             activeSheet = ActiveTemplateSheet.editTemplate
                         })
-
                         Spacer()
+                        Text("\(template.list.count) riders")
+                        Text("   ")
                         Button(action: {
                             confirmDel = true
                         }, label: {
@@ -57,10 +69,11 @@ struct TemplatesView: View {
                     Text("")
                 }
             }
-            .border(Color.black)
+            .border(Color.gray)
             .padding()
             Spacer()
             Button(action: {
+                templateToEdit = nil
                 activeSheet = ActiveTemplateSheet.editTemplate
             }, label: {
                 Text("New Ride Template")
@@ -70,10 +83,9 @@ struct TemplatesView: View {
         .sheet(item: $activeSheet) { item in
             switch item {
             case .editTemplate:
-                //print("==-", templateForDetail)
-                //Text(templateForDetail ?? "...")
-                TemplateEditView(template: templates.get(name: templateForDetail!)!, saveTemplate: saveTemplate(template:))
+                TemplateEditView(template: self.editTemplate(), saveTemplate: saveTemplate(template:))
             }
         }
     }
+    
 }

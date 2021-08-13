@@ -79,16 +79,18 @@ struct RidersView: View {
                         }
                     }
                     .onChange(of: scrollToRiderId) { target in
+                        print("====>>>", scrollToRiderId, target)
                         if scrollToRiderId != "" {
                             withAnimation {
+                                print(",,,,====>>>", scrollToRiderId, target)
                                 proxy.scrollTo(scrollToRiderId)
                             }
                         }
                     }
                 }
             }
-            
-            .border(Color.black)
+            .padding()
+            .border(Color.gray)
             .padding()
         }
      }
@@ -228,6 +230,7 @@ struct CurrentRideView: View {
                     Button("Select Ride Template") {
                         activeSheet = .selectTemplate
                     }
+                    .disabled(rideTemplates.list.count == 0)
                     .alert(isPresented:$confirmClean) {
                         Alert(
                             title: Text("Are you sure you want to clear this ride sheet?"),
@@ -307,11 +310,6 @@ struct CurrentRideView: View {
             }
             HStack {
                 Text(version())
-//                Button(action: {
-                //                    VerifiedMember.instance.signOut()
-                //                }, label: {
-                //                    Text("Sign Out") //TODO keep?
-                //                })
             }
             .font(.footnote).foregroundColor(Color .gray)
         }
@@ -336,7 +334,7 @@ struct CurrentRideView: View {
                 RiderDetailView(rider: riderForDetail!, prepareText: self.riderCommunicate(riders:way:))
             case .rideInfoEdit:
                 RideInfoView(signedInRiders: signedInRiders)
-            
+
             }
         }
         .onAppear() {

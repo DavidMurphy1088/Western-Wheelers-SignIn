@@ -89,6 +89,18 @@ class RiderList : ObservableObject {
         }
         sort()
     }
+    
+    func setHilighted(id: String) {
+        for r in list {
+            if r.id == id {
+                r.isHilighted = true
+            }
+            else {
+                r.isHilighted = false
+            }
+        }
+        self.pushChange()
+    }
 }
 
 class SignedInRiders : RiderList {
@@ -285,20 +297,7 @@ class SignedInRiders : RiderList {
         //setSignInDate()
         self.pushChange()
     }
-    
-
-    func setHilighted(id: String) {
-        for r in list {
-            if r.id == id {
-                r.isHilighted = true
-            }
-            else {
-                r.isHilighted = false
-            }
-        }
-        self.pushChange()
-    }
-    
+        
     func getHTMLContent(version:String) -> String {
         var content = "<html><body>"
         if let name = rideData.ride?.name {

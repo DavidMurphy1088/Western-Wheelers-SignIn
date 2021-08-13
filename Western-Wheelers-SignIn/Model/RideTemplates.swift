@@ -1,86 +1,15 @@
 import Foundation
 import CloudKit
 
-class RideTemplate: RiderList, Identifiable, Hashable, Equatable {
-    var id = UUID()
-    var name: String = ""
-    //var riders:RiderList =
-    var notes:String = ""
-    
-    init(name: String, notes:String, riders:[Rider]){
-        self.name = name
-        self.notes = notes
-        //self.riders.append(Rider(id:"X", nameFirst:"F", nameLast:"L", phone:"P", emrg:"E", email:"EM"))
-//        for rider in riders {
-//            self.riders.append(rider)
-//        }
-    }
-    
-    static func == (lhs: RideTemplate, rhs: RideTemplate) -> Bool {
-        return lhs.name == rhs.name
-    }
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(name)
-    }
-    
-    func remoteAdd(completion: @escaping (CKRecord.ID) -> Void) {
-        let container = CKContainer(identifier: "iCloud.com.dmurphy.westernwheelers")
-        if let containerIdentifier = container.containerIdentifier {
-            print(containerIdentifier)
-        }
-
-        let ckRecord = CKRecord(recordType: "RideTemplates")
-        ckRecord["name"] = name as CKRecordValue
-        ckRecord["notes"] = notes as CKRecordValue
-        let encoder = JSONEncoder()
-        var jsonRiders:[String] = []
-        do {
-            for rider in self.list {
-                if let data = try? encoder.encode(rider) {
-                    let s = String(data: data, encoding: String.Encoding.utf8)
-                    //print(s ?? "")
-                    jsonRiders.append(s!)
-                    
-                }
-            }
-        }
-        catch {
-            print(error)
-        }
-        ckRecord["rider"] = jsonRiders as CKRecordValue
-        let op = CKModifyRecordsOperation(recordsToSave: [ckRecord], recordIDsToDelete: [])
-        op.queuePriority = .veryHigh
-        op.qualityOfService = .userInteractive
-
-        op.modifyRecordsCompletionBlock = { savedRecords, deletedRecordIDs, error in
-            if error != nil || savedRecords == nil || savedRecords?.count != 1 {
-                print(error)
-                return
-            }
-            guard let records = savedRecords else {
-                print("no records")
-                return
-            }
-            let record = records[0]
-            guard (record["name"] as? String) != nil else {
-                print("no record")
-                return
-            }
-            completion(record.recordID)
-        }
-        container.publicCloudDatabase.add(op)
-    }
-}
-
 class RideTemplates : ObservableObject {
     static let instance:RideTemplates = RideTemplates()
     @Published public var list:[RideTemplate] = []
-    
+    static let container = CKContainer(identifier: "iCloud.com.dmurphy.westernwheelers")
+
     private init() {
         list = []
-        list.append(RideTemplate(name: "temp1", notes: "xxx", riders: []))
-        list.append(RideTemplate(name: "temp2", notes: "xx", riders: []))
+        //list.append(RideTemplate(name: "temp1", notes: "xxx", riders: []))
+        //list.append(RideTemplate(name: "temp2", notes: "xx", riders: []))
 //        DispatchQueue.global(qos: .userInitiated).async {
 //            var eventsUrl = "https://api.wildapricot.org/v2/accounts/$id/events"
 //            let formatter = DateFormatter()
@@ -90,14 +19,33 @@ class RideTemplates : ObservableObject {
 //            eventsUrl = eventsUrl + "?%24filter=StartDate%20gt%20\(startDateStr)"
 //            self.api.apiCall(url: eventsUrl, username:nil, password:nil, completion: self.loadRides, fail: self.loadRidesFailed)
 //        }
+        loadFromCloud()
     }
-    func added(id:CKRecord.ID) {
-        print("added", id)
+    
+    func loadFromCloud() {
+        let query = CKQuery(recordType: "RideTemplates", predicate: NSPredicate(value: true))
+        let operation = CKQueryOperation(query: query)
+        operation.desiredKeys = ["name", "notes", "riders"]
+        operation.queuePriority = .veryHigh
+        operation.qualityOfService = .userInteractive
+        operation.recordFetchedBlock = { [self]record in
+            print(record)
+            list.append(RideTemplate(record: record))
+        }
+        operation.queryCompletionBlock = {(cursor, error) in //{ [unowned self] (cursor, error) in
+            if error == nil {
+                print("===>Loaded templates", self.list.count)
+            } else {
+                print(error?.localizedDescription)
+                //TODO
+                //Util.app().reportError(class_type: type(of: self), context: "Cannot remote query users", error: error?.localizedDescription ?? "")
+            }
+        }
+        RideTemplates.container.publicCloudDatabase.add(operation)
     }
 
     func save(saveTemplate:RideTemplate) {
         var fnd = false
-        //let template = RideTemplate(name: name, notes: notes, riders: riders)
         var i = 0
         for template in list {
             if template.name == saveTemplate.name {
@@ -109,17 +57,29 @@ class RideTemplates : ObservableObject {
         if !fnd {
             list.append(saveTemplate)
         }
-        saveTemplate.remoteAdd(completion: added)
+        if let id = saveTemplate.recordId {
+            saveTemplate.remoteModify()
+        }
+        else {
+            saveTemplate.remoteAdd()
+        }
     }
     
     func delete(name:String) {
         var i = 0
+        var delTemplate:RideTemplate?
         for template in list {
             if template.name == name {
+                delTemplate = template
                 list.remove(at: i)
                 break
             }
             i += 1
+        }
+        if let delTemplate = delTemplate {
+            if let id = delTemplate.recordId {
+                delTemplate.remoteDelete()
+            }
         }
     }
 
