@@ -8,34 +8,20 @@ class RideTemplates : ObservableObject {
 
     private init() {
         list = []
-        //list.append(RideTemplate(name: "temp1", notes: "xxx", riders: []))
-        //list.append(RideTemplate(name: "temp2", notes: "xx", riders: []))
-//        DispatchQueue.global(qos: .userInitiated).async {
-//            var eventsUrl = "https://api.wildapricot.org/v2/accounts/$id/events"
-//            let formatter = DateFormatter()
-//            let startDate = Calendar.current.date(byAdding: .day, value: 0, to: Date())!
-//            formatter.dateFormat = "yyyy-01-01"
-//            let startDateStr = formatter.string(from: startDate)
-//            eventsUrl = eventsUrl + "?%24filter=StartDate%20gt%20\(startDateStr)"
-//            self.api.apiCall(url: eventsUrl, username:nil, password:nil, completion: self.loadRides, fail: self.loadRidesFailed)
-//        }
         loadFromCloud()
     }
     
     func loadFromCloud() {
         let query = CKQuery(recordType: "RideTemplates", predicate: NSPredicate(value: true))
         let operation = CKQueryOperation(query: query)
-        operation.desiredKeys = ["name", "notes", "riders"]
+        operation.desiredKeys = ["name", "notes", "lastUpdater","lastUpdate", "riders"]
         operation.queuePriority = .veryHigh
         operation.qualityOfService = .userInteractive
         operation.recordFetchedBlock = { [self]record in
-            print(record)
             list.append(RideTemplate(record: record))
         }
         operation.queryCompletionBlock = {(cursor, error) in //{ [unowned self] (cursor, error) in
-            if error == nil {
-                print("===>Loaded templates", self.list.count)
-            } else {
+            if error != nil {
                 Messages.instance.reportError(context: "RideTemplates load", error: error)
             }
         }
@@ -47,7 +33,7 @@ class RideTemplates : ObservableObject {
         var i = 0
         for template in list {
             if template.name == saveTemplate.name {
-                list[i] = template
+                list[i] = saveTemplate
                 fnd = true
             }
             i += 1
@@ -55,7 +41,7 @@ class RideTemplates : ObservableObject {
         if !fnd {
             list.append(saveTemplate)
         }
-        if let id = saveTemplate.recordId {
+        if saveTemplate.recordId != nil {
             saveTemplate.remoteModify()
         }
         else {
@@ -75,7 +61,7 @@ class RideTemplates : ObservableObject {
             i += 1
         }
         if let delTemplate = delTemplate {
-            if let id = delTemplate.recordId {
+            if delTemplate.recordId != nil {
                 delTemplate.remoteDelete()
             }
         }
@@ -90,9 +76,12 @@ class RideTemplates : ObservableObject {
         return nil
     }
 
-    func load(name:String, signedIn:SignedInRiders) {
+    func loadTemplate(name:String, signedIn:SignedInRiders) {
         for template in list {
             if template.name == name {
+                signedIn.clearData(clearRide: false)
+                signedIn.rideData.templateName = name.trimmingCharacters(in: .whitespaces)
+                signedIn.rideData.notes = template.notes
                 for rider in template.list {
                     signedIn.add(rider: rider)
                 }

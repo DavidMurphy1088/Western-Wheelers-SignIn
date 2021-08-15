@@ -18,9 +18,12 @@ struct TemplatesView: View {
     @ObservedObject var templates = RideTemplates.instance
     @State var activeSheet: ActiveTemplateSheet?
     @State var confirmDel:Bool = false
+    @State var delName:String?
 
     func saveTemplate (template:RideTemplate) {
         if !template.name.isEmpty {
+            template.lastUpdate = Date()
+            template.lastUpdater = VerifiedMember.instance.username ?? ""
             templates.save(saveTemplate: template)
         }
     }
@@ -33,7 +36,13 @@ struct TemplatesView: View {
         }
         return RideTemplate(name: "", notes: "", riders: [])
     }
-
+    
+    func dateStr(template:RideTemplate) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+        return dateFormatter.string(from: template.lastUpdate)
+    }
+    
     var body: some View {
         VStack {
             Spacer()
@@ -49,23 +58,25 @@ struct TemplatesView: View {
                         })
                         Spacer()
                         Text("\(template.list.count) riders")
-                        Text("   ")
                         Button(action: {
                             confirmDel = true
+                            delName = template.name
                         }, label: {
                             Image(systemName: ("minus.circle")).foregroundColor(.purple)
                         })
                         .alert(isPresented:$confirmDel) {
                             Alert(
-                                title: Text("Are you sure you want to delete this template?"),
+                                title: Text("Are you sure you want to delete template \(delName ?? "")?"),
                                 primaryButton: .destructive(Text("Delete")) {
-                                    templates.delete(name: template.name)
+                                    if let delName = delName {
+                                        templates.delete(name: delName)
+                                    }
                                 },
                                 secondaryButton: .cancel()
                             )
                         }
-                        Text(" ")
                     }
+                    Text("updated: \(template.lastUpdater) \(dateStr(template: template))").font(.footnote).foregroundColor(.gray)
                     Text("")
                 }
             }

@@ -28,7 +28,6 @@ struct RiderView: View {
                     }
                 })
                 if rider.isHilighted {
-                    //Image(systemName: ("arrow.left"))
                     Text("added").font(.footnote).foregroundColor(.gray)
                 }
                 Spacer()
@@ -79,10 +78,8 @@ struct RidersView: View {
                         }
                     }
                     .onChange(of: scrollToRiderId) { target in
-                        print("====>>>", scrollToRiderId, target)
                         if scrollToRiderId != "" {
                             withAnimation {
-                                print(",,,,====>>>", scrollToRiderId, target)
                                 proxy.scrollTo(scrollToRiderId)
                             }
                         }
@@ -157,6 +154,8 @@ struct CurrentRideView: View {
     @State var confirmClean:Bool = false
     @State var emailConfirmed:Bool = false
     @State var activeSheet: ActiveSheet?
+    @State var animateIcon = false
+
     private let messageComposeDelegate = MessageComposerDelegate()
     private let mailComposeDelegate = MailComposerDelegate()
 
@@ -168,7 +167,7 @@ struct CurrentRideView: View {
     }
     
     func loadTemplate(name:String) {
-        rideTemplates.load(name: name, signedIn: signedInRiders)
+        rideTemplates.loadTemplate(name: name, signedIn: signedInRiders)
     }
     
     func selectRider(_: Rider) {
@@ -176,7 +175,7 @@ struct CurrentRideView: View {
     }
 
     func addRider(rider:Rider, clubMember: Bool) {
-        rider.setSelected(true)
+        //rider.setSelected(true)
         if ClubMembers.instance.getByName(displayName: rider.getDisplayName()) != nil {
             rider.inDirectory = true
         }
@@ -216,14 +215,30 @@ struct CurrentRideView: View {
             }
         }
     }
-    
+        
     var body: some View {
         VStack {
             VStack{
                 Text("")
                 if signedInRiders.rideData.ride == nil {
-                    Button("Select A Ride") {
-                        activeSheet = .selectRide
+                    VStack {
+                        Spacer()
+                        Text("Western Wheelers").font(.title2)
+                        Text("Ride Sign Up").font(.title2)
+                        Image("Bike_Wheel")
+                            .resizable()
+                            .onAppear {
+                                self.animateIcon.toggle()  //cause the animation to start
+                            }
+                            .rotationEffect(Angle(degrees: self.animateIcon ? 2160: 0)) //, anchor: UnitPoint(x: 1.0, y: 1.0))
+                            .animation(Animation.linear(duration: 30).repeatForever(autoreverses: false))
+                            .frame(width: 200, height: 200, alignment: .center)
+                        Spacer()
+                        Button("Select a Ride") {
+                            activeSheet = .selectRide
+                        }
+                        .font(.title2)
+                        Spacer()
                     }
                 }
                 else {
@@ -236,7 +251,7 @@ struct CurrentRideView: View {
                             title: Text("Are you sure you want to clear this ride sheet?"),
                             message: Text("There are \(SignedInRiders.instance.selectedCount()) selected riders"),
                             primaryButton: .destructive(Text("Clear")) {
-                                SignedInRiders.instance.clearData()
+                                SignedInRiders.instance.clearData(clearRide: true)
                             },
                             secondaryButton: .cancel()
                         )

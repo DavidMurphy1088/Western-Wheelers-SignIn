@@ -26,8 +26,6 @@ class NetworkReachability: ObservableObject {
 }
 
 class WAApi : ObservableObject {
-
-    //static private var shared:WAApi! = nil
     private var token: String! = nil
     private var accountId:String! = nil
 

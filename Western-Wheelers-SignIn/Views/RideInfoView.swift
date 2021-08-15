@@ -130,7 +130,6 @@ struct RideInfoView: View {
                         signedInRiders.rideData.totalClimb = climbed
                         signedInRiders.rideData.avgSpeed = avgSpeed
                         signedInRiders.rideData.notes = notes
-                        //signedInRiders.levels = levels.list
                         self.presentationMode.wrappedValue.dismiss()
                     }, label: {
                         Text("Ok")

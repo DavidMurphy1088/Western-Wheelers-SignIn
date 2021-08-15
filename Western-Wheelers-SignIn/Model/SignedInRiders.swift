@@ -26,13 +26,15 @@ class RideData : Encodable, Decodable {
     var notes:String?
     var ride:ClubRide?
     
-    func clear() {
+    func clear(clearRide:Bool) {
         templateName = nil
         totalMiles = nil
         totalClimb = nil
         avgSpeed = nil
         notes = nil
-        ride = nil
+        if clearRide {
+            ride = nil
+        }
     }
 }
 
@@ -43,10 +45,6 @@ class RiderList : ObservableObject {
         for r in list {
             if r.id == id {
                 r.setSelected(!r.selected())
-//                if r.selected() {
-//                    //fnd = true
-//                    //setSignInDate()
-//                }
             }
         }
         self.pushChange()
@@ -67,7 +65,7 @@ class RiderList : ObservableObject {
             }
         }
         if !fnd {
-            list.append(rider)
+            list.append(Rider(rider: rider))
         }
         sort()
     }
@@ -194,9 +192,9 @@ class SignedInRiders : RiderList {
         }
     }
     
-    func clearData() {
+    func clearData(clearRide:Bool) {
         list = []
-        rideData.clear()
+        rideData.clear(clearRide: clearRide)
     }
     
     func toggleLevel(level:Level) {
@@ -240,7 +238,6 @@ class SignedInRiders : RiderList {
     }
 
     func loadTempate(name:String) {
-        //list = []
         for template in DriveRideTemplates.instance.templates {
             if template.name == name {
                 self.rideData.templateName = name.trimmingCharacters(in: .whitespaces)

@@ -7,191 +7,47 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "C7C371FB-0F3D-4997-9B1F-751915423E6B"
+            uuid = "0E15BDF3-4962-4CA4-A797-5E279BBEAA3F"
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Western-Wheelers-SignIn/Model/RideTemplates.swift"
+            filePath = "Western-Wheelers-SignIn/Model/Messages.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "26"
-            endingLineNumber = "26"
-            landmarkName = "loadFromCloud()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "773FDA49-A684-4A94-A2EA-BC8F55710955"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Western-Wheelers-SignIn/Model/RideTemplates.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "32"
-            endingLineNumber = "32"
-            landmarkName = "loadFromCloud()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "ED5BA6B8-77E9-43A7-BB1A-006DF128908C"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Western-Wheelers-SignIn/Model/RideTemplates.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "36"
-            endingLineNumber = "36"
-            landmarkName = "loadFromCloud()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "7E73FCAD-A39D-480A-9FE4-8CC39E388828"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Western-Wheelers-SignIn/Model/RideTemplates.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "33"
-            endingLineNumber = "33"
-            landmarkName = "loadFromCloud()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "0C8DC9B7-C77C-4776-83BD-8E3126E9A406"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Western-Wheelers-SignIn/Model/RideTemplate.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "18"
-            endingLineNumber = "18"
-            landmarkName = "init(record:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "EDD1D1C2-1C98-4EF4-A638-C2BDCCD9D248"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Western-Wheelers-SignIn/Model/RideTemplate.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "29"
-            endingLineNumber = "29"
-            landmarkName = "init(record:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "FB2D1B40-53AC-4459-9CD6-DA9614E65FE9"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Western-Wheelers-SignIn/Model/RideTemplate.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "28"
-            endingLineNumber = "28"
-            landmarkName = "init(record:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "6425FBE8-9A2C-4D96-AE07-FFDECD1F1B60"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Western-Wheelers-SignIn/Model/RideTemplate.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "27"
-            endingLineNumber = "27"
-            landmarkName = "init(record:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "F4546DB2-1AB4-4D8F-8254-2B4452C08A39"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Western-Wheelers-SignIn/Model/RideTemplates.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "46"
-            endingLineNumber = "46"
-            landmarkName = "save(saveTemplate:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "D0BB6FD3-7D71-483C-B5A7-6654D6FB3A7F"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Western-Wheelers-SignIn/Model/RideTemplate.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "87"
-            endingLineNumber = "87"
-            landmarkName = "remoteModify()"
+            startingLineNumber = "34"
+            endingLineNumber = "34"
+            landmarkName = "clearError()"
             landmarkType = "7">
             <Locations>
                <Location
-                  uuid = "D0BB6FD3-7D71-483C-B5A7-6654D6FB3A7F - 3d01955c7a2afba0"
+                  uuid = "0E15BDF3-4962-4CA4-A797-5E279BBEAA3F - 895eae9a751877e4"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "Western_Wheelers_SignIn.RideTemplate.remoteModify() -&gt; ()"
+                  symbolName = "closure #1 () -&gt; () in Western_Wheelers_SignIn.Messages.clearError() -&gt; ()"
                   moduleName = "Western-Wheelers-SignIn"
                   usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/davidm/Projects/Western-Wheelers-SignIn/Western-Wheelers-SignIn/Model/RideTemplate.swift"
+                  urlString = "file:///Users/davidm/Projects/Western-Wheelers-SignIn/Western-Wheelers-SignIn/Model/Messages.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "99"
-                  endingLineNumber = "99"
-                  offsetFromSymbolStart = "343">
+                  startingLineNumber = "32"
+                  endingLineNumber = "32"
+                  offsetFromSymbolStart = "368">
                </Location>
                <Location
-                  uuid = "D0BB6FD3-7D71-483C-B5A7-6654D6FB3A7F - bea6354748a31a49"
+                  uuid = "0E15BDF3-4962-4CA4-A797-5E279BBEAA3F - 887ef08cf8e8cb98"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Swift.Optional&lt;Swift.Array&lt;__C.CKRecord&gt;&gt;, Swift.Optional&lt;Swift.Array&lt;__C.CKRecordID&gt;&gt;, Swift.Optional&lt;Swift.Error&gt;) -&gt; () in Western_Wheelers_SignIn.RideTemplate.remoteModify() -&gt; ()"
+                  symbolName = "closure #1 () -&gt; () in closure #1 () -&gt; () in Western_Wheelers_SignIn.Messages.clearError() -&gt; ()"
                   moduleName = "Western-Wheelers-SignIn"
                   usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/davidm/Projects/Western-Wheelers-SignIn/Western-Wheelers-SignIn/Model/RideTemplate.swift"
+                  urlString = "file:///Users/davidm/Projects/Western-Wheelers-SignIn/Western-Wheelers-SignIn/Model/Messages.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "100"
-                  endingLineNumber = "100"
-                  offsetFromSymbolStart = "142">
+                  startingLineNumber = "33"
+                  endingLineNumber = "33"
+                  offsetFromSymbolStart = "22">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -199,64 +55,32 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "062EF820-2AFE-4596-A8A6-313168BECE44"
+            uuid = "ECCD9AA3-9D28-41F2-A105-966E5F6486A3"
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Western-Wheelers-SignIn/Views/TemplateEditView.swift"
+            filePath = "Western-Wheelers-SignIn/Model/VerifiedMember.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "29"
-            endingLineNumber = "29"
-            landmarkName = "addRider(rider:clubMember:)"
+            startingLineNumber = "38"
+            endingLineNumber = "38"
+            landmarkName = "save()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "592A4764-436A-4644-9A1B-887620B14A76"
+            uuid = "B2B80237-2D95-458E-9036-FD35192A4E3E"
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Western-Wheelers-SignIn/Views/MainView.swift"
+            filePath = "Western-Wheelers-SignIn/Model/VerifiedMember.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "83"
-            endingLineNumber = "83"
-            landmarkName = "body"
-            landmarkType = "24">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "42667BC6-EC59-43B9-A095-1058152620C0"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Western-Wheelers-SignIn/Model/SignedInRiders.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "94"
-            endingLineNumber = "94"
-            landmarkName = "setHilighted(id:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "E32DE3AD-00F1-49F0-9BE6-645761480FF6"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Western-Wheelers-SignIn/Model/SignedInRiders.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "99"
-            endingLineNumber = "99"
-            landmarkName = "setHilighted(id:)"
+            startingLineNumber = "56"
+            endingLineNumber = "56"
+            landmarkName = "restore()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

@@ -3,15 +3,25 @@ import CloudKit
 
 class RideTemplate: RiderList, Hashable {
     var name: String = ""
+    var lastUpdater:String = ""
+    var lastUpdate:Date = Date()
     var notes:String = ""
     var recordId:CKRecord.ID?
 
     init(name: String, notes:String, riders:[Rider]){
         self.name = name
         self.notes = notes
-        //self.riders.append(Rider(id:"X", nameFirst:"F", nameLast:"L", phone:"P", emrg:"E", email:"EM"))
+        self.lastUpdater = VerifiedMember.instance.username ?? ""
     }
     
+    init(template:RideTemplate) {
+        name = template.name
+        lastUpdater = template.lastUpdater
+        lastUpdate = template.lastUpdate
+        notes = template.notes
+        recordId = template.recordId
+    }
+
     init(record:CKRecord) {
         super.init()
         recordId = record.recordID
@@ -20,6 +30,12 @@ class RideTemplate: RiderList, Hashable {
         }
         if let data = record["notes"] {
             notes = data.description
+        }
+        if let data = record["lastUpdater"] {
+            lastUpdater = data.description
+        }
+        if let data = record["lastUpdate"] {
+            lastUpdate = (data as! NSDate) as Date
         }
         let riders = record.object(forKey: "riders") as! NSArray
         let decoder = JSONDecoder()
@@ -46,6 +62,8 @@ class RideTemplate: RiderList, Hashable {
         }
         ckRecord["name"] = name as CKRecordValue
         ckRecord["notes"] = notes as CKRecordValue
+        ckRecord["lastUpdater"] = lastUpdater as CKRecordValue
+        ckRecord["lastUpdate"] = Date() as CKRecordValue
         let encoder = JSONEncoder()
         var jsonRiders:[String] = []
         for rider in self.list {
@@ -73,13 +91,12 @@ class RideTemplate: RiderList, Hashable {
                 return
             }
             let record = records[0]
-            print("added record", record.recordID)
             self.recordId = record.recordID
         }
         RideTemplates.container.publicCloudDatabase.add(op)
     }
     
-    public func remoteModify() { //completion: @escaping () -> Void) {
+    public func remoteModify() {
         let op = CKModifyRecordsOperation(recordsToSave: [makeRecord()], recordIDsToDelete: [])
         op.queuePriority = .veryHigh
         op.qualityOfService = .userInteractive
@@ -92,11 +109,11 @@ class RideTemplate: RiderList, Hashable {
         RideTemplates.container.publicCloudDatabase.add(op)
     }
     
-    public func remoteDelete() {//completion: @escaping () -> Void) {
-        let op = CKModifyRecordsOperation(recordsToSave: [], recordIDsToDelete: [self.recordId!])
+    public func remoteDelete() {
+        let op = CKModifyRecordsOperation(recordsToSave: nil, recordIDsToDelete: [self.recordId!])
         op.queuePriority = .veryHigh
         op.qualityOfService = .userInteractive
-        op.savePolicy = .allKeys  //2 hours later ... required otherwwise it does NOTHING :( :(
+        op.savePolicy = .allKeys
         op.modifyRecordsCompletionBlock = { savedRecords, deletedRecordIDs, error in
             if error != nil || deletedRecordIDs?.count != 1 {
                 Messages.instance.reportError(context: "RideTemplate delete", error: error)

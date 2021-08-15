@@ -26,8 +26,14 @@ class Messages : ObservableObject {
         }
     }
     func clearError() {
-        DispatchQueue.main.async {
-            self.errMessage = ""
+        if self.errMessage == nil || self.errMessage!.isEmpty {
+            return
+        }
+        DispatchQueue.global(qos: .userInitiated).async {
+            sleep(10)
+            DispatchQueue.main.async {
+                self.errMessage = nil
+            }
         }
     }
 

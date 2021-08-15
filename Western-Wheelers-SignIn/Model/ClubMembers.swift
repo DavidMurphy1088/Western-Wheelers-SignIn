@@ -72,9 +72,6 @@ class ClubMembers : ObservableObject {
                         let memberDict = member as! NSDictionary
 
                         let id = memberDict["Id"] as! Int
-                        if id == 3922122 {
-                            //cnt = 0
-                        }
                         var lastName = ""
                         if let name = memberDict["LastName"] as? String {
                             lastName = name

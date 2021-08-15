@@ -13,10 +13,6 @@ class Rider : Hashable, Equatable, Identifiable, Encodable, Decodable, Observabl
     var isCoLeader:Bool
     var inDirectory:Bool
     var isGuest:Bool
-    //@Published var isPrivacyVerified: Bool //updated in background
-//    var accessEmail: Bool
-//    var accessEmergencyPhone: Bool
-//    var accessPhone: Bool
 
     init (id:String, nameFirst:String, nameLast:String, phone:String, emrg:String, email:String, isGuest:Bool = false) {
         self.id = id
@@ -105,10 +101,6 @@ class Rider : Hashable, Equatable, Identifiable, Encodable, Decodable, Observabl
     }
     func setSelected(_ way:Bool) {
         self.isSelected = way
-    }
-    
-    func setLeader(_ way:Bool) {
-        self.isLeader = way
     }
     
     func getLeader() -> Bool {
