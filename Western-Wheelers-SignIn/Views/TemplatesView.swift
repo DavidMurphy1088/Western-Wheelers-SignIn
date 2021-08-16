@@ -18,6 +18,7 @@ struct TemplatesView: View {
     @ObservedObject var templates = RideTemplates.instance
     @State var activeSheet: ActiveTemplateSheet?
     @State var confirmDel:Bool = false
+    @State var deleteNotOwner:Bool = false
     @State var delName:String?
 
     func saveTemplate (template:RideTemplate) {
@@ -62,7 +63,12 @@ struct TemplatesView: View {
                             confirmDel = true
                             delName = template.name
                         }, label: {
-                            Image(systemName: ("minus.circle")).foregroundColor(.purple)
+                            if template.lastUpdater == VerifiedMember.instance.username {
+                                Image(systemName: ("minus.circle")).foregroundColor(.purple)
+                            }
+                            else {
+                                Image(systemName: ("minus.circle")).foregroundColor(.gray)
+                            }
                         })
                         .alert(isPresented:$confirmDel) {
                             Alert(
@@ -75,6 +81,7 @@ struct TemplatesView: View {
                                 secondaryButton: .cancel()
                             )
                         }
+                        .disabled(template.lastUpdater != VerifiedMember.instance.username)
                     }
                     Text("updated: \(template.lastUpdater) \(dateStr(template: template))").font(.footnote).foregroundColor(.gray)
                     Text("")
