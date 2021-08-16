@@ -3,15 +3,23 @@ import Foundation
 
 class Messages : ObservableObject {
     static public let instance = Messages()
-    @Published public var message:String? = nil
+    @Published public var messages:[String] = []
     @Published public var errMessage:String? = nil
 
     func sendMessage(msg: String) {
         DispatchQueue.main.async {
             print("MESSAGE", msg)
-            self.message = msg
+            self.messages.append(msg)
         }
     }
+    func getMessages() -> String {
+        var msg = ""
+        for m in messages {
+            msg += m + "\n"
+        }
+        return msg
+    }
+    
     func reportError(context:String, msg: String? = nil, error:Error? = nil) {
         DispatchQueue.main.async {
             var message:String = msg ?? ""

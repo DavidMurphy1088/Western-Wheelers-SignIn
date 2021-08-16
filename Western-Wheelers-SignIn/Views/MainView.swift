@@ -59,7 +59,7 @@ struct RidersView: View {
     
     var body: some View {
         VStack {
-            ScrollView {
+            ScrollView(showsIndicators: true) {
                 ScrollViewReader { proxy in
                     VStack {
                         ForEach(riderList.list, id: \.self.id) { rider in
@@ -155,7 +155,8 @@ struct CurrentRideView: View {
     @State var emailConfirmed:Bool = false
     @State var activeSheet: ActiveSheet?
     @State var animateIcon = false
-
+    @State var showInfo = false
+    
     private let messageComposeDelegate = MessageComposerDelegate()
     private let mailComposeDelegate = MailComposerDelegate()
 
@@ -216,6 +217,13 @@ struct CurrentRideView: View {
         }
     }
         
+    func info() -> String {
+        var info = "Thanks for using the Western Wheelers Sign-In app and I hope you find it useful. Feel free to send any suggestions or new ideas to davidp.murphy@sbcglobal.net"
+        info += "\n\n\(version())"
+        info += "\n\n"+Messages.instance.getMessages()
+        return info
+    }
+    
     var body: some View {
         VStack {
             VStack{
@@ -242,6 +250,8 @@ struct CurrentRideView: View {
                     }
                 }
                 else {
+                    Text(signedInRiders.rideData.ride?.name ?? "")
+                    Text("")
                     Button("Select Ride Template") {
                         activeSheet = .selectTemplate
                     }
@@ -316,18 +326,32 @@ struct CurrentRideView: View {
                 }
             }
             Text("")
-            Text("Signed up \(SignedInRiders.instance.selectedCount()) riders").font(.footnote)
-            if let msg = messages.message {
-                Text(msg).font(.footnote)
+            HStack {
+                Text("Signed up \(SignedInRiders.instance.selectedCount()) riders").font(.footnote)
+                Button(action: {
+                    self.showInfo = true
+                }) {
+                    Image(systemName: "info.circle.fill").resizable().frame(width:30.0, height: 30.0)
+                }
             }
+
             if let errMsg = messages.errMessage {
                 Text(errMsg).font(.footnote).foregroundColor(Color.red)
             }
-            HStack {
-                Text(version())
+            else {
+                Text("")
             }
-            .font(.footnote).foregroundColor(Color .gray)
         }
+        .actionSheet(isPresented: self.$showInfo) {
+            ActionSheet(
+                title: Text("App Info"),
+                message: Text(info()),
+                buttons: [
+                    .cancel {  },
+                ]
+            )
+        }
+
         .sheet(item: $activeSheet) { item in
             switch item {
             case .selectTemplate:

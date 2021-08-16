@@ -1,6 +1,5 @@
 import Foundation
 
-
 class VerifiedMember : ObservableObject {
     static let instance:VerifiedMember = VerifiedMember()
     private static var savedKey = "VERIFIED_MEMBER"
@@ -48,7 +47,7 @@ class VerifiedMember : ObservableObject {
         }
         catch {
             let msg = "Error saving rider list \(error.localizedDescription)"
-            Messages.instance.reportError(context: "SignedInRiders", msg: msg)
+            Messages.instance.reportError(context: "VerifiedMember", msg: msg)
         }
     }
     
@@ -65,7 +64,7 @@ class VerifiedMember : ObservableObject {
             }
             catch {
                 let msg = "Error restoring member list \(error.localizedDescription)"
-                Messages.instance.reportError(context: "ClubRiders", msg: msg)
+                Messages.instance.reportError(context: "VerifiedMember", msg: msg)
             }
         }
     }

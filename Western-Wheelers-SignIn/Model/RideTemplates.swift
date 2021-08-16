@@ -17,12 +17,20 @@ class RideTemplates : ObservableObject {
         operation.desiredKeys = ["name", "notes", "lastUpdater","lastUpdate", "riders"]
         operation.queuePriority = .veryHigh
         operation.qualityOfService = .userInteractive
+        
         operation.recordFetchedBlock = { [self]record in
             list.append(RideTemplate(record: record))
         }
         operation.queryCompletionBlock = {(cursor, error) in //{ [unowned self] (cursor, error) in
             if error != nil {
                 Messages.instance.reportError(context: "RideTemplates load", error: error)
+            }
+            else {
+                for template in self.list {
+                    template.list.sort {
+                        $0.getDisplayName() < $1.getDisplayName()
+                    }
+                }
             }
         }
         RideTemplates.container.publicCloudDatabase.add(operation)

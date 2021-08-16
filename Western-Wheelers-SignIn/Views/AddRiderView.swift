@@ -37,45 +37,28 @@ struct SelectScrollView : View {
 
 struct AddRiderView: View {
     var addRider : (Rider, Bool) -> Void
-    
     @Environment(\.presentationMode) private var presentationMode
     @ObservedObject var clubMembers = ClubMembers.instance
-    
     @State var scrollToRider:String?
     @State var pickedName: String = "" //nil means the .onChange is never called but idea why ...
-    @State var enteredNameFirstStr: String = ""
-    @State var enteredNameLastStr: String = ""
+    @State var enteredNameStr: String = ""
     @State var changeCount = 0
 
     var body: some View {
         VStack {
-            let enteredNameLast = Binding<String>(get: {
-                self.enteredNameLastStr
+            let enteredName = Binding<String>(get: {
+                self.enteredNameStr
             }, set: {
-                self.enteredNameLastStr = $0.lowercased()
-                clubMembers.filter(nameLast: enteredNameLastStr, nameFirst: enteredNameFirstStr)
+                self.enteredNameStr = $0.lowercased()
+                clubMembers.filter(name: enteredNameStr) //, nameFirst: enteredNameFirstStr)
             })
-
-            let enteredNameFirst = Binding<String>(get: {
-                self.enteredNameFirstStr
-            }, set: {
-                self.enteredNameFirstStr = $0.lowercased()
-                clubMembers.filter(nameLast: enteredNameLastStr, nameFirst: enteredNameFirstStr)
-            })
-
 
             Text("Add a Rider").font(.title2).foregroundColor(Color.blue)
             HStack {
                 Spacer()
                 Image(systemName: "magnifyingglass")
-                Text("Last Name")
-                TextField("last name", text: enteredNameLast)
-                    .frame(minWidth: 0, maxWidth: 250)  //, minHeight: 0, maxHeight: 200)
-                    .simultaneousGesture(TapGesture().onEnded {
-                    })
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                Text("First Name")
-                TextField("first name", text: enteredNameFirst)
+                Text("Name")
+                TextField("first or last name", text: enteredName)
                     .frame(minWidth: 0, maxWidth: 250)  //, minHeight: 0, maxHeight: 200)
                     .simultaneousGesture(TapGesture().onEnded {
                     })
@@ -87,7 +70,7 @@ struct AddRiderView: View {
         SelectScrollView(addRider: addRider)
         
         Button(action: {
-            self.enteredNameFirstStr = ""
+            self.enteredNameStr = ""
             clubMembers.clearSelected()
             self.presentationMode.wrappedValue.dismiss()
         }, label: {

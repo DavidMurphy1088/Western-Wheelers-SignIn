@@ -162,15 +162,14 @@ class ClubMembers : ObservableObject {
         clubList.remove(at: clubList.count-1)
     }
 
-    func filter(nameLast: String, nameFirst: String) {
+    func filter(name: String) {
         var fnd = 0
         for r in clubList {
-            if nameLast.isEmpty && nameFirst.isEmpty {
+            if name.isEmpty  {
                 r.setSelected(false)
                 continue
             }
-            if  (r.nameLast.lowercased().contains(nameLast.lowercased()) || nameLast.isEmpty) &&
-                    (r.nameFirst.lowercased().contains(nameFirst.lowercased()) || nameFirst.isEmpty) {
+            if  r.nameLast.lowercased().contains(name.lowercased()) || r.nameFirst.lowercased().contains(name.lowercased()) {
                 r.setSelected(true)
                 fnd += 1
             }

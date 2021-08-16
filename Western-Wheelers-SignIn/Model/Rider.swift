@@ -122,7 +122,7 @@ class Rider : Hashable, Equatable, Identifiable, Encodable, Decodable, Observabl
         if nameLast.isEmpty {
             return nameFirst
         }
-        return nameLast + ", " + nameFirst
+        return nameFirst + " " + nameLast
     }
     
     static func formatPhone(phone:String) -> String {
