@@ -50,7 +50,7 @@ struct TemplateEditView: View {
                 }
                 
                 if keyboardHeightHelper.keyboardHeight == 0 {
-                    RidersView(riderList: template, scrollToRiderId: $scrollToRiderId)
+                    RidersView(riderList: template, deleteNeedsConfirm: true, scrollToRiderId: $scrollToRiderId, showSelect: false)
                 }
 
                 HStack {

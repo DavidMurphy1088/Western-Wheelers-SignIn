@@ -12,6 +12,7 @@ class Messages : ObservableObject {
             self.messages.append(msg)
         }
     }
+    
     func getMessages() -> String {
         var msg = ""
         for m in messages {
@@ -33,6 +34,7 @@ class Messages : ObservableObject {
             self.errMessage = context + " " + message
         }
     }
+    
     func clearError() {
         if self.errMessage == nil || self.errMessage!.isEmpty {
             return
@@ -43,6 +45,24 @@ class Messages : ObservableObject {
                 self.errMessage = nil
             }
         }
+    }
+    
+    static func dateDisplay(dateToShow:Date, addDay:Bool, addTime:Bool) -> String {
+        let formatter = DateFormatter() // this formats the day,time according to users local timezone
+        formatter.dateFormat = addDay ? "EEEE MMM d" : "MMM d"
+        let dayDisp = formatter.string(from: dateToShow)
+        if !addTime {
+            return dayDisp
+        }
+        
+        // force 12-hour format even if they have 24 hour set on phone
+        let timeFmt = "h:mm a"
+        formatter.setLocalizedDateFormatFromTemplate(timeFmt)
+        formatter.dateFormat = timeFmt
+        formatter.locale = Locale(identifier: "en_US")
+        let timeDisp = formatter.string(from: dateToShow)
+        let disp = dayDisp + ", " + timeDisp
+        return disp
     }
 
 }

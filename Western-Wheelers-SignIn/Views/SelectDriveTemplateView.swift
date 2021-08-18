@@ -52,7 +52,7 @@ struct SelectDriveTemplateView: View {
                                         templates.setSelected(name: temp.name)
                                         self.presentationMode.wrappedValue.dismiss()
                                         if let selectedTemplate = selectedTemplate {
-                                            SignedInRiders.instance.loadTempate(name: selectedTemplate)
+                                            //SignedInRiders.instance.loadTempate(name: selectedTemplate)
                                         }
                                      })
                     

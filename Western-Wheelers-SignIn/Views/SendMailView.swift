@@ -5,21 +5,21 @@ import MessageUI
 
 struct SendMailView: UIViewControllerRepresentable {
     @Binding var isShowing: Bool
-    @Binding var result: Result<MFMailComposeResult, Error>?
+    @Binding var result: MFMailComposeResult?
     @State var messageRecipient: String
     @State var messageSubject: String
     @State var messageContent: String
 
     class Coordinator: NSObject, MFMailComposeViewControllerDelegate {
         @Binding var isShowing: Bool
-        @Binding var result: Result<MFMailComposeResult, Error>?
+        @Binding var result: MFMailComposeResult?
 
         init(isShowing: Binding<Bool>,
-             result: Binding<Result<MFMailComposeResult, Error>?>) {
+             result: Binding<MFMailComposeResult?>) {
             _isShowing = isShowing
             _result = result
         }
-
+                
         func mailComposeController(_ controller: MFMailComposeViewController,
                                    didFinishWith result: MFMailComposeResult,
                                    error: Error?) {
@@ -27,10 +27,11 @@ struct SendMailView: UIViewControllerRepresentable {
                 isShowing = false
             }
             guard error == nil else {
-                self.result = .failure(error!)
+                self.result = MFMailComposeResult.failed
                 return
             }
-            self.result = .success(result)
+
+            self.result = result
             controller.dismiss(animated: true, completion: nil)
         }
     }

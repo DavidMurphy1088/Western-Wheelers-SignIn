@@ -102,22 +102,22 @@ class ClubRide : Identifiable, Decodable, Encodable, ObservableObject {
     }
     
     func dateDisplay() -> String {
-        let formatter = DateFormatter() // this formats the day,time according to users local timezone
-        formatter.dateFormat = "EEEE MMM d"
-        let dayDisp = formatter.string(from: self.dateTime)
-        if !self.timeWasSpecified {
-            return dayDisp
-        }
-        
-        // force 12-hour format even if they have 24 hour set on phone
-        let timeFmt = "h:mm a"
-        formatter.setLocalizedDateFormatFromTemplate(timeFmt)
-        formatter.dateFormat = timeFmt
-        formatter.locale = Locale(identifier: "en_US")
-        let timeDisp = formatter.string(from: self.dateTime)
-        let disp = dayDisp + ", " + timeDisp
-        
-        return disp
+        return Messages.dateDisplay(dateToShow: self.dateTime, addDay: true, addTime: self.timeWasSpecified)
+//        let formatter = DateFormatter() // this formats the day,time according to users local timezone
+//        formatter.dateFormat = "EEEE MMM d"
+//        let dayDisp = formatter.string(from: self.dateTime)
+//        if !self.timeWasSpecified {
+//            return dayDisp
+//        }
+//        
+//        // force 12-hour format even if they have 24 hour set on phone
+//        let timeFmt = "h:mm a"
+//        formatter.setLocalizedDateFormatFromTemplate(timeFmt)
+//        formatter.dateFormat = timeFmt
+//        formatter.locale = Locale(identifier: "en_US")
+//        let timeDisp = formatter.string(from: self.dateTime)
+//        let disp = dayDisp + ", " + timeDisp
+//        return disp
     }
 }
 

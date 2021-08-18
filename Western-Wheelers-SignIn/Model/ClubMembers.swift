@@ -29,7 +29,7 @@ class ClubMembers : ObservableObject {
                 }
             }
             downloadList.sort {
-                $0.getDisplayName() < $1.getDisplayName()
+                $0.getDisplayName().uppercased() < $1.getDisplayName().uppercased()
             }
             self.updateList(updList: downloadList)
         }

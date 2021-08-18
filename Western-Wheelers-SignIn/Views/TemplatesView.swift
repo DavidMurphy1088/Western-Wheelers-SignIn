@@ -39,9 +39,10 @@ struct TemplatesView: View {
     }
     
     func dateStr(template:RideTemplate) -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
-        return dateFormatter.string(from: template.lastUpdate)
+        return Messages.dateDisplay(dateToShow: template.lastUpdate, addDay: false, addTime: true)
+//        let dateFormatter = DateFormatter()
+//        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+//        return dateFormatter.string(from: template.lastUpdate)
     }
     
     var body: some View {
@@ -82,8 +83,9 @@ struct TemplatesView: View {
                             )
                         }
                         .disabled(template.lastUpdater != VerifiedMember.instance.username)
+                        Text(" ")
                     }
-                    Text("updated: \(template.lastUpdater) \(dateStr(template: template))").font(.footnote).foregroundColor(.gray)
+                    Text("updated: \(template.lastUpdater)\n\(dateStr(template: template))").font(.footnote).foregroundColor(.gray).multilineTextAlignment(.center)
                     Text("")
                 }
             }

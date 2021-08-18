@@ -8,18 +8,24 @@ var riderForDetail:Rider? = nil //cannot get binding approach to work :(
 struct RiderView: View {
     var selectRider : ((Rider) -> Void)!
     @State var rider: Rider
+    @State var deleteNeedsConfirm:Bool
     @State var selectedAction: () -> Void
     @State var deletedAction: () -> Void
+    @State var confirmDelete:Bool = false
+    
+    var showSelect:Bool
     
     var body: some View {
         VStack {
             HStack {
                 Text(" ")
-                Image(systemName: (self.rider.selected() ? "checkmark.square" : "square"))
-                .onTapGesture {
-                    self.selectedAction()
+                if showSelect {
+                    Image(systemName: (self.rider.selected() ? "checkmark.square" : "square"))
+                    .onTapGesture {
+                        self.selectedAction()
+                    }
+                    Text(" ")
                 }
-                Text(" ")
 
                 Button(rider.getDisplayName(), action: {
                     riderForDetail = self.rider
@@ -41,7 +47,23 @@ struct RiderView: View {
                 }
                 Image(systemName: ("minus.circle")).foregroundColor(.purple)
                     .onTapGesture {
-                        self.deletedAction()
+                        if deleteNeedsConfirm {
+                            self.confirmDelete = true
+                        }
+                        else {
+                            self.deletedAction()
+                        }
+                    }
+                    .alert(isPresented:$confirmDelete) {
+                        Alert(
+                            title: Text("Delete rider?"),
+                            primaryButton: .destructive(Text("Delete")) {
+                                //if let delName = delName {
+                                    self.deletedAction()
+                                //}
+                            },
+                            secondaryButton: .cancel()
+                        )
                     }
                 Text(" ")
             }
@@ -55,7 +77,10 @@ struct RiderView: View {
 struct RidersView: View {
     var selectRider : ((Rider) -> Void)!
     @ObservedObject var riderList:RiderList
+    var deleteNeedsConfirm:Bool
+
     @Binding var scrollToRiderId:String
+    var showSelect:Bool
     
     var body: some View {
         VStack {
@@ -63,7 +88,7 @@ struct RidersView: View {
                 ScrollViewReader { proxy in
                     VStack {
                         ForEach(riderList.list, id: \.self.id) { rider in
-                            RiderView(selectRider: selectRider, rider: rider,
+                            RiderView(selectRider: selectRider, rider: rider, deleteNeedsConfirm: self.deleteNeedsConfirm,
                                  selectedAction: {
                                      DispatchQueue.main.async {
                                          riderList.toggleSelected(id: rider.id)
@@ -73,7 +98,8 @@ struct RidersView: View {
                                     DispatchQueue.main.async {
                                         riderList.remove(id: rider.id)
                                     }
-                                 }
+                                 },
+                                 showSelect: showSelect
                             )
                         }
                     }
@@ -94,13 +120,13 @@ struct RidersView: View {
 }
 
 enum ActiveSheet: Identifiable {
-    case selectTemplate, selectRide, addRider, addGuest, email, riderDetail, rideInfoEdit
+    case selectTemplate, selectRide, addRider, addGuest, emailStats, riderDetail, rideInfoEdit
     var id: Int {
         hashValue
     }
 }
 enum CommunicationType: Identifiable {
-    case phone, text, email
+    case phone, text, email, waiverEmail
     var id: Int {
         hashValue
     }
@@ -135,10 +161,14 @@ extension  CurrentRideView {
             composeVC.messageComposeDelegate = messageComposeDelegate
             vc?.present(composeVC, animated: true)
         }
-        if way == CommunicationType.email {
+        if way == CommunicationType.email || way == CommunicationType.waiverEmail {
             let mailVC = MFMailComposeViewController()
             mailVC.setToRecipients([riders[0].email])
             mailVC.mailComposeDelegate = mailComposeDelegate
+            if way == CommunicationType.waiverEmail {
+                mailVC.setSubject("Western Wheelers Liability Waiver")
+                mailVC.setMessageBody(self.guestWaiverDoc(), isHTML: true)
+            }
             vc?.present(mailVC, animated: true)
         }
     }
@@ -149,10 +179,13 @@ struct CurrentRideView: View {
     var rideTemplates = RideTemplates.instance
     @State private var selectRideTemplateSheet = false
     @State private var emailShowing = false
-    @State var emailResult: Result<MFMailComposeResult, Error>? = nil
+    @State var emailResult: MFMailComposeResult? = nil
     @State var scrollToRiderId:String = ""
     @State var confirmClean:Bool = false
-    @State var emailConfirmed:Bool = false
+    @State var confirmAddTemplate:Bool = false
+    @State var emailShowStatus:Bool = false
+    @State var emailStatus:String?
+    @State var emailWaiverRecipient:String?
     @State var activeSheet: ActiveSheet?
     @State var animateIcon = false
     @State var showInfo = false
@@ -176,7 +209,6 @@ struct CurrentRideView: View {
     }
 
     func addRider(rider:Rider, clubMember: Bool) {
-        //rider.setSelected(true)
         if ClubMembers.instance.getByName(displayName: rider.getDisplayName()) != nil {
             rider.inDirectory = true
         }
@@ -224,6 +256,19 @@ struct CurrentRideView: View {
         return info
     }
     
+    func guestWaiverDoc() -> String {
+        var msg = "<html><body>"
+        msg += "Welcome to Western Wheelers. Please review the liability waiver below and reply to this email with your consent."
+        msg += "<br><br>"
+        if let fileURL = Bundle.main.url(forResource: "doc_waiver", withExtension: "txt") {
+            if let fileContents = try? String(contentsOf: fileURL) {
+                msg += fileContents
+            }
+        }
+        msg += "</body></html>"
+        return msg
+    }
+    
     var body: some View {
         VStack {
             VStack{
@@ -253,15 +298,20 @@ struct CurrentRideView: View {
                     Text(signedInRiders.rideData.ride?.name ?? "")
                     Text("")
                     Button("Select Ride Template") {
-                        activeSheet = .selectTemplate
+                        if SignedInRiders.instance.getCount() == 0 {
+                            activeSheet = .selectTemplate
+                        }
+                        else {
+                            confirmAddTemplate = true
+                        }
                     }
                     .disabled(rideTemplates.list.count == 0)
-                    .alert(isPresented:$confirmClean) {
+                    .alert(isPresented:$confirmAddTemplate) {
                         Alert(
-                            title: Text("Are you sure you want to clear this ride sheet?"),
-                            message: Text("There are \(SignedInRiders.instance.selectedCount()) selected riders"),
+                            title: Text("Clear the ride sheet?"),
+                            message: Text("Adding a template will clear the ride sheet. The sheet has \(SignedInRiders.instance.getCount()) riders."),
                             primaryButton: .destructive(Text("Clear")) {
-                                SignedInRiders.instance.clearData(clearRide: true)
+                                activeSheet = .selectTemplate
                             },
                             secondaryButton: .cancel()
                         )
@@ -274,8 +324,17 @@ struct CurrentRideView: View {
                     Button("Clear Ride Sheet") {
                         confirmClean = true
                     }
-                    
-                    RidersView(selectRider: selectRider, riderList: SignedInRiders.instance, scrollToRiderId: $scrollToRiderId)
+                    .alert(isPresented:$confirmClean) {
+                        Alert(
+                            title: Text("Clear the ride sheet and start a new ride?"),
+                            primaryButton: .destructive(Text("Clear")) {
+                                signedInRiders.clearData(clearRide: true)
+                            },
+                            secondaryButton: .cancel()
+                        )
+                    }
+
+                    RidersView(selectRider: selectRider, riderList: SignedInRiders.instance, deleteNeedsConfirm: false, scrollToRiderId: $scrollToRiderId, showSelect: true)
                     
                     HStack {
                         Spacer()
@@ -306,13 +365,13 @@ struct CurrentRideView: View {
                         Spacer()
                         VStack {
                             Button(action: {
-                                activeSheet = .email
+                                activeSheet = .emailStats
                             }, label: {
                                 Text("Email Ride Sheet")
                             })
                             .disabled(signedInRiders.selectedCount() == 0)
-                            .alert(isPresented: $emailConfirmed) { () -> Alert in
-                                Alert(title: Text("Signup sheet sent for \(SignedInRiders.instance.selectedCount()) riders."))
+                            .alert(isPresented: $emailShowStatus) { () -> Alert in
+                                Alert(title: Text(emailStatus ?? ""))
                             }
                             Button(action: {
                                 riderCommunicate(riders: signedInRiders.getList(), way: CommunicationType.text)
@@ -355,7 +414,6 @@ struct CurrentRideView: View {
         .sheet(item: $activeSheet) { item in
             switch item {
             case .selectTemplate:
-                //SelectDriveTemplateView()
                 SelectTemplateView(loadTemplate: self.loadTemplate(name:))
             case .selectRide:
                 SelectRide( addRide: self.addRide(ride:)) 
@@ -363,14 +421,14 @@ struct CurrentRideView: View {
                 AddRiderView(addRider: self.addRider(rider:clubMember:))
             case .addGuest:
                 AddGuestView(addRider: self.addRider(rider:clubMember:))
-            case .email:
+            case .emailStats:
                 let msg = SignedInRiders.instance.getHTMLContent(version: version())
                 SendMailView(isShowing: $emailShowing, result: $emailResult,
                              messageRecipient:"stats@westernwheelers.org",
                              messageSubject: "Western Wheelers Ride Sign Up Sheet",
                              messageContent: msg)
             case .riderDetail:
-                RiderDetailView(rider: riderForDetail!, prepareText: self.riderCommunicate(riders:way:))
+                RiderDetailView(rider: riderForDetail!, prepareCommunicate: self.riderCommunicate(riders:way:))
             case .rideInfoEdit:
                 RideInfoView(signedInRiders: signedInRiders)
 
@@ -379,9 +437,19 @@ struct CurrentRideView: View {
         .onAppear() {
             GIDSignIn.sharedInstance()?.presentingViewController = UIApplication.shared.windows.first?.rootViewController
         }
-        .onChange(of: emailResult.debugDescription) {result in
-            if result.contains("success") {
-                self.emailConfirmed = true
+        .onChange(of: emailResult) {result in
+            self.emailShowStatus = true
+            if result == MFMailComposeResult.sent {
+                emailStatus = "Signup sheet sent for \(SignedInRiders.instance.selectedCount()) riders"
+            }
+            if result == MFMailComposeResult.cancelled {
+                emailStatus = "Email cancelled"
+            }
+            if result == MFMailComposeResult.failed {
+                emailStatus = "Email failed"
+            }
+            if result == MFMailComposeResult.saved {
+                emailStatus = "Email saved"
             }
         }
     }

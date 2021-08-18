@@ -5,7 +5,7 @@ import MessageUI
 
 struct RiderDetailView: View {
     @ObservedObject var rider:Rider
-    var prepareText : ([Rider], CommunicationType) -> Void
+    var prepareCommunicate : ([Rider], CommunicationType) -> Void
     @Environment(\.presentationMode) private var presentationMode
     @ObservedObject var signedInRiders = SignedInRiders.instance
     
@@ -46,7 +46,7 @@ struct RiderDetailView: View {
                 if !rider.phone.isEmpty {
                     Text("")
                     Button(action: {
-                        prepareText([rider], CommunicationType .text)
+                        prepareCommunicate([rider], CommunicationType .text)
                         self.presentationMode.wrappedValue.dismiss()
                     }, label: {
                         Text("Text Rider")
@@ -55,7 +55,7 @@ struct RiderDetailView: View {
                 if !rider.phone.isEmpty {
                     Text("")
                     Button(action: {
-                        prepareText([rider], CommunicationType .phone)
+                        prepareCommunicate([rider], CommunicationType .phone)
                         self.presentationMode.wrappedValue.dismiss()
                     }, label: {
                         Text("Phone Rider")
@@ -64,11 +64,20 @@ struct RiderDetailView: View {
                 if !rider.email.isEmpty {
                     Text("")
                     Button(action: {
-                        prepareText([rider], CommunicationType .email)
+                        prepareCommunicate([rider], CommunicationType .email)
                         self.presentationMode.wrappedValue.dismiss()
                     }, label: {
                         Text("EMail Rider")
                     })
+                    Text("")
+                    if rider.isGuest {
+                        Button(action: {
+                            prepareCommunicate([rider], CommunicationType .waiverEmail)
+                            self.presentationMode.wrappedValue.dismiss()
+                        }, label: {
+                            Text("EMail Guest Waiver Agreement")
+                        })
+                    }
                 }
 
                 Text("")

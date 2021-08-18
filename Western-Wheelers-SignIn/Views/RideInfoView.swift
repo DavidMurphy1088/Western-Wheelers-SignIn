@@ -23,7 +23,6 @@ class KeyboardHeightHelper: ObservableObject {
                                                queue: .main) { [self] (notification) in
                                                 guard let userInfo = notification.userInfo,
                                                     let keyboardRect = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
-                                                
                                                 self.keyboardHeight = keyboardRect.height
         }
         
@@ -35,13 +34,10 @@ class KeyboardHeightHelper: ObservableObject {
     }
 }
 
-
-
 struct RideInfoView: View {
     @Environment(\.presentationMode) private var presentationMode
     @ObservedObject var keyboardHeightHelper = KeyboardHeightHelper()
     @ObservedObject var signedInRiders:SignedInRiders
-    //@ObservedObject var levels = Levels()
 
     @State var rating: String = ""
     @State var miles: String = ""

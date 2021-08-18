@@ -237,15 +237,15 @@ class SignedInRiders : RiderList {
         self.pushChange()
     }
 
-    func loadTempate(name:String) {
-        for template in DriveRideTemplates.instance.templates {
-            if template.name == name {
-                self.rideData.templateName = name.trimmingCharacters(in: .whitespaces)
-                template.requestLoad(ident: template.ident)
-                break
-            }
-        }
-    }
+//    func loadTempate(name:String) {
+//        for template in DriveRideTemplates.instance.templates {
+//            if template.name == name {
+//                self.rideData.templateName = name.trimmingCharacters(in: .whitespaces)
+//                template.requestLoad(ident: template.ident)
+//                break
+//            }
+//        }
+//    }
     
     func selectedCount() -> Int {
         var count = 0
