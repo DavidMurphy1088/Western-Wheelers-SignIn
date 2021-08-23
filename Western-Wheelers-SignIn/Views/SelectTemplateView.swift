@@ -25,8 +25,9 @@ struct SelectTemplateView : View {
                                 })
                                     Text("\(template.list.count) riders")
                                 }
-                                .padding()
+                                //.padding()
                             }
+                            Text("")
                         }
                     }
                 }

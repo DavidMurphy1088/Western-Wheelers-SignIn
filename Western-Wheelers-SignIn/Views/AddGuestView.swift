@@ -64,6 +64,7 @@ struct AddGuestView: View {
                 TextField("email", text: $enteredEmail).frame(width: 150)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .frame(maxWidth: maxText)
+                    .keyboardType(.emailAddress)
                 Spacer()
             }
             Spacer()

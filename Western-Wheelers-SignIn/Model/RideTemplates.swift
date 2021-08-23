@@ -91,9 +91,10 @@ class RideTemplates : ObservableObject {
                 signedIn.rideData.templateName = name.trimmingCharacters(in: .whitespaces)
                 signedIn.rideData.notes = template.notes
                 for rider in template.list {
-                    rider.isSelected = false
-                    rider.isHilighted = false
-                    signedIn.add(rider: rider)
+                    let newRider = Rider(rider: rider)
+                    newRider.isSelected = false
+                    newRider.isHilighted = false
+                    signedIn.add(rider: newRider)
                 }
             }
         }

@@ -7,9 +7,9 @@ var riderForDetail:Rider? = nil //cannot get binding approach to work :(
 
 struct RiderView: View {
     var selectRider : ((Rider) -> Void)!
-    @State var rider: Rider
+    @ObservedObject var rider: Rider
     @State var deleteNeedsConfirm:Bool
-    @State var selectedAction: () -> Void
+    @State var checkedAction: () -> Void
     @State var deletedAction: () -> Void
     @State var confirmDelete:Bool = false
     
@@ -22,7 +22,7 @@ struct RiderView: View {
                 if showSelect {
                     Image(systemName: (self.rider.selected() ? "checkmark.square" : "square"))
                     .onTapGesture {
-                        self.selectedAction()
+                        self.checkedAction()
                     }
                     Text(" ")
                 }
@@ -89,7 +89,7 @@ struct RidersView: View {
                     VStack {
                         ForEach(riderList.list, id: \.self.id) { rider in
                             RiderView(selectRider: selectRider, rider: rider, deleteNeedsConfirm: self.deleteNeedsConfirm,
-                                 selectedAction: {
+                                      checkedAction: {
                                      DispatchQueue.main.async {
                                          riderList.toggleSelected(id: rider.id)
                                      }
@@ -258,7 +258,12 @@ struct CurrentRideView: View {
     
     func guestWaiverDoc() -> String {
         var msg = "<html><body>"
-        msg += "Welcome to Western Wheelers. Please review the liability waiver below and reply to this email with your consent."
+        msg += "Welcome to your Western Wheelers ride today."
+        msg += " \(signedInRiders.rideData.ride?.dateDisplay() ?? "")"
+        msg += " Ride: \(signedInRiders.rideData.ride?.name ?? "")"
+
+        msg += "<br><br>Please review the liability waiver below prior to starting the ride."
+        msg += "<br><br>Then place your initials here ____ and reply to this email to indicate your consent to the waiver."
         msg += "<br><br>"
         if let fileURL = Bundle.main.url(forResource: "doc_waiver", withExtension: "txt") {
             if let fileContents = try? String(contentsOf: fileURL) {
@@ -295,7 +300,7 @@ struct CurrentRideView: View {
                     }
                 }
                 else {
-                    Text(signedInRiders.rideData.ride?.name ?? "")
+                    Text(signedInRiders.rideData.ride?.name ?? "").padding(.horizontal)
                     Text("")
                     Button("Select Ride Template") {
                         if SignedInRiders.instance.getCount() == 0 {
