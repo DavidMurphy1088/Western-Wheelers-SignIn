@@ -2,6 +2,7 @@ import SwiftUI
 import CoreData
 import GoogleSignIn
 import MessageUI
+import WebKit
 
 var riderForDetail:Rider? = nil //cannot get binding approach to work :(
 
@@ -33,7 +34,7 @@ struct RiderView: View {
                         selectRider(rider)
                     }
                 })
-                if rider.isHilighted {
+                if rider.isAdded {
                     Text("added").font(.footnote).foregroundColor(.gray)
                 }
                 Spacer()
@@ -58,9 +59,7 @@ struct RiderView: View {
                         Alert(
                             title: Text("Delete rider?"),
                             primaryButton: .destructive(Text("Delete")) {
-                                //if let delName = delName {
-                                    self.deletedAction()
-                                //}
+                                self.deletedAction()
                             },
                             secondaryButton: .cancel()
                         )
@@ -120,7 +119,7 @@ struct RidersView: View {
 }
 
 enum ActiveSheet: Identifiable {
-    case selectTemplate, selectRide, addRider, addGuest, emailStats, riderDetail, rideInfoEdit
+    case selectTemplate, selectRide, addRider, addGuest, emailStats, riderDetail, rideInfoEdit, showHelp
     var id: Int {
         hashValue
     }
@@ -174,6 +173,49 @@ extension  CurrentRideView {
     }
 }
 
+struct HTMLStringView: UIViewRepresentable {
+    let htmlContent: String
+
+    func makeUIView(context: Context) -> WKWebView {
+        return WKWebView()
+    }
+
+    func updateUIView(_ uiView: WKWebView, context: Context) {
+        uiView.loadHTMLString(htmlContent, baseURL: nil)
+    }
+}
+
+struct HelpView: View {
+    @Environment(\.presentationMode) private var presentationMode
+    
+    func doc() -> String {
+        var msg = ""
+        if let fileURL = Bundle.main.url(forResource: "doc_help", withExtension: "txt") {
+            if let fileContents = try? String(contentsOf: fileURL) {
+                msg = fileContents
+            }
+        }
+        return msg
+    }
+
+    var body: some View {
+        
+        VStack {
+            Spacer()
+            Text("Ride Sign In Help")
+            Spacer()
+            HTMLStringView(htmlContent: doc())
+            Spacer()
+            Button(action: {
+                self.presentationMode.wrappedValue.dismiss()
+            }, label: {
+                Text("Ok")
+            })
+            Spacer()
+        }
+    }
+}
+
 struct CurrentRideView: View {
     @ObservedObject var signedInRiders = SignedInRiders.instance
     var rideTemplates = RideTemplates.instance
@@ -184,12 +226,14 @@ struct CurrentRideView: View {
     @State var confirmClean:Bool = false
     @State var confirmAddTemplate:Bool = false
     @State var emailShowStatus:Bool = false
+    @State var riderForTemplate:Rider?
+    @State var updateTemplate:Bool = false
     @State var emailStatus:String?
     @State var emailWaiverRecipient:String?
     @State var activeSheet: ActiveSheet?
     @State var animateIcon = false
     @State var showInfo = false
-    
+
     private let messageComposeDelegate = MessageComposerDelegate()
     private let mailComposeDelegate = MailComposerDelegate()
 
@@ -214,9 +258,10 @@ struct CurrentRideView: View {
         }
         SignedInRiders.instance.add(rider: rider)
         SignedInRiders.instance.setSelected(id: rider.id)
-        SignedInRiders.instance.setHilighted(id: rider.id)
+        SignedInRiders.instance.setAdded(id: rider.id)
         self.scrollToRiderId = rider.id
         ClubMembers.instance.clearSelected()
+        addRiderToTemplate(rider: rider)
     }
     
     func version() -> String {
@@ -274,6 +319,28 @@ struct CurrentRideView: View {
         return msg
     }
     
+    func addRiderToTemplate(rider:Rider) {
+        //offer to add rider to template
+        if let templateName = signedInRiders.rideData.templateName  {
+            if let template = rideTemplates.get(name: templateName) {
+                DispatchQueue.global(qos: .userInitiated).async {
+                    sleep(1)
+                    var fnd = false
+                    for templateRider in template.list {
+                        if templateRider.id == rider.id {
+                            fnd = true
+                            break
+                        }
+                    }
+                    if !fnd {
+                        self.riderForTemplate = Rider(rider: rider)
+                        self.updateTemplate = true
+                    }
+                }
+            }
+        }
+    }
+
     var body: some View {
         VStack {
             VStack{
@@ -352,7 +419,6 @@ struct CurrentRideView: View {
                                 }
                             }
                             .frame(alignment: .leading)
-                            //Spacer()
                             Button(action: {
                                 activeSheet = .addGuest
                             }) {
@@ -367,6 +433,22 @@ struct CurrentRideView: View {
                                 Text("Ride Info")
                             })
                         }
+                        .alert(isPresented: $updateTemplate) { () -> Alert in
+                            Alert(
+                                title: Text("Update template?"),
+                                message: Text("\(self.riderForTemplate?.getDisplayName() ?? "") is not in the template \(signedInRiders.rideData.templateName!)"),
+                                primaryButton: .destructive(Text("Add rider to template")) {
+                                    if let template = rideTemplates.get(name: signedInRiders.rideData.templateName!) {
+                                        template.add(rider: riderForTemplate!)
+                                        template.setAdded(id: riderForTemplate!.id)
+                                        rideTemplates.save(saveTemplate: template)
+                                    }
+                                    riderForTemplate = nil
+                                },
+                                secondaryButton: .cancel()
+                            )
+                        }
+
                         Spacer()
                         VStack {
                             Button(action: {
@@ -391,12 +473,33 @@ struct CurrentRideView: View {
             }
             Text("")
             HStack {
+                Spacer()
+                Button(action: {
+                    self.activeSheet = .showHelp
+
+                }) {
+                    Image(systemName: "questionmark.circle").resizable().frame(width:30.0, height: 30.0)
+                }
+
+                Spacer()
                 Text("Signed up \(SignedInRiders.instance.selectedCount()) riders").font(.footnote)
+                Spacer()
                 Button(action: {
                     self.showInfo = true
                 }) {
                     Image(systemName: "info.circle.fill").resizable().frame(width:30.0, height: 30.0)
                 }
+                .actionSheet(isPresented: self.$showInfo) {
+                    ActionSheet(
+                        title: Text("App Info"),
+                        message: Text(info()),
+                        buttons: [
+                            .cancel {  },
+                        ]
+                    )
+                }
+
+                Spacer()
             }
 
             if let errMsg = messages.errMessage {
@@ -405,15 +508,6 @@ struct CurrentRideView: View {
             else {
                 Text("")
             }
-        }
-        .actionSheet(isPresented: self.$showInfo) {
-            ActionSheet(
-                title: Text("App Info"),
-                message: Text(info()),
-                buttons: [
-                    .cancel {  },
-                ]
-            )
         }
 
         .sheet(item: $activeSheet) { item in
@@ -436,12 +530,15 @@ struct CurrentRideView: View {
                 RiderDetailView(rider: riderForDetail!, prepareCommunicate: self.riderCommunicate(riders:way:))
             case .rideInfoEdit:
                 RideInfoView(signedInRiders: signedInRiders)
-
+            case .showHelp:
+                HelpView()
             }
         }
+        
         .onAppear() {
             GIDSignIn.sharedInstance()?.presentingViewController = UIApplication.shared.windows.first?.rootViewController
         }
+        
         .onChange(of: emailResult) {result in
             self.emailShowStatus = true
             if result == MFMailComposeResult.sent {

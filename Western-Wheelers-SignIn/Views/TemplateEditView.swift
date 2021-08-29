@@ -27,7 +27,7 @@ struct TemplateEditView: View {
         }
         template.add(rider: rider)
         self.scrollToRiderId = rider.id
-        template.setHilighted(id: rider.id)
+        template.setAdded(id: rider.id)
 
         ClubMembers.instance.clearSelected()
     }
@@ -35,18 +35,24 @@ struct TemplateEditView: View {
     var body: some View {
         VStack {
             VStack {
-                Text("")
-                Text("Template Name:")
-                TextField("name", text: $template.name)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .padding()
-                Text("Notes:")
-                TextEditor(text: $template.notes)
-                    .multilineTextAlignment(.leading)
-                    .border(Color.black)
-                    .padding()
-                .onTapGesture {
-                    self.notesInFocus = true
+                //Text("")
+                HStack {
+                    Text("Template\nName:")
+                    TextField("name", text: $template.name)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .padding()
+                }
+                HStack {
+                    Text("Notes:")
+                    TextEditor(text: $template.notes)
+                        .multilineTextAlignment(.leading)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .border(Color.gray)
+                        .padding()
+                        .frame(maxHeight: 100.0)
+                        .onTapGesture {
+                            self.notesInFocus = true
+                    }
                 }
                 
                 if keyboardHeightHelper.keyboardHeight == 0 {
@@ -72,7 +78,7 @@ struct TemplateEditView: View {
                     }
                     Spacer()
                 }
-                Text("")
+                //Text("")
                 HStack {
                     Spacer()
                     Button(action: {

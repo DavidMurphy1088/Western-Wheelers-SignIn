@@ -14,7 +14,7 @@ class RideTemplates : ObservableObject {
     func loadFromCloud() {
         let query = CKQuery(recordType: "RideTemplates", predicate: NSPredicate(value: true))
         let operation = CKQueryOperation(query: query)
-        operation.desiredKeys = ["name", "notes", "lastUpdater","lastUpdate", "riders"]
+        operation.desiredKeys = ["name", "notes", "creator", "createdDate", "lastUpdater","lastUpdate", "riders"]
         operation.queuePriority = .veryHigh
         operation.qualityOfService = .userInteractive
         
@@ -26,11 +26,15 @@ class RideTemplates : ObservableObject {
                 Messages.instance.reportError(context: "RideTemplates load", error: error)
             }
             else {
+                self.list.sort {
+                    $0.name < $1.name
+                }
                 for template in self.list {
                     template.list.sort {
                         $0.getDisplayName() < $1.getDisplayName()
                     }
                 }
+                Messages.instance.sendMessage(msg: "Loaded \(self.list.count) templates")
             }
         }
         RideTemplates.container.publicCloudDatabase.add(operation)
@@ -93,7 +97,7 @@ class RideTemplates : ObservableObject {
                 for rider in template.list {
                     let newRider = Rider(rider: rider)
                     newRider.isSelected = false
-                    newRider.isHilighted = false
+                    newRider.isAdded = false
                     signedIn.add(rider: newRider)
                 }
             }

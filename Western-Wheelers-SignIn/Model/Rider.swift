@@ -8,7 +8,7 @@ class Rider : Hashable, Equatable, Identifiable, Encodable, Decodable, Observabl
     var emergencyPhone:String
     var email:String
     var isSelected: Bool
-    var isHilighted: Bool
+    var isAdded: Bool
     var isLeader:Bool
     var isCoLeader:Bool
     var inDirectory:Bool
@@ -22,7 +22,7 @@ class Rider : Hashable, Equatable, Identifiable, Encodable, Decodable, Observabl
         self.emergencyPhone = Rider.formatPhone(phone: emrg)
         self.email = email
         self.isSelected = false
-        self.isHilighted = false
+        self.isAdded = false
         self.isLeader = false
         self.isCoLeader = false
         self.inDirectory = false
@@ -37,7 +37,7 @@ class Rider : Hashable, Equatable, Identifiable, Encodable, Decodable, Observabl
         self.emergencyPhone = rider.emergencyPhone
         self.email = rider.email
         self.isSelected = rider.isSelected
-        self.isHilighted = rider.isHilighted
+        self.isAdded = rider.isAdded
         self.isLeader = rider.isLeader
         self.isCoLeader = rider.isCoLeader
         self.inDirectory = rider.inDirectory
@@ -73,7 +73,7 @@ class Rider : Hashable, Equatable, Identifiable, Encodable, Decodable, Observabl
         try container.encode(emergencyPhone, forKey: .emergencyPhone)
         try container.encode(email, forKey: .email)
         try container.encode(isSelected, forKey: .isSelected)
-        try container.encode(isHilighted, forKey: .isHilighted)
+        try container.encode(isAdded, forKey: .isHilighted)
         try container.encode(isLeader, forKey: .isLeader)
         try container.encode(isCoLeader, forKey: .isCoLeader)
         try container.encode(inDirectory, forKey: .inDirectory)
@@ -89,7 +89,7 @@ class Rider : Hashable, Equatable, Identifiable, Encodable, Decodable, Observabl
         self.emergencyPhone = try container.decode(String.self, forKey: .emergencyPhone)
         self.email = try container.decode(String.self, forKey: .email)
         self.isSelected = try container.decode(Bool.self, forKey: .isSelected)
-        self.isHilighted = try container.decode(Bool.self, forKey: .isHilighted)
+        self.isAdded = try container.decode(Bool.self, forKey: .isHilighted)
         self.isLeader = try container.decode(Bool.self, forKey: .isLeader)
         self.isCoLeader = try container.decode(Bool.self, forKey: .isCoLeader)
         self.inDirectory = try container.decode(Bool.self, forKey: .inDirectory)

@@ -76,7 +76,8 @@ struct AddGuestView: View {
                         self.dataMissing = true
                     }
                     else {
-                        addRider(Rider(id: SignedInRiders.instance.getGuestId(), nameFirst: enteredGuestNameFirst, nameLast: enteredGuestNameLast, phone: enteredPhone, emrg: enteredEmergency, email: enteredEmail, isGuest:true), false)
+                        addRider(Rider(id: String(SignedInRiders.instance.getGuestId(firstName: enteredGuestNameFirst, lastName: enteredGuestNameLast)),
+                                       nameFirst: enteredGuestNameFirst, nameLast: enteredGuestNameLast, phone: enteredPhone, emrg: enteredEmergency, email: enteredEmail, isGuest:true), false)
                         self.presentationMode.wrappedValue.dismiss()
                     }
                 }

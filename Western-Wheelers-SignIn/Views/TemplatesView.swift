@@ -38,11 +38,13 @@ struct TemplatesView: View {
         return RideTemplate(name: "", notes: "", riders: [])
     }
     
-    func dateStr(template:RideTemplate) -> String {
-        return Messages.dateDisplay(dateToShow: template.lastUpdate, addDay: false, addTime: true)
-//        let dateFormatter = DateFormatter()
-//        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
-//        return dateFormatter.string(from: template.lastUpdate)
+    func dateStr(template:RideTemplate, created:Bool) -> String {
+        if created {
+            return Messages.dateDisplay(dateToShow: template.createDate, addDay: false, addTime: true)
+        }
+        else {
+            return Messages.dateDisplay(dateToShow: template.lastUpdate, addDay: false, addTime: true)
+        }
     }
     
     var body: some View {
@@ -85,7 +87,8 @@ struct TemplatesView: View {
                         .disabled(template.lastUpdater != VerifiedMember.instance.username)
                         Text(" ")
                     }
-                    Text("updated: \(template.lastUpdater)\n\(dateStr(template: template))").font(.footnote).foregroundColor(.gray).multilineTextAlignment(.center)
+                    Text("created: \(template.creator) \(dateStr(template: template, created: true))").font(.footnote).foregroundColor(.gray).multilineTextAlignment(.center)
+                    Text("updated: \(template.lastUpdater) \(dateStr(template: template, created: false))").font(.footnote).foregroundColor(.gray).multilineTextAlignment(.center)
                     Text("")
                 }
             }

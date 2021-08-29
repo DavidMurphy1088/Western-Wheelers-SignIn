@@ -88,13 +88,13 @@ class RiderList : ObservableObject {
         sort()
     }
     
-    func setHilighted(id: String) {
+    func setAdded(id: String) {
         for r in list {
             if r.id == id {
-                r.isHilighted = true
+                r.isAdded = true
             }
             else {
-                r.isHilighted = false
+                r.isAdded = false
             }
         }
         self.pushChange()
@@ -107,7 +107,6 @@ class SignedInRiders : RiderList {
     var levels:[Level]?
     @Published var levelSelected = false
     
-    var nextGuestId = 100
     var rideData:RideData
     
     private static var savedList = "RIDE_LIST"
@@ -122,9 +121,9 @@ class SignedInRiders : RiderList {
         return list.count
     }
     
-    func getGuestId() -> String {
-        self.nextGuestId += 1
-        return String(nextGuestId)
+    func getGuestId(firstName:String, lastName:String) -> Int {
+        let name = firstName+lastName
+        return name.hash
     }
     
     func getList() -> [Rider] {
@@ -236,16 +235,6 @@ class SignedInRiders : RiderList {
         }
         self.pushChange()
     }
-
-//    func loadTempate(name:String) {
-//        for template in DriveRideTemplates.instance.templates {
-//            if template.name == name {
-//                self.rideData.templateName = name.trimmingCharacters(in: .whitespaces)
-//                template.requestLoad(ident: template.ident)
-//                break
-//            }
-//        }
-//    }
     
     func selectedCount() -> Int {
         var count = 0

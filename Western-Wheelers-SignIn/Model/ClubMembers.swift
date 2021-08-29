@@ -163,18 +163,28 @@ class ClubMembers : ObservableObject {
     }
 
     func filter(name: String) {
-        var fnd = 0
+        let parts = name.components(separatedBy: " ")
         for r in clubList {
             if name.isEmpty  {
                 r.setSelected(false)
                 continue
             }
-            if  r.nameLast.lowercased().contains(name.lowercased()) || r.nameFirst.lowercased().contains(name.lowercased()) {
-                r.setSelected(true)
-                fnd += 1
+            if parts.count == 1 {
+                if r.nameLast.lowercased().contains(name.lowercased()) || r.nameFirst.lowercased().contains(name.lowercased()) {
+                    r.setSelected(true)
+                }
+                else {
+                    r.setSelected(false)
+                }
             }
             else {
-                r.setSelected(false)
+                if r.nameLast.lowercased().contains(parts[1].lowercased()) && r.nameFirst.lowercased().contains(parts[0].lowercased()) {
+                    r.setSelected(true)
+                }
+                else {
+                    r.setSelected(false)
+                }
+
             }
         }
         self.pushChange()

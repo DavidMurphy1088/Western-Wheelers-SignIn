@@ -18,6 +18,7 @@
 		7B325FDF26C6FF6B001E4354 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B325FDE26C6FF6B001E4354 /* MapKit.framework */; };
 		7B67A55A26C33E4C00188EE5 /* TemplatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B67A55926C33E4C00188EE5 /* TemplatesView.swift */; };
 		7B67A57B26C42F2400188EE5 /* RideTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B67A57A26C42F2400188EE5 /* RideTemplate.swift */; };
+		7B8374B126DAB32F00822DBB /* doc_help.txt in Resources */ = {isa = PBXBuildFile; fileRef = 7B8374B026DAB32F00822DBB /* doc_help.txt */; };
 		7B8EA5E12690D8ED00313FF0 /* Messages.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8EA5E02690D8ED00313FF0 /* Messages.swift */; };
 		7B9999292680110300F3E65D /* Western_Wheelers_SignInApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B9999282680110300F3E65D /* Western_Wheelers_SignInApp.swift */; };
 		7B99992B2680110300F3E65D /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B99992A2680110300F3E65D /* MainView.swift */; };
@@ -78,6 +79,7 @@
 		7B325FDE26C6FF6B001E4354 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		7B67A55926C33E4C00188EE5 /* TemplatesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplatesView.swift; sourceTree = "<group>"; };
 		7B67A57A26C42F2400188EE5 /* RideTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RideTemplate.swift; sourceTree = "<group>"; };
+		7B8374B026DAB32F00822DBB /* doc_help.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = doc_help.txt; sourceTree = "<group>"; };
 		7B8EA5E02690D8ED00313FF0 /* Messages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Messages.swift; sourceTree = "<group>"; };
 		7B9999252680110300F3E65D /* Western-Wheelers-SignIn.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Western-Wheelers-SignIn.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B9999282680110300F3E65D /* Western_Wheelers_SignInApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Western_Wheelers_SignInApp.swift; sourceTree = "<group>"; };
@@ -229,6 +231,7 @@
 			isa = PBXGroup;
 			children = (
 				7B99A11226CC5C3500F0CFBD /* doc_waiver.txt */,
+				7B8374B026DAB32F00822DBB /* doc_help.txt */,
 			);
 			path = Documents;
 			sourceTree = "<group>";
@@ -395,6 +398,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7B8374B126DAB32F00822DBB /* doc_help.txt in Resources */,
 				7B999965268038AA00F3E65D /* Notes in Resources */,
 				7B99A11326CC5C3500F0CFBD /* doc_waiver.txt in Resources */,
 				7BB6B1F7268A8E19007941D2 /* api_keys.txt in Resources */,
@@ -673,7 +677,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Western-Wheelers-SignIn/Western-Wheelers-SignIn.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 10;
+				CURRENT_PROJECT_VERSION = 11;
 				DEVELOPMENT_ASSET_PATHS = "\"Western-Wheelers-SignIn/Preview Content\"";
 				DEVELOPMENT_TEAM = 2B6A6N9QBQ;
 				ENABLE_PREVIEWS = YES;
@@ -700,7 +704,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Western-Wheelers-SignIn/Western-Wheelers-SignIn.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 10;
+				CURRENT_PROJECT_VERSION = 11;
 				DEVELOPMENT_ASSET_PATHS = "\"Western-Wheelers-SignIn/Preview Content\"";
 				DEVELOPMENT_TEAM = 2B6A6N9QBQ;
 				ENABLE_PREVIEWS = YES;

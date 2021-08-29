@@ -5,6 +5,8 @@ class RideTemplate: RiderList, Hashable {
     var name: String = ""
     var lastUpdater:String = ""
     var lastUpdate:Date = Date()
+    var creator:String = ""
+    var createDate:Date = Date()
     var notes:String = ""
     var recordId:CKRecord.ID?
 
@@ -12,16 +14,10 @@ class RideTemplate: RiderList, Hashable {
         self.name = name
         self.notes = notes
         self.lastUpdater = VerifiedMember.instance.username ?? ""
+        self.creator = VerifiedMember.instance.username ?? ""
+        self.createDate = Date()
     }
     
-    init(template:RideTemplate) {
-        name = template.name
-        lastUpdater = template.lastUpdater
-        lastUpdate = template.lastUpdate
-        notes = template.notes
-        recordId = template.recordId
-    }
-
     init(record:CKRecord) {
         super.init()
         recordId = record.recordID
@@ -36,6 +32,12 @@ class RideTemplate: RiderList, Hashable {
         }
         if let data = record["lastUpdate"] {
             lastUpdate = (data as! NSDate) as Date
+        }
+        if let data = record["creator"] {
+            creator = data.description
+        }
+        if let data = record["createdDate"] {
+            createDate = (data as! NSDate) as Date
         }
         let riders = record.object(forKey: "riders") as! NSArray
         let decoder = JSONDecoder()
@@ -62,8 +64,10 @@ class RideTemplate: RiderList, Hashable {
         }
         ckRecord["name"] = name as CKRecordValue
         ckRecord["notes"] = notes as CKRecordValue
-        ckRecord["lastUpdater"] = lastUpdater as CKRecordValue
-        ckRecord["lastUpdate"] = Date() as CKRecordValue
+        ckRecord["lastUpdater"] = VerifiedMember.instance.username ?? "" 
+        ckRecord["lastUpdate"] = Date()
+        ckRecord["creator"] = creator as CKRecordValue
+        ckRecord["createdDate"] = createDate as CKRecordValue
         let encoder = JSONEncoder()
         var jsonRiders:[String] = []
         for rider in self.list {
