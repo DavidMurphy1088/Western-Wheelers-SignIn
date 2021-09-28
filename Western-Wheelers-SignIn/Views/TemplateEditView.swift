@@ -35,7 +35,6 @@ struct TemplateEditView: View {
     var body: some View {
         VStack {
             VStack {
-                //Text("")
                 HStack {
                     Text("Template\nName:")
                     TextField("name", text: $template.name)
@@ -101,7 +100,7 @@ struct TemplateEditView: View {
         .sheet(item: $activeSheet) { item in
             switch item {
             case .addRider:
-                AddRiderView(addRider: self.addRider(rider:clubMember:))
+                AddRiderView(addRider: self.addRider(rider:clubMember:), usingTemplate: false)
             }
         }
     }

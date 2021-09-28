@@ -33,6 +33,18 @@ class ClubRide : Identifiable, Decodable, Encodable, ObservableObject {
         self.name = rideName.trimmingCharacters(in: .whitespaces)
     }
     
+    func rideNameNoLevels() -> String {
+        var name = ""
+        let words = self.name.components(separatedBy: " ")
+        for word in words {
+            //"D/3-4/35-65"
+            if !(word.contains("/") || word.contains("-")) {
+                name = name + " " + word
+            }
+        }
+        return name
+    }
+    
     func setLevels() {
         var titleLevels: [String] = []
         //let name = "C/3/15+; D/4/15+ TUESDAY EVENING RIDE"

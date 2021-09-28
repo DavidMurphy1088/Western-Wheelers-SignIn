@@ -76,7 +76,7 @@ class WAApi : ObservableObject {
         return result
     }
     
-    func apiCall(url:String, username:String?, password:String?,
+    func apiCall(context:String, url:String, username:String?, password:String?,
                  completion: @escaping (Data) -> (), fail: @escaping (String) -> ()) {
         apiCallNum += 1
         Messages.instance.clearError()
@@ -139,7 +139,7 @@ class WAApi : ObservableObject {
             completion(data)
         }
         else {
-            Messages.instance.reportError(context: "WAApi", msg: "no data returned")
+            Messages.instance.reportError(context: "WAApi", msg: "\(context): no data returned")
         }
     }
 }

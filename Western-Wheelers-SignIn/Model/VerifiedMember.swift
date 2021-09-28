@@ -18,7 +18,7 @@ class VerifiedMember : ObservableObject {
 
     func signIn(user: String, pwd: String, fail: @escaping (String) -> ()) {
         let url = "https://api.wildapricot.org/publicview/v1/accounts/$id/contacts/me"
-        api.apiCall(url: url, username: user, password: pwd, completion: self.userVerified, fail: fail)
+        api.apiCall(context: "WW Site Signin", url: url, username: user, password: pwd, completion: self.userVerified, fail: fail)
     }
     
     func userVerified(rawData: Data) {

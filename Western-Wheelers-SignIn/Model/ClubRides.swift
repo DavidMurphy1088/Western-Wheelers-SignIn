@@ -15,7 +15,7 @@ class ClubRides : ObservableObject {
             formatter.dateFormat = "yyyy-01-01"
             let startDateStr = formatter.string(from: startDate)
             eventsUrl = eventsUrl + "?%24filter=StartDate%20gt%20\(startDateStr)"
-            self.api.apiCall(url: eventsUrl, username:nil, password:nil, completion: self.loadRides, fail: self.loadRidesFailed)
+            self.api.apiCall(context: "Load rides", url: eventsUrl, username:nil, password:nil, completion: self.loadRides, fail: self.loadRidesFailed)
         }
     }
     

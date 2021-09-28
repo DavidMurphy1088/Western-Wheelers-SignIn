@@ -226,6 +226,7 @@ struct CurrentRideView: View {
     @State var confirmClean:Bool = false
     @State var confirmAddTemplate:Bool = false
     @State var emailShowStatus:Bool = false
+    @State var confirmEmailWithoutLeader:Bool = false
     @State var riderForTemplate:Rider?
     @State var updateTemplate:Bool = false
     @State var emailStatus:String?
@@ -261,7 +262,9 @@ struct CurrentRideView: View {
         SignedInRiders.instance.setAdded(id: rider.id)
         self.scrollToRiderId = rider.id
         ClubMembers.instance.clearSelected()
-        addRiderToTemplate(rider: rider)
+        if AppUserDefaults.instance.promptAddRiderToTemplate {
+            addRiderToTemplate(rider: rider)
+        }
     }
     
     func version() -> String {
@@ -419,6 +422,7 @@ struct CurrentRideView: View {
                                 }
                             }
                             .frame(alignment: .leading)
+                            Text("")
                             Button(action: {
                                 activeSheet = .addGuest
                             }) {
@@ -427,11 +431,6 @@ struct CurrentRideView: View {
                                 }
                             }
                             .frame(alignment: .leading)
-                            Button(action: {
-                                activeSheet = .rideInfoEdit
-                            }, label: {
-                                Text("Ride Info")
-                            })
                         }
                         .alert(isPresented: $updateTemplate) { () -> Alert in
                             Alert(
@@ -452,21 +451,43 @@ struct CurrentRideView: View {
                         Spacer()
                         VStack {
                             Button(action: {
-                                activeSheet = .emailStats
+                                activeSheet = .rideInfoEdit
+                            }, label: {
+                                Text("Ride Info")
+                            })
+                            .alert(isPresented: $emailShowStatus) { () -> Alert in
+                                Alert(title: Text(emailStatus ?? ""))
+                            }
+                            Text("")
+                            Button(action: {
+                                emailResult = nil
+                                if signedInRiders.getLeader() != nil || confirmEmailWithoutLeader {
+                                    activeSheet = .emailStats
+                                }
+                                else {
+                                    confirmEmailWithoutLeader = true
+                                }
                             }, label: {
                                 Text("Email Ride Sheet")
                             })
                             .disabled(signedInRiders.selectedCount() == 0)
-                            .alert(isPresented: $emailShowStatus) { () -> Alert in
-                                Alert(title: Text(emailStatus ?? ""))
+                            .alert(isPresented:$confirmEmailWithoutLeader) {
+                                Alert(
+                                    title: Text("The ride has no leader speciifed. Do you want to still send the email without a ride leader?"),
+                                    primaryButton: .destructive(Text("Yes")) {
+                                        activeSheet = .emailStats
+                                    },
+                                    secondaryButton: .cancel()
+                                )
                             }
-                            Button(action: {
-                                riderCommunicate(riders: signedInRiders.getList(), way: CommunicationType.text)
-                            }, label: {
-                                Text("Text All Riders")
-                            })
+//                            Button(action: {
+//                                riderCommunicate(riders: signedInRiders.getList(), way: CommunicationType.text)
+//                            }, label: {
+//                                Text("Text All Riders")
+//                            })
 
                         }
+
                         Spacer()
                     }
                 }
@@ -509,7 +530,7 @@ struct CurrentRideView: View {
                 Text("")
             }
         }
-
+        
         .sheet(item: $activeSheet) { item in
             switch item {
             case .selectTemplate:
@@ -517,14 +538,16 @@ struct CurrentRideView: View {
             case .selectRide:
                 SelectRide( addRide: self.addRide(ride:)) 
             case .addRider:
-                AddRiderView(addRider: self.addRider(rider:clubMember:))
+                AddRiderView(addRider: self.addRider(rider:clubMember:), usingTemplate: signedInRiders.rideData.templateName != nil)
             case .addGuest:
                 AddGuestView(addRider: self.addRider(rider:clubMember:))
             case .emailStats:
                 let msg = SignedInRiders.instance.getHTMLContent(version: version())
+                let rideDate = Messages.dateDisplay(dateToShow: SignedInRiders.instance.rideData.ride!.dateTime, addDay: true, addTime: false)
+                let rideName = SignedInRiders.instance.rideData.ride!.rideNameNoLevels()
                 SendMailView(isShowing: $emailShowing, result: $emailResult,
                              messageRecipient:"stats@westernwheelers.org",
-                             messageSubject: "Western Wheelers Ride Sign Up Sheet",
+                             messageSubject: "WW Ride Sheet,\(rideName),\(rideDate)",
                              messageContent: msg)
             case .riderDetail:
                 RiderDetailView(rider: riderForDetail!, prepareCommunicate: self.riderCommunicate(riders:way:))
@@ -540,6 +563,9 @@ struct CurrentRideView: View {
         }
         
         .onChange(of: emailResult) {result in
+            if emailResult == nil {
+                return
+            }
             self.emailShowStatus = true
             if result == MFMailComposeResult.sent {
                 emailStatus = "Signup sheet sent for \(SignedInRiders.instance.selectedCount()) riders"
@@ -568,6 +594,7 @@ struct MainView: View {
                 .tabItem {
                     Label("Ride", systemImage: "bicycle.circle.fill")
                 }
+                
                 TemplatesView()
                 .tabItem {
                     Label("Templates", systemImage: "list.bullet.rectangle")
@@ -584,9 +611,11 @@ struct MainView: View {
               case .inactive:
                 VerifiedMember.instance.save()
                 SignedInRiders.instance.save()
+                AppUserDefaults.instance.save()
               case .background:
                 VerifiedMember.instance.save()
                 SignedInRiders.instance.save()
+                AppUserDefaults.instance.save()
               @unknown default:
                 break
               }

@@ -136,6 +136,13 @@ class SignedInRiders : RiderList {
         for level in ride.levels {
             self.levels!.append(Level(name:level))
         }
+        if let email = VerifiedMember.instance.username {
+            let defaultLeader = ClubMembers.instance.getByEmail(email: email)
+            if let rider = defaultLeader {
+                add(rider: rider)
+                setLeader(rider: rider, way: true)
+            }
+        }
     }
     
     func save() {
@@ -283,6 +290,15 @@ class SignedInRiders : RiderList {
         self.pushChange()
     }
         
+    func getLeader() -> Rider? {
+        for rider in self.list {
+            if rider.isLeader {
+                return rider
+            }
+        }
+        return nil
+    }
+    
     func getHTMLContent(version:String) -> String {
         var content = "<html><body>"
         if let name = rideData.ride?.name {
@@ -348,7 +364,10 @@ class SignedInRiders : RiderList {
                 leaders += "<br>Ride Co-Leader: "+rider.getDisplayName()
             }
         }
-        if !leaders.isEmpty {
+        if leaders.isEmpty {
+            content += "No ride leader was speciifed"
+        }
+        else {
             content += leaders.suffix(leaders.count-4)
         }
         

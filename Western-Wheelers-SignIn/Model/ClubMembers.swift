@@ -20,7 +20,7 @@ class ClubMembers : ObservableObject {
                 var url = "https://api.wildapricot.org/publicview/v1/accounts/$id/contacts"
                 url += "?%24skip=\(pos)&%24top=\(pageSize)"
                 self.pageList = []
-                self.api.apiCall(url: url, username:nil, password:nil, completion: self.loadMembers, fail: self.loadMembersFailed)
+                self.api.apiCall(context: "Load members", url: url, username:nil, password:nil, completion: self.loadMembers, fail: self.loadMembersFailed)
                 pos += pageSize
                 downloadList.append(contentsOf: self.pageList)
                 if self.pageList.count < pageSize {
@@ -31,7 +31,11 @@ class ClubMembers : ObservableObject {
             downloadList.sort {
                 $0.getDisplayName().uppercased() < $1.getDisplayName().uppercased()
             }
-            self.updateList(updList: downloadList)
+            let msg = "Downloaded \(self.clubList.count) club members"
+            Messages.instance.sendMessage(msg: msg)
+            if downloadList.count > 0 {
+                self.updateList(updList: downloadList)
+            }
         }
         
         let savedData = UserDefaults.standard.object(forKey: ClubMembers.savedDataName)
@@ -40,11 +44,13 @@ class ClubMembers : ObservableObject {
                 let json = try (savedData as! NSData).decompressed(using: .lzfse)
                 let decoder = JSONDecoder()
                 if let list = try? decoder.decode([Rider].self, from: json as Data) {
-                    clubList = list
-                    Messages.instance.sendMessage(msg: "Restored \(list.count) club members from local")
+                    DispatchQueue.main.async {
+                        self.clubList = list
+                        Messages.instance.sendMessage(msg: "Restored \(list.count) club members from local")
+                    }
                 }
                 else {
-                    Messages.instance.reportError(context: "ClubRiders", msg: "Unable to restore riders")
+                    Messages.instance.reportError(context: "ClubRiders", msg: "Unable to member list")
                 }
             }
             catch {
@@ -58,6 +64,7 @@ class ClubMembers : ObservableObject {
     }
     
     func loadMembersFailed(msg: String) {
+        Messages.instance.reportError(context: "ClubRiders", msg: msg)
     }
 
     func loadMembers(rawData: Data) {
@@ -136,6 +143,15 @@ class ClubMembers : ObservableObject {
         }
         return nil
     }
+    
+    func getByEmail(email:String) -> Rider? {
+        for r in clubList {
+            if r.email == email {
+                return r
+            }
+        }
+        return nil
+    }
 
     func selectionCount() -> Int {
         var cnt = 0
@@ -205,8 +221,6 @@ class ClubMembers : ObservableObject {
             for r in updList {
                 self.clubList.append(r)
             }
-            let msg = "Downloaded \(self.clubList.count) club members"
-            Messages.instance.sendMessage(msg: msg)
             do {
                 var capacity:Int64 = 0
                 //In iOS, the home directory is the application’s sandbox directory

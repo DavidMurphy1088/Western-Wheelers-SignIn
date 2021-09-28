@@ -39,6 +39,8 @@ struct AddRiderView: View {
     var addRider : (Rider, Bool) -> Void
     @Environment(\.presentationMode) private var presentationMode
     @ObservedObject var clubMembers = ClubMembers.instance
+    @ObservedObject var appUserDefaults = AppUserDefaults.instance
+    @State var usingTemplate:Bool
     @State var scrollToRider:String?
     @State var pickedName: String = "" //nil means the .onChange is never called but idea why ...
     @State var enteredNameStr: String = ""
@@ -64,6 +66,15 @@ struct AddRiderView: View {
                     })
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                 Spacer()
+            }
+            if usingTemplate {
+                HStack {
+                    Text("Prompt to add riders to template?")
+                    Image(systemName: (appUserDefaults.promptAddRiderToTemplate ? "checkmark.square" : "square"))
+                    .onTapGesture {
+                        appUserDefaults.promptToggle()
+                    }
+                }
             }
         }
         
