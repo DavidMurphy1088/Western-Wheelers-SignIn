@@ -91,14 +91,28 @@ class RideTemplates : ObservableObject {
     func loadTemplate(name:String, signedIn:SignedInRiders) {
         for template in list {
             if template.name == name {
+                var keepLeader:Rider? = nil
+                if let leader = signedIn.getLeader()  {
+                    if VerifiedMember.instance.username != nil && leader.email == VerifiedMember.instance.username {
+                        keepLeader = Rider(rider: leader)
+                    }
+                }
                 signedIn.clearData(clearRide: false)
                 signedIn.rideData.templateName = name.trimmingCharacters(in: .whitespaces)
                 signedIn.rideData.notes = template.notes
-                for rider in template.list {
+                for rider in template.list { 
+                    if keepLeader != nil && keepLeader!.email == rider.email {
+                        continue
+                    }
                     let newRider = Rider(rider: rider)
                     newRider.isSelected = false
                     newRider.isAdded = false
                     signedIn.add(rider: newRider)
+                }
+                if keepLeader != nil {
+                    keepLeader!.isLeader = true
+                    keepLeader!.isSelected = true
+                    signedIn.add(rider: keepLeader!)
                 }
             }
         }

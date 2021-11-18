@@ -681,7 +681,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Western-Wheelers-SignIn/Western-Wheelers-SignIn.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 12;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Western-Wheelers-SignIn/Preview Content\"";
 				DEVELOPMENT_TEAM = 2B6A6N9QBQ;
 				ENABLE_PREVIEWS = YES;
@@ -691,6 +691,8 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 2.0;
+				"OTHER_CODE_SIGN_FLAGS[sdk=*]" = "--generate-entitlement-der";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.dmurphy.westernwheelers.Western-Wheelers-SignIn";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -708,7 +710,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Western-Wheelers-SignIn/Western-Wheelers-SignIn.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 12;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Western-Wheelers-SignIn/Preview Content\"";
 				DEVELOPMENT_TEAM = 2B6A6N9QBQ;
 				ENABLE_PREVIEWS = YES;
@@ -718,6 +720,8 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 2.0;
+				"OTHER_CODE_SIGN_FLAGS[sdk=*]" = "--generate-entitlement-der";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.dmurphy.westernwheelers.Western-Wheelers-SignIn";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

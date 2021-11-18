@@ -143,7 +143,7 @@ extension  CurrentRideView {
         }
     }
 
-    private func presentMessageCompose(riders:[Rider], way:CommunicationType) {
+    private func presentMessageCompose(riders:[Rider], way:CommunicationType, body: String?) {
         guard MFMessageComposeViewController.canSendText() else {
             return
         }
@@ -157,6 +157,9 @@ extension  CurrentRideView {
                 }
             }
             composeVC.recipients = recips
+            if let msg = body {
+                composeVC.body = msg
+            }
             composeVC.messageComposeDelegate = messageComposeDelegate
             vc?.present(composeVC, animated: true)
         }
@@ -166,7 +169,7 @@ extension  CurrentRideView {
             mailVC.mailComposeDelegate = mailComposeDelegate
             if way == CommunicationType.waiverEmail {
                 mailVC.setSubject("Western Wheelers Liability Waiver")
-                mailVC.setMessageBody(self.guestWaiverDoc(), isHTML: true)
+                mailVC.setMessageBody(ClubRide.guestWaiverDoc(ride: signedInRiders.rideData.ride, html: true), isHTML: true)
             }
             vc?.present(mailVC, animated: true)
         }
@@ -274,7 +277,7 @@ struct CurrentRideView: View {
         return info
     }
     
-    func riderCommunicate(riders:[Rider], way:CommunicationType) {
+    func riderCommunicate(riders:[Rider], way:CommunicationType, body:String?) {
         DispatchQueue.global(qos: .userInitiated).async {
             //only way to get this to work. i.e. wait for detail view to be shut down fully before text ui is displayed
             usleep(500000)
@@ -291,7 +294,7 @@ struct CurrentRideView: View {
                     UIApplication.shared.open(url as URL, options: [:], completionHandler: nil)
                 }
                 else {
-                    self.presentMessageCompose(riders: riders, way: way)
+                    self.presentMessageCompose(riders: riders, way: way, body: body)
                 }
             }
         }
@@ -304,24 +307,7 @@ struct CurrentRideView: View {
         return info
     }
     
-    func guestWaiverDoc() -> String {
-        var msg = "<html><body>"
-        msg += "Welcome to your Western Wheelers ride today."
-        msg += " \(signedInRiders.rideData.ride?.dateDisplay() ?? "")"
-        msg += " Ride: \(signedInRiders.rideData.ride?.name ?? "")"
 
-        msg += "<br><br>Please review the liability waiver below prior to starting the ride."
-        msg += "<br><br>Then place your initials here ____ and reply to this email to indicate your consent to the waiver."
-        msg += "<br><br>"
-        if let fileURL = Bundle.main.url(forResource: "doc_waiver", withExtension: "txt") {
-            if let fileContents = try? String(contentsOf: fileURL) {
-                msg += fileContents
-            }
-        }
-        msg += "</body></html>"
-        return msg
-    }
-    
     func addRiderToTemplate(rider:Rider) {
         //offer to add rider to template
         if let templateName = signedInRiders.rideData.templateName  {
@@ -373,7 +359,7 @@ struct CurrentRideView: View {
                     Text(signedInRiders.rideData.ride?.name ?? "").padding(.horizontal)
                     Text("")
                     Button("Select Ride Template") {
-                        if SignedInRiders.instance.getCount() == 0 {
+                        if !SignedInRiders.instance.hasRidersBesideLeader() {
                             activeSheet = .selectTemplate
                         }
                         else {
@@ -550,7 +536,7 @@ struct CurrentRideView: View {
                              messageSubject: "WW Ride Sheet,\(rideName),\(rideDate)",
                              messageContent: msg)
             case .riderDetail:
-                RiderDetailView(rider: riderForDetail!, prepareCommunicate: self.riderCommunicate(riders:way:))
+                RiderDetailView(rider: riderForDetail!, prepareCommunicate: self.riderCommunicate(riders:way:body:))
             case .rideInfoEdit:
                 RideInfoView(signedInRiders: signedInRiders)
             case .showHelp:

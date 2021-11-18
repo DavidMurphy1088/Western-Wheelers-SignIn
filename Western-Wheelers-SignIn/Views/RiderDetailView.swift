@@ -5,7 +5,7 @@ import MessageUI
 
 struct RiderDetailView: View {
     @ObservedObject var rider:Rider
-    var prepareCommunicate : ([Rider], CommunicationType) -> Void
+    var prepareCommunicate : ([Rider], CommunicationType, _ body:String?) -> Void
     @Environment(\.presentationMode) private var presentationMode
     @ObservedObject var signedInRiders = SignedInRiders.instance
     
@@ -46,7 +46,7 @@ struct RiderDetailView: View {
                 if !rider.phone.isEmpty {
                     Text("")
                     Button(action: {
-                        prepareCommunicate([rider], CommunicationType .text)
+                        prepareCommunicate([rider], CommunicationType .text, nil)
                         self.presentationMode.wrappedValue.dismiss()
                     }, label: {
                         Text("Text Rider")
@@ -55,16 +55,26 @@ struct RiderDetailView: View {
                 if !rider.phone.isEmpty {
                     Text("")
                     Button(action: {
-                        prepareCommunicate([rider], CommunicationType .phone)
+                        prepareCommunicate([rider], CommunicationType .phone, nil)
                         self.presentationMode.wrappedValue.dismiss()
                     }, label: {
                         Text("Phone Rider")
                     })
+                    if rider.isGuest {
+                        Text("")
+                        Button(action: {
+                            let msg = "Please reply text with your initials to indicate your agreement to the waiver."
+                            prepareCommunicate([rider], CommunicationType .text, msg+"\n\n"+ClubRide.guestWaiverDoc(ride: nil, html: false)+"\n"+msg)
+                            self.presentationMode.wrappedValue.dismiss()
+                        }, label: {
+                            Text("Send Guest Waiver Agreement by text")
+                        })
+                    }
                 }
                 if !rider.email.isEmpty {
                     Text("")
                     Button(action: {
-                        prepareCommunicate([rider], CommunicationType .email)
+                        prepareCommunicate([rider], CommunicationType .email, nil)
                         self.presentationMode.wrappedValue.dismiss()
                     }, label: {
                         Text("EMail Rider")
@@ -72,11 +82,12 @@ struct RiderDetailView: View {
                     Text("")
                     if rider.isGuest {
                         Button(action: {
-                            prepareCommunicate([rider], CommunicationType .waiverEmail)
+                            prepareCommunicate([rider], CommunicationType .waiverEmail, nil)
                             self.presentationMode.wrappedValue.dismiss()
                         }, label: {
-                            Text("EMail Guest Waiver Agreement")
+                            Text("Send Guest Waiver Agreement by email")
                         })
+
                     }
                 }
 

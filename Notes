@@ -1,3 +1,7 @@
+Version 2 17Nov2021
+Upgraded iOS to 15 and version running from xcode said wont run on 15.0. Changed signing --generate-entitlement-der
+However the existing version 1.13 live in the app store did run ok on 15.
+
 Sign In
 https://developers.google.com/identity/sign-in/ios/start-integrating
 

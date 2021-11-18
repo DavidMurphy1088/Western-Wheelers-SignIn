@@ -48,6 +48,7 @@ struct AddGuestView: View {
                 TextField("cell phone", text: $enteredPhone).frame(width: 150)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .frame(maxWidth: maxText)
+                    .keyboardType(.decimalPad)
                 Spacer()
             }
             HStack {
@@ -56,6 +57,7 @@ struct AddGuestView: View {
                 TextField("emergency phone", text: $enteredEmergency).frame(width: 150)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .frame(maxWidth: maxText)
+                    .keyboardType(.decimalPad)
                 Spacer()
             }
             HStack {

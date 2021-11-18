@@ -115,22 +115,42 @@ class ClubRide : Identifiable, Decodable, Encodable, ObservableObject {
     
     func dateDisplay() -> String {
         return Messages.dateDisplay(dateToShow: self.dateTime, addDay: true, addTime: self.timeWasSpecified)
-//        let formatter = DateFormatter() // this formats the day,time according to users local timezone
-//        formatter.dateFormat = "EEEE MMM d"
-//        let dayDisp = formatter.string(from: self.dateTime)
-//        if !self.timeWasSpecified {
-//            return dayDisp
-//        }
-//        
-//        // force 12-hour format even if they have 24 hour set on phone
-//        let timeFmt = "h:mm a"
-//        formatter.setLocalizedDateFormatFromTemplate(timeFmt)
-//        formatter.dateFormat = timeFmt
-//        formatter.locale = Locale(identifier: "en_US")
-//        let timeDisp = formatter.string(from: self.dateTime)
-//        let disp = dayDisp + ", " + timeDisp
-//        return disp
+
     }
+    
+    static func guestWaiverDoc(ride:ClubRide?, html:Bool) -> String {
+        var msg = ""
+        if html {
+            msg += "<html><body>"
+        }
+        msg += "Welcome to your Western Wheelers ride today."
+        if let ride = ride {
+            msg += " \(ride.dateDisplay())"
+            msg += " Ride: \(ride.name)"
+        }
+
+        if html {
+            msg += "<br><br>"
+        }
+        msg += "Please review the liability waiver below prior to starting the ride."
+        if html {
+            msg += "<br><br>"
+        }
+        msg += "Then place your initials here ____ and reply to this email to indicate your consent to the waiver."
+        if html {
+            msg += "<br><br>"
+        }
+        if let fileURL = Bundle.main.url(forResource: "doc_waiver", withExtension: "txt") {
+            if let fileContents = try? String(contentsOf: fileURL) {
+                msg += fileContents
+            }
+        }
+        if html {
+            msg += "</body></html>"
+        }
+        return msg
+    }
+    
 }
 
 

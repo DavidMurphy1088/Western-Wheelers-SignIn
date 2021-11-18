@@ -27,7 +27,7 @@
 
 <h1 style="font-size:40px;background-color:powderblue;">Guests</h1>
 <font size="6" face="arial" color="black">
-<p>Use the <b>Add Guest</b> button to add a guest. Tap the guest's name to get the guest's details then use the <b>Email Guest Waiver Agreement</b> button to email the liability waiver to the guest. The email will prompt the guest to enter their initials on the waiver as consent and reply email back to you.
+<p>First, use the <b>Add Guest</b> button to add a guest then save the guest. At a minimum the guest's name and phone number is required. Then tap the guest's name to get the guest's details and use the <b>send Guest Waiver Agreement</b> text or email button to email the liability waiver to the guest. The message to the guest will prompt the guest to either reply text or reply email to indicate their agreement to the waiver.
 
 
 </body></html>

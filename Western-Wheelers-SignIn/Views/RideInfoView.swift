@@ -59,7 +59,7 @@ struct RideInfoView: View {
                     TextField("miles", text: $miles)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .frame(maxWidth: maxText)
-                        .keyboardType(.numberPad)
+                        .keyboardType(.decimalPad)
                 }
                 .padding(.horizontal, 20)
                 HStack {
@@ -68,7 +68,7 @@ struct RideInfoView: View {
                     TextField("climbed", text: $climbed)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .frame(maxWidth: maxText)
-                        .keyboardType(.numberPad)
+                        .keyboardType(.decimalPad)
                 }
                 .padding(.horizontal, 20)
                 HStack {

@@ -121,6 +121,21 @@ class SignedInRiders : RiderList {
         return list.count
     }
     
+    func hasRidersBesideLeader() -> Bool {
+        if getCount()==0 {
+            return false
+        }
+        if getCount() > 1 {
+            return true
+        }
+        if let user = VerifiedMember.instance.username {
+            return self.list[0].email != user
+        }
+        else {
+            return true
+        }
+    }
+    
     func getGuestId(firstName:String, lastName:String) -> Int {
         let name = firstName+lastName
         return name.hash
