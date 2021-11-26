@@ -255,7 +255,14 @@ struct CurrentRideView: View {
     func selectRider(_: Rider) {
         activeSheet = ActiveSheet.riderDetail
     }
-
+    
+    func version() -> String {
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
+        let bld = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
+        let info = "Version \(version) build \(bld)"
+        return info
+    }
+    
     func addRider(rider:Rider, clubMember: Bool) {
         if ClubMembers.instance.getByName(displayName: rider.getDisplayName()) != nil {
             rider.inDirectory = true
@@ -268,18 +275,14 @@ struct CurrentRideView: View {
         if AppUserDefaults.instance.promptAddRiderToTemplate {
             addRiderToTemplate(rider: rider)
         }
-    }
-    
-    func version() -> String {
-        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
-        let bld = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
-        let info = "Version \(version) build \(bld)"
-        return info
+        if !rider.inDirectory {
+            self.riderCommunicate(riders: [rider], way: CommunicationType.waiverEmail, body: nil)
+        }
     }
     
     func riderCommunicate(riders:[Rider], way:CommunicationType, body:String?) {
         DispatchQueue.global(qos: .userInitiated).async {
-            //only way to get this to work. i.e. wait for detail view to be shut down fully before text ui is displayed
+            //only way to get this to work. i.e. wait for calling view to be shut down fully before text ui is displayed
             usleep(500000)
             DispatchQueue.main.async {
                 if way == CommunicationType.phone {

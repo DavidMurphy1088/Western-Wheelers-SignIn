@@ -5,6 +5,7 @@ import MessageUI
 
 struct AddGuestView: View {
     var addRider : (Rider, Bool) -> Void
+
     @Environment(\.presentationMode) private var presentationMode
     @ObservedObject var keyboardHeightHelper = KeyboardHeightHelper()
     @State var enteredGuestNameFirst: String = ""
