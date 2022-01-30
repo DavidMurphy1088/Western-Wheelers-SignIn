@@ -16,6 +16,8 @@ var templateToEdit:String? //TODO this should be part of view
 
 struct TemplatesView: View {
     @ObservedObject var templates = RideTemplates.instance
+    @ObservedObject var messages = Messages.instance
+
     @State var activeSheet: ActiveTemplateSheet?
     @State var confirmDel:Bool = false
     @State var deleteNotOwner:Bool = false
@@ -78,7 +80,7 @@ struct TemplatesView: View {
                                 title: Text("Are you sure you want to delete template \(delName ?? "")?"),
                                 primaryButton: .destructive(Text("Delete")) {
                                     if let delName = delName {
-                                        templates.delete(name: delName)
+                                        templates.deleteTemplate(name: delName)
                                     }
                                 },
                                 secondaryButton: .cancel()
@@ -89,6 +91,8 @@ struct TemplatesView: View {
                     }
                     Text("created: \(template.creator) \(dateStr(template: template, created: true))").font(.footnote).foregroundColor(.gray).multilineTextAlignment(.center)
                     Text("updated: \(template.lastUpdater) \(dateStr(template: template, created: false))").font(.footnote).foregroundColor(.gray).multilineTextAlignment(.center)
+
+
                     Text("")
                 }
             }
@@ -101,7 +105,14 @@ struct TemplatesView: View {
             }, label: {
                 Text("New Ride Template")
             })
-            Spacer()
+            if let errMsg = messages.errMessage {
+                Text(errMsg).font(.footnote).foregroundColor(Color.red)
+            }
+            else {
+                Text("")
+            }
+
+            //Spacer()
         }
         .sheet(item: $activeSheet) { item in
             switch item {

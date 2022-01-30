@@ -61,7 +61,7 @@ class RideTemplates : ObservableObject {
         }
     }
     
-    func delete(name:String) {
+    func deleteTemplate(name:String) {
         var i = 0
         var delTemplate:RideTemplate?
         for template in list {

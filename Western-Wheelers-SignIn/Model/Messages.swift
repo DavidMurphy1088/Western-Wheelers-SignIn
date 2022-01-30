@@ -1,5 +1,6 @@
 
 import Foundation
+import SwiftUI
 
 class Messages : ObservableObject {
     static public let instance = Messages()
@@ -21,6 +22,19 @@ class Messages : ObservableObject {
         return msg
     }
     
+    func reportCKError(context:String, err:Error) {
+        //case networkFailure = 4
+        //case notAuthenticated = 9
+        //case partialFailure = 2
+        var msg = ""
+        let errMsg = String(describing: err)
+        if errMsg.contains("Permission Failure") {
+            msg += "Not signed in with Apple ID, "
+        }
+        msg += err.localizedDescription
+        reportError(context: context, msg: msg)
+    }
+    
     func reportError(context:String, msg: String? = nil, error:Error? = nil) {
         DispatchQueue.main.async {
             var message:String = msg ?? ""
@@ -30,8 +44,9 @@ class Messages : ObservableObject {
             if let err = error {
                 message += " " + err.localizedDescription
             }
-            print("ERROR", context, message)
+            //print("ERROR", context, message, error)
             self.errMessage = context + " " + message
+            Messages.instance.sendMessage(msg: "Error:\(String(describing: self.errMessage))")
         }
     }
     

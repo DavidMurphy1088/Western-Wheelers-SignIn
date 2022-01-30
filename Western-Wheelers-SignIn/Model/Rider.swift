@@ -13,6 +13,7 @@ class Rider : Hashable, Equatable, Identifiable, Encodable, Decodable, Observabl
     var isCoLeader:Bool
     var inDirectory:Bool
     var isGuest:Bool
+    //var isDeleteInTemplate:Bool
 
     init (id:String, nameFirst:String, nameLast:String, phone:String, emrg:String, email:String, isGuest:Bool = false) {
         self.id = id
@@ -27,6 +28,7 @@ class Rider : Hashable, Equatable, Identifiable, Encodable, Decodable, Observabl
         self.isCoLeader = false
         self.inDirectory = false
         self.isGuest = isGuest
+        //self.isDeleteInTemplate = false
     }
     
     init (rider:Rider) {
@@ -42,6 +44,7 @@ class Rider : Hashable, Equatable, Identifiable, Encodable, Decodable, Observabl
         self.isCoLeader = rider.isCoLeader
         self.inDirectory = rider.inDirectory
         self.isGuest = rider.isGuest
+        //self.isDeleteInTemplate = rider.isDeleteInTemplate
     }
     
     enum CodingKeys: String, CodingKey {

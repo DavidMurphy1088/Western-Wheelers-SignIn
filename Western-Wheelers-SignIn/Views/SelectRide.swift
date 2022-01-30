@@ -10,7 +10,7 @@ struct SelectRide : View {
 
     var body: some View {
         VStack {
-            if rides.list.count == 0 {
+            if rides.list.count == 0 { 
                 Text("Sorry, no rides were loaded yet. Try - \n1) cancel and wait another a minute \n2) ensure you have internet connectivity \n3) close and restart the app" ).font(.body).foregroundColor(Color.black)
             }
             else {

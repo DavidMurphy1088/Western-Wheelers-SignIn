@@ -16,7 +16,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         GIDSignIn.sharedInstance()?.scopes = [kGTLRAuthScopeDrive]
         SignedInRiders.instance.restore()
         ClubRides.instance //start the rides loading here rather than the popup that uses it so it loads at start up
-        SignUpListener.instance 
+        SignUpListener.instance.start()
         return true
     }
 }

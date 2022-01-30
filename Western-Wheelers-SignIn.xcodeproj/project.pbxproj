@@ -275,9 +275,9 @@
 				7B67A57A26C42F2400188EE5 /* RideTemplate.swift */,
 				7BA132C126C1EBB600A0E689 /* RideTemplates.swift */,
 				7B306DA526845B2E00DA337E /* SignedInRiders.swift */,
+				7BCBB2D22751606500527353 /* SignUpListener.swift */,
 				7BA71C3E26A5E82B00885D12 /* VerifiedMember.swift */,
 				7BB6B1F1268A8C8E007941D2 /* WAApi.swift */,
-				7BCBB2D22751606500527353 /* SignUpListener.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
