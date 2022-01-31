@@ -139,7 +139,9 @@ class WAApi : ObservableObject {
             completion(data)
         }
         else {
-            Messages.instance.reportError(context: "WAApi", msg: "\(context): no data returned")
+            let errMsg = "\(context): no data returned"
+            fail(errMsg)
+            Messages.instance.reportError(context: "WAApi", msg: errMsg)
         }
     }
 }

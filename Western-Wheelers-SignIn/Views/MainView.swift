@@ -221,6 +221,7 @@ struct HelpView: View {
 
 struct CurrentRideView: View {
     @ObservedObject var signedInRiders = SignedInRiders.instance
+    @ObservedObject var rides = ClubRides.instance
     var rideTemplates = RideTemplates.instance
     @State private var selectRideTemplateSheet = false
     @State private var emailShowing = false
@@ -351,10 +352,21 @@ struct CurrentRideView: View {
                             .animation(Animation.linear(duration: 30).repeatForever(autoreverses: false))
                             .frame(width: 200, height: 200, alignment: .center)
                         Spacer()
-                        Button("Select a Ride") {
-                            activeSheet = .selectRide
+                        if let errMsg = rides.errMsg {
+                            Text("Cannot load rides, \(errMsg)\nPlease verify internet connectivity")
+                                .foregroundColor(Color.red)
                         }
-                        .font(.title2)
+                        else {
+                            if rides.list.count == 0 {
+                                Text("Loading current rides...")
+                            }
+                            else {
+                                Button("Select a Ride") {
+                                    activeSheet = .selectRide
+                                }
+                                .font(.title2)
+                            }
+                        }
                         Spacer()
                     }
                 }

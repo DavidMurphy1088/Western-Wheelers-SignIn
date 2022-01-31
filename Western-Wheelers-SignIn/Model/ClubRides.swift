@@ -5,17 +5,18 @@ class ClubRides : ObservableObject {
     static let instance:ClubRides = ClubRides()
     private let api = WAApi()
     @Published public var list:[ClubRide] = []
-    private var loadAttempts = 0
+    @Published public var errMsg:String? = nil
     
     private init() {
         list = []
-        loadRides()
+        getCurrentRides()
     }
     
-    func loadRides() {
+    func getCurrentRides() {
         DispatchQueue.global(qos: .userInitiated).async {
-            self.loadAttempts += 1
-            Messages.instance.sendMessage(msg: "Start downloaded of club rides, try:\(self.loadAttempts)")
+            self.errMsg = nil
+            Messages.instance.sendMessage(msg: "Start downloaded of club rides")
+            //sleep(5)
             var eventsUrl = "https://api.wildapricot.org/v2/accounts/$id/events"
             let formatter = DateFormatter()
             let startDate = Calendar.current.date(byAdding: .day, value: 0, to: Date())!
@@ -54,7 +55,8 @@ class ClubRides : ObservableObject {
     }
     
     func loadRidesFailed(msg:String) {
-        Messages.instance.reportError(context: "Load Rides", msg: "cannot load rides after \(self.loadAttempts) tries")
+        self.errMsg = msg
+        Messages.instance.reportError(context: "Load Rides", msg: "cannot load rides after")
     }
 
     func loadRides(rawData: Data) {

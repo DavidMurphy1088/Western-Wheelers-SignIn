@@ -44,7 +44,6 @@ class Messages : ObservableObject {
             if let err = error {
                 message += " " + err.localizedDescription
             }
-            //print("ERROR", context, message, error)
             self.errMessage = context + " " + message
             Messages.instance.sendMessage(msg: "Error:\(String(describing: self.errMessage))")
         }

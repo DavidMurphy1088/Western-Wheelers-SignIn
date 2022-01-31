@@ -20,7 +20,7 @@ struct AddGuestView: View {
         VStack {
             if keyboardHeightHelper.keyboardHeight == 0  {
                 VStack {
-                    Text("Add a Guest Rider").font(.title2).foregroundColor(Color.blue)
+                    Text("Add a Guest Rider").font(.title2)
                     Text("Use this form to enter a guest rider\nwho is not a club member")
                     .font(.footnote).padding()
                     .multilineTextAlignment(.center)

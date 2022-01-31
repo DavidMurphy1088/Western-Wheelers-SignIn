@@ -10,7 +10,6 @@ class ClubMembers : ObservableObject {
     private init() {
         //https://app.swaggerhub.com/apis/WildApricot/wild-apricot_api_for_non_administrative_access/7.15.0#/Contacts/get_accounts__accountId__contacts
         DispatchQueue.global(qos: .userInitiated).async {
-            //let url = "https://api.wildapricot.org/v2.2/Accounts/$id/Contacts"
             var done = false
             var pos = 0
             let pageSize = 400 //500 seems to be max and the default if no page size specified.
