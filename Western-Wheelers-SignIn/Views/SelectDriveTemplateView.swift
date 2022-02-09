@@ -51,9 +51,9 @@ struct SelectDriveTemplateView: View {
                                         selectedTemplate = temp.name
                                         templates.setSelected(name: temp.name)
                                         self.presentationMode.wrappedValue.dismiss()
-                                        if let selectedTemplate = selectedTemplate {
+                                        //if let selectedTemplate = selectedTemplate {
                                             //SignedInRiders.instance.loadTempate(name: selectedTemplate)
-                                        }
+                                        //}
                                      })
                     
                 }

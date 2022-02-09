@@ -87,7 +87,7 @@ class RideTemplate: RiderList, Hashable {
 
         op.modifyRecordsCompletionBlock = { savedRecords, deletedRecordIDs, error in
             if error != nil || savedRecords == nil || savedRecords?.count != 1 {
-                Messages.instance.reportCKError(context: "Template add", err: error as! Error)
+                Messages.instance.reportCKError(context: "Template add", err: error!)
                 return
             }
             guard let records = savedRecords else {
@@ -107,7 +107,7 @@ class RideTemplate: RiderList, Hashable {
         op.savePolicy = .allKeys  //2 hours later ... required otherwise it does NOTHING :( :(
         op.modifyRecordsCompletionBlock = { savedRecords, deletedRecordIDs, error in
             if error != nil || savedRecords?.count != 1 {
-                Messages.instance.reportCKError(context: "Template modify", err: error as! Error)
+                Messages.instance.reportCKError(context: "Template modify", err: error!)
             }
         }
         RideTemplates.container.publicCloudDatabase.add(op)
@@ -120,7 +120,7 @@ class RideTemplate: RiderList, Hashable {
         op.savePolicy = .allKeys
         op.modifyRecordsCompletionBlock = { savedRecords, deletedRecordIDs, error in
             if error != nil || deletedRecordIDs?.count != 1 {
-                Messages.instance.reportCKError(context: "Template delete", err: error as! Error)
+                Messages.instance.reportCKError(context: "Template delete", err: error!)
             }
         }
         RideTemplates.container.publicCloudDatabase.add(op)

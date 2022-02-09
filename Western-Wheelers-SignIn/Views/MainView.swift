@@ -397,7 +397,7 @@ struct CurrentRideView: View {
                             SignedInRiders.instance.removeUnselected()
                         }
                     }
-                    Button("Clear Ride Sheet") {
+                    Button("Clear Ride Sheet and Start New Ride") {
                         confirmClean = true
                     }
                     .alert(isPresented:$confirmClean) {

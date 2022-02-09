@@ -61,6 +61,7 @@ class ClubRides : ObservableObject {
 
     func loadRides(rawData: Data) {
         var rideList = [ClubRide]()
+        var debug = false
          if let events = try! JSONSerialization.jsonObject(with: rawData, options: []) as? [String: Any] {
             for (_, val) in events {
                 let rides = val as! NSArray
@@ -130,7 +131,13 @@ class ClubRides : ObservableObject {
         let sortedRides = filteredRides.sorted(by: {
             $0.dateTime < $1.dateTime
         })
-
+        
+//        for ride in sortedRides {
+//            if ride.name.contains("Mooch") {
+//                print(ride.dateTime, ride.name)
+//            }
+//        }
+        
         DispatchQueue.main.async {
             self.list.append(contentsOf: sortedRides)
             Messages.instance.sendMessage(msg: "Downloaded \(self.list.count) current club rides")
