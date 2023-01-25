@@ -115,5 +115,4 @@ class GoogleDrive : NSObject, GIDSignInDelegate {
             onCompleted((file as? GTLRDataObject)?.data, error)
         }
     }
-
 }
